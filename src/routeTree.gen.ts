@@ -9,38 +9,168 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedEmployeeIndexRouteImport } from './routes/_authenticated/employee.index'
+import { Route as AuthenticatedEmployeeTodayRouteImport } from './routes/_authenticated/employee.today'
+import { Route as AuthenticatedEmployeePendingRouteImport } from './routes/_authenticated/employee.pending'
+import { Route as AuthenticatedEmployeeNoDeliveryRouteImport } from './routes/_authenticated/employee.no-delivery'
+import { Route as AuthenticatedEmployeeNewOrderRouteImport } from './routes/_authenticated/employee.new-order'
+import { Route as AuthenticatedEmployeeHistoryRouteImport } from './routes/_authenticated/employee.history'
+import { Route as AuthenticatedEmployeeReceiveOrderIdRouteImport } from './routes/_authenticated/employee.receive.$orderId'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedEmployeeIndexRoute =
+  AuthenticatedEmployeeIndexRouteImport.update({
+    id: '/employee/',
+    path: '/employee/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEmployeeTodayRoute =
+  AuthenticatedEmployeeTodayRouteImport.update({
+    id: '/employee/today',
+    path: '/employee/today',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEmployeePendingRoute =
+  AuthenticatedEmployeePendingRouteImport.update({
+    id: '/employee/pending',
+    path: '/employee/pending',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEmployeeNoDeliveryRoute =
+  AuthenticatedEmployeeNoDeliveryRouteImport.update({
+    id: '/employee/no-delivery',
+    path: '/employee/no-delivery',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEmployeeNewOrderRoute =
+  AuthenticatedEmployeeNewOrderRouteImport.update({
+    id: '/employee/new-order',
+    path: '/employee/new-order',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEmployeeHistoryRoute =
+  AuthenticatedEmployeeHistoryRouteImport.update({
+    id: '/employee/history',
+    path: '/employee/history',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEmployeeReceiveOrderIdRoute =
+  AuthenticatedEmployeeReceiveOrderIdRouteImport.update({
+    id: '/employee/receive/$orderId',
+    path: '/employee/receive/$orderId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/employee/history': typeof AuthenticatedEmployeeHistoryRoute
+  '/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
+  '/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
+  '/employee/pending': typeof AuthenticatedEmployeePendingRoute
+  '/employee/today': typeof AuthenticatedEmployeeTodayRoute
+  '/employee/': typeof AuthenticatedEmployeeIndexRoute
+  '/employee/receive/$orderId': typeof AuthenticatedEmployeeReceiveOrderIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/employee/history': typeof AuthenticatedEmployeeHistoryRoute
+  '/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
+  '/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
+  '/employee/pending': typeof AuthenticatedEmployeePendingRoute
+  '/employee/today': typeof AuthenticatedEmployeeTodayRoute
+  '/employee': typeof AuthenticatedEmployeeIndexRoute
+  '/employee/receive/$orderId': typeof AuthenticatedEmployeeReceiveOrderIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/employee/history': typeof AuthenticatedEmployeeHistoryRoute
+  '/_authenticated/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
+  '/_authenticated/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
+  '/_authenticated/employee/pending': typeof AuthenticatedEmployeePendingRoute
+  '/_authenticated/employee/today': typeof AuthenticatedEmployeeTodayRoute
+  '/_authenticated/employee/': typeof AuthenticatedEmployeeIndexRoute
+  '/_authenticated/employee/receive/$orderId': typeof AuthenticatedEmployeeReceiveOrderIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/employee/history'
+    | '/employee/new-order'
+    | '/employee/no-delivery'
+    | '/employee/pending'
+    | '/employee/today'
+    | '/employee/'
+    | '/employee/receive/$orderId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/employee/history'
+    | '/employee/new-order'
+    | '/employee/no-delivery'
+    | '/employee/pending'
+    | '/employee/today'
+    | '/employee'
+    | '/employee/receive/$orderId'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/employee/history'
+    | '/_authenticated/employee/new-order'
+    | '/_authenticated/employee/no-delivery'
+    | '/_authenticated/employee/pending'
+    | '/_authenticated/employee/today'
+    | '/_authenticated/employee/'
+    | '/_authenticated/employee/receive/$orderId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +178,87 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/employee/': {
+      id: '/_authenticated/employee/'
+      path: '/employee'
+      fullPath: '/employee/'
+      preLoaderRoute: typeof AuthenticatedEmployeeIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/employee/today': {
+      id: '/_authenticated/employee/today'
+      path: '/employee/today'
+      fullPath: '/employee/today'
+      preLoaderRoute: typeof AuthenticatedEmployeeTodayRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/employee/pending': {
+      id: '/_authenticated/employee/pending'
+      path: '/employee/pending'
+      fullPath: '/employee/pending'
+      preLoaderRoute: typeof AuthenticatedEmployeePendingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/employee/no-delivery': {
+      id: '/_authenticated/employee/no-delivery'
+      path: '/employee/no-delivery'
+      fullPath: '/employee/no-delivery'
+      preLoaderRoute: typeof AuthenticatedEmployeeNoDeliveryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/employee/new-order': {
+      id: '/_authenticated/employee/new-order'
+      path: '/employee/new-order'
+      fullPath: '/employee/new-order'
+      preLoaderRoute: typeof AuthenticatedEmployeeNewOrderRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/employee/history': {
+      id: '/_authenticated/employee/history'
+      path: '/employee/history'
+      fullPath: '/employee/history'
+      preLoaderRoute: typeof AuthenticatedEmployeeHistoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/employee/receive/$orderId': {
+      id: '/_authenticated/employee/receive/$orderId'
+      path: '/employee/receive/$orderId'
+      fullPath: '/employee/receive/$orderId'
+      preLoaderRoute: typeof AuthenticatedEmployeeReceiveOrderIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedEmployeeHistoryRoute: typeof AuthenticatedEmployeeHistoryRoute
+  AuthenticatedEmployeeNewOrderRoute: typeof AuthenticatedEmployeeNewOrderRoute
+  AuthenticatedEmployeeNoDeliveryRoute: typeof AuthenticatedEmployeeNoDeliveryRoute
+  AuthenticatedEmployeePendingRoute: typeof AuthenticatedEmployeePendingRoute
+  AuthenticatedEmployeeTodayRoute: typeof AuthenticatedEmployeeTodayRoute
+  AuthenticatedEmployeeIndexRoute: typeof AuthenticatedEmployeeIndexRoute
+  AuthenticatedEmployeeReceiveOrderIdRoute: typeof AuthenticatedEmployeeReceiveOrderIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedEmployeeHistoryRoute: AuthenticatedEmployeeHistoryRoute,
+  AuthenticatedEmployeeNewOrderRoute: AuthenticatedEmployeeNewOrderRoute,
+  AuthenticatedEmployeeNoDeliveryRoute: AuthenticatedEmployeeNoDeliveryRoute,
+  AuthenticatedEmployeePendingRoute: AuthenticatedEmployeePendingRoute,
+  AuthenticatedEmployeeTodayRoute: AuthenticatedEmployeeTodayRoute,
+  AuthenticatedEmployeeIndexRoute: AuthenticatedEmployeeIndexRoute,
+  AuthenticatedEmployeeReceiveOrderIdRoute:
+    AuthenticatedEmployeeReceiveOrderIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
