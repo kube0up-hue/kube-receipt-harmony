@@ -97,9 +97,10 @@ function ReceivePage() {
       if (!userRes.user) throw new Error("جلسة منتهية");
       const order = orderQ.data!;
       const { data: emp } = await supabase.from("employees").select("id").eq("user_id", userRes.user.id).single();
+      if (!emp) throw new Error("الموظف غير موجود");
 
       const { data: receipt, error } = await supabase.from("receipts").insert({
-        order_id: order.id, supplier_id: order.supplier_id, employee_id: emp?.id,
+        order_id: order.id, supplier_id: order.supplier_id, employee_id: emp.id,
         received_by_user: userRes.user.id, status: "submitted", note: note || null,
       }).select("id").single();
       if (error) throw error;
@@ -107,7 +108,7 @@ function ReceivePage() {
       const itemsPayload = lines.map((l) => {
         const r = Number(l.received || 0), d = Number(l.damaged || 0);
         return {
-          receipt_id: receipt.id, product_id: l.productId, order_item_id: l.itemId,
+          receipt_id: receipt.id, product_id: l.productId,
           ordered_qty: l.ordered, received_qty: r, damaged_qty: d, note: l.note || null,
         };
       });
@@ -115,10 +116,10 @@ function ReceivePage() {
       if (iErr) throw iErr;
 
       for (const f of files) {
-        const path = `${receipt.id}/${crypto.randomUUID()}-${f.name}`;
-        const { error: upErr } = await supabase.storage.from("receipt-photos").upload(path, f);
+        const storage_path = `${receipt.id}/${crypto.randomUUID()}-${f.name}`;
+        const { error: upErr } = await supabase.storage.from("receipt-photos").upload(storage_path, f);
         if (upErr) throw upErr;
-        await supabase.from("receipt_photos").insert({ receipt_id: receipt.id, path, uploaded_by: userRes.user.id });
+        await supabase.from("receipt_photos").insert({ receipt_id: receipt.id, storage_path, uploaded_by: userRes.user.id });
       }
 
       await supabase.from("orders").update({ status: "received" }).eq("id", order.id);
