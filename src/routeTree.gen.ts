@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedEmployeeIndexRouteImport } from './routes/_authenticated/employee.index'
 import { Route as AuthenticatedEmployeeTodayRouteImport } from './routes/_authenticated/employee.today'
 import { Route as AuthenticatedEmployeePendingRouteImport } from './routes/_authenticated/employee.pending'
+import { Route as AuthenticatedEmployeeNoDeliveryRouteImport } from './routes/_authenticated/employee.no-delivery'
 import { Route as AuthenticatedEmployeeNewOrderRouteImport } from './routes/_authenticated/employee.new-order'
 import { Route as AuthenticatedEmployeeHistoryRouteImport } from './routes/_authenticated/employee.history'
 
@@ -50,6 +51,12 @@ const AuthenticatedEmployeePendingRoute =
     path: '/employee/pending',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedEmployeeNoDeliveryRoute =
+  AuthenticatedEmployeeNoDeliveryRouteImport.update({
+    id: '/employee/no-delivery',
+    path: '/employee/no-delivery',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEmployeeNewOrderRoute =
   AuthenticatedEmployeeNewOrderRouteImport.update({
     id: '/employee/new-order',
@@ -68,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/employee/history': typeof AuthenticatedEmployeeHistoryRoute
   '/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
+  '/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
   '/employee/pending': typeof AuthenticatedEmployeePendingRoute
   '/employee/today': typeof AuthenticatedEmployeeTodayRoute
   '/employee/': typeof AuthenticatedEmployeeIndexRoute
@@ -77,6 +85,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/employee/history': typeof AuthenticatedEmployeeHistoryRoute
   '/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
+  '/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
   '/employee/pending': typeof AuthenticatedEmployeePendingRoute
   '/employee/today': typeof AuthenticatedEmployeeTodayRoute
   '/employee': typeof AuthenticatedEmployeeIndexRoute
@@ -88,6 +97,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/employee/history': typeof AuthenticatedEmployeeHistoryRoute
   '/_authenticated/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
+  '/_authenticated/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
   '/_authenticated/employee/pending': typeof AuthenticatedEmployeePendingRoute
   '/_authenticated/employee/today': typeof AuthenticatedEmployeeTodayRoute
   '/_authenticated/employee/': typeof AuthenticatedEmployeeIndexRoute
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/employee/history'
     | '/employee/new-order'
+    | '/employee/no-delivery'
     | '/employee/pending'
     | '/employee/today'
     | '/employee/'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/employee/history'
     | '/employee/new-order'
+    | '/employee/no-delivery'
     | '/employee/pending'
     | '/employee/today'
     | '/employee'
@@ -118,6 +130,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/employee/history'
     | '/_authenticated/employee/new-order'
+    | '/_authenticated/employee/no-delivery'
     | '/_authenticated/employee/pending'
     | '/_authenticated/employee/today'
     | '/_authenticated/employee/'
@@ -173,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEmployeePendingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/employee/no-delivery': {
+      id: '/_authenticated/employee/no-delivery'
+      path: '/employee/no-delivery'
+      fullPath: '/employee/no-delivery'
+      preLoaderRoute: typeof AuthenticatedEmployeeNoDeliveryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/employee/new-order': {
       id: '/_authenticated/employee/new-order'
       path: '/employee/new-order'
@@ -193,6 +213,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedEmployeeHistoryRoute: typeof AuthenticatedEmployeeHistoryRoute
   AuthenticatedEmployeeNewOrderRoute: typeof AuthenticatedEmployeeNewOrderRoute
+  AuthenticatedEmployeeNoDeliveryRoute: typeof AuthenticatedEmployeeNoDeliveryRoute
   AuthenticatedEmployeePendingRoute: typeof AuthenticatedEmployeePendingRoute
   AuthenticatedEmployeeTodayRoute: typeof AuthenticatedEmployeeTodayRoute
   AuthenticatedEmployeeIndexRoute: typeof AuthenticatedEmployeeIndexRoute
@@ -201,6 +222,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEmployeeHistoryRoute: AuthenticatedEmployeeHistoryRoute,
   AuthenticatedEmployeeNewOrderRoute: AuthenticatedEmployeeNewOrderRoute,
+  AuthenticatedEmployeeNoDeliveryRoute: AuthenticatedEmployeeNoDeliveryRoute,
   AuthenticatedEmployeePendingRoute: AuthenticatedEmployeePendingRoute,
   AuthenticatedEmployeeTodayRoute: AuthenticatedEmployeeTodayRoute,
   AuthenticatedEmployeeIndexRoute: AuthenticatedEmployeeIndexRoute,
