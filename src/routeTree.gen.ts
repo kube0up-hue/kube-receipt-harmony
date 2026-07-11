@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedEmployeeIndexRouteImport } from './routes/_authenticated/employee.index'
+import { Route as AuthenticatedEmployeeNewOrderRouteImport } from './routes/_authenticated/employee.new-order'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -34,15 +35,23 @@ const AuthenticatedEmployeeIndexRoute =
     path: '/employee/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedEmployeeNewOrderRoute =
+  AuthenticatedEmployeeNewOrderRouteImport.update({
+    id: '/employee/new-order',
+    path: '/employee/new-order',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
   '/employee/': typeof AuthenticatedEmployeeIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
   '/employee': typeof AuthenticatedEmployeeIndexRoute
 }
 export interface FileRoutesById {
@@ -50,18 +59,20 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
   '/_authenticated/employee/': typeof AuthenticatedEmployeeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/employee/'
+  fullPaths: '/' | '/auth' | '/employee/new-order' | '/employee/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/employee'
+  to: '/' | '/auth' | '/employee/new-order' | '/employee'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/employee/new-order'
     | '/_authenticated/employee/'
   fileRoutesById: FileRoutesById
 }
@@ -101,14 +112,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEmployeeIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/employee/new-order': {
+      id: '/_authenticated/employee/new-order'
+      path: '/employee/new-order'
+      fullPath: '/employee/new-order'
+      preLoaderRoute: typeof AuthenticatedEmployeeNewOrderRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedEmployeeNewOrderRoute: typeof AuthenticatedEmployeeNewOrderRoute
   AuthenticatedEmployeeIndexRoute: typeof AuthenticatedEmployeeIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedEmployeeNewOrderRoute: AuthenticatedEmployeeNewOrderRoute,
   AuthenticatedEmployeeIndexRoute: AuthenticatedEmployeeIndexRoute,
 }
 
