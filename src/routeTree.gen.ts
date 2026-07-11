@@ -18,6 +18,7 @@ import { Route as AuthenticatedEmployeePendingRouteImport } from './routes/_auth
 import { Route as AuthenticatedEmployeeNoDeliveryRouteImport } from './routes/_authenticated/employee.no-delivery'
 import { Route as AuthenticatedEmployeeNewOrderRouteImport } from './routes/_authenticated/employee.new-order'
 import { Route as AuthenticatedEmployeeHistoryRouteImport } from './routes/_authenticated/employee.history'
+import { Route as AuthenticatedEmployeeReceiveOrderIdRouteImport } from './routes/_authenticated/employee.receive.$orderId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -69,6 +70,12 @@ const AuthenticatedEmployeeHistoryRoute =
     path: '/employee/history',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedEmployeeReceiveOrderIdRoute =
+  AuthenticatedEmployeeReceiveOrderIdRouteImport.update({
+    id: '/employee/receive/$orderId',
+    path: '/employee/receive/$orderId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/employee/pending': typeof AuthenticatedEmployeePendingRoute
   '/employee/today': typeof AuthenticatedEmployeeTodayRoute
   '/employee/': typeof AuthenticatedEmployeeIndexRoute
+  '/employee/receive/$orderId': typeof AuthenticatedEmployeeReceiveOrderIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -89,6 +97,7 @@ export interface FileRoutesByTo {
   '/employee/pending': typeof AuthenticatedEmployeePendingRoute
   '/employee/today': typeof AuthenticatedEmployeeTodayRoute
   '/employee': typeof AuthenticatedEmployeeIndexRoute
+  '/employee/receive/$orderId': typeof AuthenticatedEmployeeReceiveOrderIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,6 +110,7 @@ export interface FileRoutesById {
   '/_authenticated/employee/pending': typeof AuthenticatedEmployeePendingRoute
   '/_authenticated/employee/today': typeof AuthenticatedEmployeeTodayRoute
   '/_authenticated/employee/': typeof AuthenticatedEmployeeIndexRoute
+  '/_authenticated/employee/receive/$orderId': typeof AuthenticatedEmployeeReceiveOrderIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
     | '/employee/pending'
     | '/employee/today'
     | '/employee/'
+    | '/employee/receive/$orderId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '/employee/pending'
     | '/employee/today'
     | '/employee'
+    | '/employee/receive/$orderId'
   id:
     | '__root__'
     | '/'
@@ -134,6 +146,7 @@ export interface FileRouteTypes {
     | '/_authenticated/employee/pending'
     | '/_authenticated/employee/today'
     | '/_authenticated/employee/'
+    | '/_authenticated/employee/receive/$orderId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEmployeeHistoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/employee/receive/$orderId': {
+      id: '/_authenticated/employee/receive/$orderId'
+      path: '/employee/receive/$orderId'
+      fullPath: '/employee/receive/$orderId'
+      preLoaderRoute: typeof AuthenticatedEmployeeReceiveOrderIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -217,6 +237,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEmployeePendingRoute: typeof AuthenticatedEmployeePendingRoute
   AuthenticatedEmployeeTodayRoute: typeof AuthenticatedEmployeeTodayRoute
   AuthenticatedEmployeeIndexRoute: typeof AuthenticatedEmployeeIndexRoute
+  AuthenticatedEmployeeReceiveOrderIdRoute: typeof AuthenticatedEmployeeReceiveOrderIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -226,6 +247,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEmployeePendingRoute: AuthenticatedEmployeePendingRoute,
   AuthenticatedEmployeeTodayRoute: AuthenticatedEmployeeTodayRoute,
   AuthenticatedEmployeeIndexRoute: AuthenticatedEmployeeIndexRoute,
+  AuthenticatedEmployeeReceiveOrderIdRoute:
+    AuthenticatedEmployeeReceiveOrderIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
