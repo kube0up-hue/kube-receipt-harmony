@@ -17,10 +17,10 @@ function AdminHome() {
       const [pending, todayR, unappr, invMatch, invUnmatch, invReady] = await Promise.all([
         supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "pending_receipt"),
         supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", `${today}T00:00:00`),
-        supabase.from("receipts").select("id", { count: "exact", head: true }).eq("approval_status", "pending"),
+        supabase.from("receipts").select("id", { count: "exact", head: true }).eq("status", "submitted"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "pending_match"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "unmatched"),
-        supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "ready_to_pay"),
+        supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "matched_ready"),
       ]);
       const damagedSum = await supabase
         .from("receipts").select("total_damaged").gte("received_at", weekAgo);
