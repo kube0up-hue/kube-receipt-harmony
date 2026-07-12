@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useCurrentUser, signOutAndGo } from "@/lib/use-current-user";
 import { LogOut } from "lucide-react";
+import kubeLogo from "@/assets/kube-logo.png.asset.json";
 
 export function AppShell({
   title,
@@ -24,7 +25,7 @@ export function AppShell({
                 ← {back.label ?? "رجوع"}
               </Link>
             ) : (
-              <div className="px-2 py-0.5 bg-primary text-primary-foreground rounded font-extrabold text-sm">KUBE</div>
+              <img src={kubeLogo.url} alt="KUBE" className="h-6 w-auto shrink-0" />
             )}
             <h1 className="font-bold truncate">{title}</h1>
           </div>
