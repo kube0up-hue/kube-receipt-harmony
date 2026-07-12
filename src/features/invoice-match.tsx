@@ -5,10 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Search, Save } from "lucide-react";
 
-const UNIT_LABEL: Record<string, string> = {
-  piece: "حبة", liter: "لتر", kilo: "كيلو",
-  carton: "كرتون", tray: "صينية", pack: "عبوة",
-};
 
 type Row = {
   product_id: string;
