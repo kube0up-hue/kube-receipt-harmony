@@ -61,8 +61,14 @@ function NewOrderPage() {
     if (cleanLines.length === 0) return toast.error("أضف منتجاً واحداً على الأقل بكمية");
     setSaving(true);
     try {
-      const { data: userRes } = await supabase.auth.getUser();
-      if (!userRes.user) throw new Error("جلسة منتهية");
+      // Ensure the auth token is fresh — a stale token makes auth.uid() null on the server
+      // and the RLS check on orders.created_by_user fails.
+      const { data: sessionRes } = await supabase.auth.getSession();
+      if (sessionRes.session) {
+        await supabase.auth.refreshSession();
+      }
+      const { data: userRes, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userRes.user) throw new Error("انتهت الجلسة، يرجى تسجيل الدخول مجدداً");
       const { data: emp } = await supabase.from("employees").select("id").eq("user_id", userRes.user.id).single();
       if (!emp) throw new Error("الموظف غير موجود");
 
