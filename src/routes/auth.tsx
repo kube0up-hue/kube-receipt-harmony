@@ -31,9 +31,9 @@ function AuthPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <img src={kubeLogo.url} alt="KUBE" className="h-14 w-auto mx-auto" />
-          <div className="mt-3 text-lg font-semibold">Supplier Receiving</div>
+        <div className="text-center mb-10">
+          <img src={kubeLogo.url} alt="KUBE" className="h-32 sm:h-40 w-auto mx-auto" />
+          <div className="mt-5 text-xl font-semibold tracking-wide">Supplier Receiving</div>
           <p className="text-muted-foreground text-sm mt-2">تسجيل الطلبات والاستلامات ومطابقة الفواتير</p>
         </div>
 
