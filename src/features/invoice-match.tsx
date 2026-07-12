@@ -224,7 +224,7 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                     <tr key={r.product_id} className="border-b border-border/50">
                       <td className="py-2">
                         <div className="font-semibold">{r.product_name}</div>
-                        <div className="text-xs text-muted-foreground">{UNIT_LABEL[r.unit] ?? r.unit}</div>
+                        <div className="text-xs text-muted-foreground">{r.unit}</div>
                       </td>
                       <td className="text-center">{r.received_qty}</td>
                       <td className="text-center text-kube-red">{r.damaged_qty || "—"}</td>

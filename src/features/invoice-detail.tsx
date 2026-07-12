@@ -16,10 +16,6 @@ const M_LABEL: Record<string, string> = {
   needs_review: "يحتاج مراجعة",
 };
 
-const UNIT_LABEL: Record<string, string> = {
-  piece: "حبة", liter: "لتر", kilo: "كيلو",
-  carton: "كرتون", tray: "صينية", pack: "عبوة",
-};
 
 export function InvoiceDetail({ invoiceId, base }: { invoiceId: string; base: "/admin" | "/accountant" }) {
   const qc = useQueryClient();
@@ -121,7 +117,7 @@ export function InvoiceDetail({ invoiceId, base }: { invoiceId: string; base: "/
                 <tr key={m.id} className="border-b border-border/50">
                   <td className="py-2">
                     <div className="font-semibold">{m.product?.name}</div>
-                    <div className="text-xs text-muted-foreground">{UNIT_LABEL[m.product?.unit ?? ""] ?? ""}</div>
+                    <div className="text-xs text-muted-foreground">{m.product?.unit ?? ""}</div>
                   </td>
                   <td className="text-center">{m.total_received}</td>
                   <td className="text-center text-kube-red">{Number(m.total_damaged) || "—"}</td>
