@@ -52,6 +52,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+const SITE_URL = "https://kubekitchen.app";
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
@@ -63,15 +65,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "KUBE Supplier Receiving" },
       { property: "og:description", content: "نظام تسجيل طلبات واستلامات الموردين ومطابقة الفواتير." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: SITE_URL },
+      { property: "og:image", content: `${SITE_URL}/kube-social.png` },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "KUBE Supplier Receiving" },
       { name: "twitter:description", content: "نظام تسجيل طلبات واستلامات الموردين ومطابقة الفواتير." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/2OycptWxSeRLPcLq1Jm0rzt4XPH2/social-images/social-1783822769307-Pineapple.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/2OycptWxSeRLPcLq1Jm0rzt4XPH2/social-images/social-1783822769307-Pineapple.webp" },
+      { name: "twitter:image", content: `${SITE_URL}/kube-social.png` },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "shortcut icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "canonical", href: SITE_URL },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" },
