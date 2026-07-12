@@ -144,12 +144,15 @@ export const upsertEmployee = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // Verify caller is admin (server-side, mirrors RLS on employees table)
-    const { data: isAdmin, error: roleErr } = await context.supabase.rpc(
-      "has_role",
-      { _user_id: context.userId, _role: "admin" },
-    );
+    const { data: adminRow, error: roleErr } = await supabaseAdmin
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
     if (roleErr) throw new Error(roleErr.message);
-    if (!isAdmin) throw new Error("غير مصرح: هذه العملية للمدير فقط");
+    if (!adminRow) throw new Error("غير مصرح: هذه العملية للمدير فقط");
+
 
     // Ensure PIN is unique (excluding this employee)
     const { data: dup } = await supabaseAdmin
