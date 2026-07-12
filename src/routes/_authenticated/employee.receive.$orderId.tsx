@@ -123,12 +123,20 @@ function ReceivePage() {
         await supabase.from("receipt_photos").insert({ receipt_id: receipt.id, storage_path, uploaded_by: userRes.user.id });
       }
 
-      await supabase.from("orders").update({ status: "received" }).eq("id", order.id);
+      const { data: updated, error: updErr } = await supabase
+        .from("orders")
+        .update({ status: "received" })
+        .eq("id", order.id)
+        .select("id")
+        .single();
+      if (updErr || !updated) throw new Error("تعذّر تحديث حالة الطلب");
+
       await supabase.from("activity_log").insert({
         actor_user: userRes.user.id, action: "receive_order", entity: "receipts", entity_id: receipt.id,
         details: { order_id: order.id },
       });
 
+      await queryClient.invalidateQueries();
       toast.success("تم الاستلام");
       navigate({ to: "/employee" });
     } catch (err) {
