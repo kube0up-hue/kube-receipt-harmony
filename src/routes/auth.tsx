@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { signInWithPin, adminExists, bootstrapAdmin } from "@/lib/auth.functions";
 import { fetchCurrentUser, primaryRoleHome } from "@/lib/current-user";
+import kubeLogo from "@/assets/kube-logo.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -31,12 +32,11 @@ function AuthPage() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 text-2xl font-extrabold">
-            <span className="px-2 py-1 bg-primary text-primary-foreground rounded">KUBE</span>
-            <span>Supplier Receiving</span>
-          </div>
+          <img src={kubeLogo.url} alt="KUBE" className="h-14 w-auto mx-auto" />
+          <div className="mt-3 text-lg font-semibold">Supplier Receiving</div>
           <p className="text-muted-foreground text-sm mt-2">تسجيل الطلبات والاستلامات ومطابقة الفواتير</p>
         </div>
+
 
         <div className="kube-card">
           <div className="flex gap-2 mb-6 bg-muted p-1 rounded-md">
@@ -161,7 +161,7 @@ function SetupAdmin({ onDone }: { onDone: () => void }) {
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-          <div className="inline-block px-2 py-1 bg-primary text-primary-foreground rounded font-bold">KUBE</div>
+          <img src={kubeLogo.url} alt="KUBE" className="h-12 w-auto mx-auto" />
           <h1 className="mt-4 text-xl font-bold">تجهيز حساب المدير</h1>
           <p className="text-sm text-muted-foreground mt-1">هذه الخطوة تُنفَّذ مرة واحدة فقط.</p>
         </div>
