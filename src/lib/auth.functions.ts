@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createHash } from "crypto";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
 
 const PIN_PEPPER = "kube-supplier-receiving-pepper-v1";
 
@@ -127,8 +129,9 @@ export const adminExists = createServerFn({ method: "GET" }).handler(async () =>
   return { exists: (count ?? 0) > 0 };
 });
 
-/** Admin creates or updates an employee (PIN reset). */
+/** Admin creates or updates an employee (PIN reset). Admin-only. */
 export const upsertEmployee = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z.object({
       id: z.string().uuid().optional(),
@@ -138,8 +141,19 @@ export const upsertEmployee = createServerFn({ method: "POST" })
       is_active: z.boolean().default(true),
     }).parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Verify caller is admin (server-side, mirrors RLS on employees table)
+    const { data: adminRow, error: roleErr } = await supabaseAdmin
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (roleErr) throw new Error(roleErr.message);
+    if (!adminRow) throw new Error("غير مصرح: هذه العملية للمدير فقط");
+
+
     // Ensure PIN is unique (excluding this employee)
     const { data: dup } = await supabaseAdmin
       .from("employees")
