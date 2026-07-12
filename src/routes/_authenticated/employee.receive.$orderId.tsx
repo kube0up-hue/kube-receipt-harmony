@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
@@ -37,6 +37,7 @@ function computeStatus(ordered: number, received: number, damaged: number): { st
 function ReceivePage() {
   const { orderId } = Route.useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: cu } = useCurrentUser();
   const [lines, setLines] = useState<Line[] | null>(null);
   const [files, setFiles] = useState<File[]>([]);
@@ -122,12 +123,20 @@ function ReceivePage() {
         await supabase.from("receipt_photos").insert({ receipt_id: receipt.id, storage_path, uploaded_by: userRes.user.id });
       }
 
-      await supabase.from("orders").update({ status: "received" }).eq("id", order.id);
+      const { data: updated, error: updErr } = await supabase
+        .from("orders")
+        .update({ status: "received" })
+        .eq("id", order.id)
+        .select("id")
+        .single();
+      if (updErr || !updated) throw new Error("تعذّر تحديث حالة الطلب");
+
       await supabase.from("activity_log").insert({
         actor_user: userRes.user.id, action: "receive_order", entity: "receipts", entity_id: receipt.id,
         details: { order_id: order.id },
       });
 
+      await queryClient.invalidateQueries();
       toast.success("تم الاستلام");
       navigate({ to: "/employee" });
     } catch (err) {
