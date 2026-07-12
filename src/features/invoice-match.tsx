@@ -145,12 +145,13 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
         if (error) throw error;
       }
 
+      type MStatus = "matched" | "invoice_higher" | "invoice_lower" | "in_invoice_not_received" | "received_not_in_invoice" | "has_damage_in_invoice" | "needs_review";
       const matchesToInsert = rows
         .filter(r => r.accepted_qty > 0 || Number(r.invoiced_qty || 0) > 0)
         .map(r => {
           const iq = Number(r.invoiced_qty || 0);
           const diff = iq - r.accepted_qty;
-          let mstatus: string = "matched";
+          let mstatus: MStatus = "matched";
           if (r.accepted_qty === 0 && iq > 0) mstatus = "in_invoice_not_received";
           else if (iq === 0 && r.accepted_qty > 0) mstatus = "received_not_in_invoice";
           else if (diff > 0) mstatus = "invoice_higher";
