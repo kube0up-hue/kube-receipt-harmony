@@ -6,10 +6,8 @@ import { AppShell } from "@/components/app-shell";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
 
-const UNITS = [
-  { v: "piece", l: "حبة" }, { v: "liter", l: "لتر" }, { v: "kilo", l: "كيلو" },
-  { v: "carton", l: "كرتون" }, { v: "tray", l: "صينية" }, { v: "pack", l: "عبوة" },
-] as const;
+const UNITS = ["حبة", "لتر", "كيلو", "كرتون", "صينية", "عبوة"] as const;
+type Unit = typeof UNITS[number];
 
 export const Route = createFileRoute("/_authenticated/admin/products")({
   component: ProductsPage,
@@ -19,7 +17,7 @@ function ProductsPage() {
   const qc = useQueryClient();
   const [supplierId, setSupplierId] = useState("");
   const [name, setName] = useState("");
-  const [unit, setUnit] = useState<typeof UNITS[number]["v"]>("piece");
+  const [unit, setUnit] = useState<Unit>("حبة");
 
   const suppliers = useQuery({
     queryKey: ["suppliers-active"],
@@ -67,8 +65,8 @@ function ProductsPage() {
             {suppliers.data?.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
           <input className="kube-input" placeholder="اسم المنتج" value={name} onChange={e => setName(e.target.value)} />
-          <select className="kube-input" value={unit} onChange={e => setUnit(e.target.value as typeof UNITS[number]["v"])}>
-            {UNITS.map(u => <option key={u.v} value={u.v}>{u.l}</option>)}
+          <select className="kube-input" value={unit} onChange={e => setUnit(e.target.value as Unit)}>
+            {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
           </select>
         </div>
         <button className="kube-btn-primary mt-3" disabled={!name || !supplierId || mut.isPending} onClick={() => mut.mutate()}>
@@ -82,7 +80,7 @@ function ProductsPage() {
             <div key={p.id} className="kube-card flex items-center justify-between">
               <div>
                 <div className="font-bold">{p.name}</div>
-                <div className="text-xs text-muted-foreground">{p.supplier?.name} · {UNITS.find(u => u.v === p.unit)?.l}</div>
+                <div className="text-xs text-muted-foreground">{p.supplier?.name} · {p.unit}</div>
               </div>
             </div>
           ))}
