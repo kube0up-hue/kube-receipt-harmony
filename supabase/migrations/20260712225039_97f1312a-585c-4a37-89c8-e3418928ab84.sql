@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.set_activity_log_actor_name() FROM PUBLIC, anon, authenticated;
