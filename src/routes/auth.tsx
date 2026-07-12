@@ -160,9 +160,9 @@ function SetupAdmin({ onDone }: { onDone: () => void }) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <img src={kubeLogo.url} alt="KUBE" className="h-12 w-auto mx-auto" />
-          <h1 className="mt-4 text-xl font-bold">تجهيز حساب المدير</h1>
+        <div className="text-center mb-8">
+          <img src={kubeLogo.url} alt="KUBE" className="h-28 w-auto mx-auto" />
+          <h1 className="mt-5 text-xl font-bold">تجهيز حساب المدير</h1>
           <p className="text-sm text-muted-foreground mt-1">هذه الخطوة تُنفَّذ مرة واحدة فقط.</p>
         </div>
         <form onSubmit={submit} className="kube-card space-y-4">
