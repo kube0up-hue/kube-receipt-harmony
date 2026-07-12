@@ -1,0 +1,1 @@
+ALTER TABLE public.orders ALTER COLUMN created_by_user SET DEFAULT auth.uid();
