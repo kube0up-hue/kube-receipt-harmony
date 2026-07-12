@@ -24,7 +24,7 @@ export function AppShell({
                 ← {back.label ?? "رجوع"}
               </Link>
             ) : (
-              <img src={kubeLogo.url} alt="KUBE" className="h-6 w-auto shrink-0" />
+              <img src={"/kube-logo.png"} alt="KUBE" className="h-6 w-auto shrink-0" />
             )}
             <h1 className="font-bold truncate">{title}</h1>
           </div>
