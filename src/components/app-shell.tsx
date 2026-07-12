@@ -2,7 +2,6 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useCurrentUser, signOutAndGo } from "@/lib/use-current-user";
 import { LogOut } from "lucide-react";
-import kubeLogo from "@/assets/kube-logo.png.asset.json";
 
 export function AppShell({
   title,

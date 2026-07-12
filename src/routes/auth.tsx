@@ -6,7 +6,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { signInWithPin, adminExists, bootstrapAdmin } from "@/lib/auth.functions";
 import { fetchCurrentUser, primaryRoleHome } from "@/lib/current-user";
-import kubeLogo from "@/assets/kube-logo.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
