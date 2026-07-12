@@ -36,7 +36,7 @@ function OrdersPage() {
     queryKey: ["admin-receipts", from, to, supplierId],
     queryFn: async () => {
       let q = supabase.from("receipts")
-        .select("id,receipt_number,received_at,status,total_ordered,total_received,total_accepted,total_damaged,total_short,total_over,supplier:suppliers(name),employee:employees(full_name),order:orders(order_number)")
+        .select("id,received_at,status,total_ordered,total_received,total_accepted,total_damaged,total_short,total_over,supplier:suppliers(name),employee:employees(full_name),order:orders(order_number)")
         .gte("received_at", `${from}T00:00:00`)
         .lte("received_at", `${to}T23:59:59`)
         .order("received_at", { ascending: false })
@@ -75,7 +75,7 @@ function OrdersPage() {
 
   function exportCSV() {
     const rows = (receipts.data ?? []).map(r => ({
-      رقم_الاستلام: r.receipt_number ?? "",
+      رقم_الاستلام: r.id.slice(0,8),
       التاريخ: format(new Date(r.received_at), "yyyy-MM-dd HH:mm"),
       المورد: r.supplier?.name ?? "",
       الموظف: r.employee?.full_name ?? "",
@@ -146,7 +146,7 @@ function OrdersPage() {
             {receipts.data?.map(r => (
               <div key={r.id} className="kube-card">
                 <div className="flex items-center justify-between mb-1">
-                  <div className="font-bold">{r.supplier?.name} · {r.receipt_number}</div>
+                  <div className="font-bold">{r.supplier?.name} · {r.id.slice(0,8)}</div>
                   <StatusBadge status={r.status} />
                 </div>
                 <div className="text-xs text-muted-foreground">
