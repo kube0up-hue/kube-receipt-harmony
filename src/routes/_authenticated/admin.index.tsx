@@ -81,9 +81,6 @@ function AdminHome() {
           </Link>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground mt-6 text-center">
-        الأقسام التفصيلية (إدارة الموظفين/الموردين/المنتجات/الفواتير/التقارير) قيد الإنشاء وستُفعّل في الرسائل التالية.
-      </p>
     </AppShell>
   );
 }
