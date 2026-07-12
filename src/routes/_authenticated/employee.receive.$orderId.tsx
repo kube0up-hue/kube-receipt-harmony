@@ -37,6 +37,7 @@ function computeStatus(ordered: number, received: number, damaged: number): { st
 function ReceivePage() {
   const { orderId } = Route.useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: cu } = useCurrentUser();
   const [lines, setLines] = useState<Line[] | null>(null);
   const [files, setFiles] = useState<File[]>([]);
