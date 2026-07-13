@@ -15,7 +15,7 @@ function AdminHome() {
       const today = new Date().toISOString().slice(0, 10);
       const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
       const [pending, todayR, unappr, invMatch, invUnmatch, invReady] = await Promise.all([
-        supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "pending_receipt"),
+        supabase.from("v_orders_effective").select("id", { count: "exact", head: true }).eq("effective_status", "pending_receipt"),
         supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", `${today}T00:00:00`),
         supabase.from("receipts").select("id", { count: "exact", head: true }).eq("status", "submitted"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "pending_match"),
