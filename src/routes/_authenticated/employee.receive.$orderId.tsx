@@ -145,7 +145,32 @@ function ReceivePage() {
       toast.error(err instanceof Error ? err.message : "فشل الحفظ");
     } finally {
       setSaving(false);
+  }
+
+  async function onCancel() {
+    if (!cancelReason.trim()) return toast.error("أدخل سبب الإلغاء");
+    setSaving(true);
+    try {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes.user) throw new Error("جلسة منتهية");
+      const { error: updErr } = await supabase
+        .from("orders")
+        .update({ status: "cancelled", note: cancelReason })
+        .eq("id", orderId);
+      if (updErr) throw updErr;
+      await supabase.from("activity_log").insert({
+        actor_user: userRes.user.id, action: "cancel_order", entity: "orders", entity_id: orderId,
+        details: { reason: cancelReason },
+      });
+      await queryClient.invalidateQueries();
+      toast.success("تم إلغاء الطلب");
+      navigate({ to: "/employee" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "فشل الإلغاء");
+    } finally {
+      setSaving(false);
     }
+  }
   }
 
   if (orderQ.isLoading || !lines || !totals) {
