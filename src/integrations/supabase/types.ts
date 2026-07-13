@@ -564,6 +564,10 @@ export type Database = {
           received_by_user: string | null
           status: Database["public"]["Enums"]["receipt_status"]
           supplier_id: string
+          telegram_error: string | null
+          telegram_message_id: number | null
+          telegram_notification_status: string
+          telegram_sent_at: string | null
           total_accepted: number
           total_damaged: number
           total_ordered: number
@@ -584,6 +588,10 @@ export type Database = {
           received_by_user?: string | null
           status?: Database["public"]["Enums"]["receipt_status"]
           supplier_id: string
+          telegram_error?: string | null
+          telegram_message_id?: number | null
+          telegram_notification_status?: string
+          telegram_sent_at?: string | null
           total_accepted?: number
           total_damaged?: number
           total_ordered?: number
@@ -604,6 +612,10 @@ export type Database = {
           received_by_user?: string | null
           status?: Database["public"]["Enums"]["receipt_status"]
           supplier_id?: string
+          telegram_error?: string | null
+          telegram_message_id?: number | null
+          telegram_notification_status?: string
+          telegram_sent_at?: string | null
           total_accepted?: number
           total_damaged?: number
           total_ordered?: number
@@ -764,6 +776,15 @@ export type Database = {
       }
     }
     Functions: {
+      mark_receipt_telegram: {
+        Args: {
+          p_error?: string
+          p_message_id?: number
+          p_receipt_id: string
+          p_status: string
+        }
+        Returns: undefined
+      }
       submit_order_receipt: {
         Args: {
           p_items: Json
