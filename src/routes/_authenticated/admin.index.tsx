@@ -4,12 +4,28 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet } from "lucide-react";
+import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminHome,
 });
 
+type DetailMode = "short" | "damaged" | "all";
+
+interface DetailRow {
+  receiptId: string;
+  orderNumber: string;
+  supplier: string;
+  date: string;
+  product: string;
+  unit: string;
+  ordered: number;
+  accepted: number;
+  damaged: number;
+  diff: number;
+  qty: number;
+  note: string | null;
+}
 
 function AdminHome() {
   const stats = useQuery({
@@ -23,13 +39,14 @@ function AdminHome() {
       const todayRiyadh = `${riyadhParts.year}-${riyadhParts.month}-${riyadhParts.day}`;
       const startOfTodayUTC = new Date(`${todayRiyadh}T00:00:00+03:00`).toISOString();
       const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-      const [pending, todayR, unappr, invMatch, invUnmatch, invReady] = await Promise.all([
+      const [pending, todayR, unappr, invMatch, invUnmatch, invReady, weekReceipts] = await Promise.all([
         supabase.from("v_orders_effective").select("id", { count: "exact", head: true }).eq("effective_status", "pending_receipt"),
         supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", startOfTodayUTC),
         supabase.from("receipts").select("id", { count: "exact", head: true }).eq("status", "submitted"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "pending_match"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "unmatched"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "matched_ready"),
+        supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", weekAgo),
       ]);
       const damagedSum = await supabase
         .from("receipts").select("total_damaged").gte("received_at", weekAgo);
@@ -46,12 +63,13 @@ function AdminHome() {
         invMatch: invMatch.count ?? 0,
         invUnmatch: invUnmatch.count ?? 0,
         invReady: invReady.count ?? 0,
+        weekReceipts: weekReceipts.count ?? 0,
       };
     },
   });
 
   const s = stats.data;
-  const [openDetail, setOpenDetail] = useState<null | "short" | "damaged">(null);
+  const [openDetail, setOpenDetail] = useState<null | DetailMode>(null);
 
   const detail = useQuery({
     enabled: openDetail !== null,
@@ -63,30 +81,28 @@ function AdminHome() {
         .select("id, received_at, order_id, orders(order_number, suppliers(name)), receipt_items(ordered_qty, received_qty, accepted_qty, damaged_qty, diff, note, products(name, unit))")
         .gte("received_at", weekAgo)
         .order("received_at", { ascending: false });
-      const rows: Array<{
-        receiptId: string; orderNumber: string; supplier: string; date: string;
-        product: string; unit: string; ordered: number; accepted: number; damaged: number; qty: number; note: string | null;
-      }> = [];
+      const rows: DetailRow[] = [];
       (receipts ?? []).forEach((r: any) => {
         (r.receipt_items ?? []).forEach((it: any) => {
           const shortQty = Number(it.diff) < 0 ? -Number(it.diff) : 0;
           const dmg = Number(it.damaged_qty ?? 0);
-          const qty = openDetail === "short" ? shortQty : dmg;
-          if (qty > 0) {
-            rows.push({
-              receiptId: r.id,
-              orderNumber: r.orders?.order_number ?? "-",
-              supplier: r.orders?.suppliers?.name ?? "-",
-              date: r.received_at,
-              product: it.products?.name ?? "-",
-              unit: it.products?.unit ?? "",
-              ordered: Number(it.ordered_qty ?? 0),
-              accepted: Number(it.accepted_qty ?? 0),
-              damaged: dmg,
-              qty,
-              note: it.note ?? null,
-            });
-          }
+          const diff = Number(it.diff ?? 0);
+          const qty = openDetail === "short" ? shortQty : openDetail === "damaged" ? dmg : Number(it.accepted_qty ?? 0);
+          if (openDetail !== "all" && qty <= 0) return;
+          rows.push({
+            receiptId: r.id,
+            orderNumber: r.orders?.order_number ?? "-",
+            supplier: r.orders?.suppliers?.name ?? "-",
+            date: r.received_at,
+            product: it.products?.name ?? "-",
+            unit: it.products?.unit ?? "",
+            ordered: Number(it.ordered_qty ?? 0),
+            accepted: Number(it.accepted_qty ?? 0),
+            damaged: dmg,
+            diff,
+            qty,
+            note: it.note ?? null,
+          });
         });
       });
       return rows;
@@ -96,6 +112,7 @@ function AdminHome() {
   const cards: Array<{ label: string; v: number | undefined; onClick?: () => void }> = [
     { label: "طلبات بانتظار الاستلام", v: s?.pending },
     { label: "استلامات اليوم", v: s?.today },
+    { label: "استلامات هذا الأسبوع", v: s?.weekReceipts, onClick: () => setOpenDetail("all") },
     { label: "استلامات غير معتمدة", v: s?.unappr },
     { label: "تالف هذا الأسبوع", v: s?.damaged, onClick: () => setOpenDetail("damaged") },
     { label: "نقص هذا الأسبوع", v: s?.short, onClick: () => setOpenDetail("short") },
@@ -115,6 +132,80 @@ function AdminHome() {
   ];
 
   const totalQty = (detail.data ?? []).reduce((a, r) => a + r.qty, 0);
+  const titleFor = (m: DetailMode) =>
+    m === "short" ? "تفاصيل النقص هذا الأسبوع" : m === "damaged" ? "تفاصيل التالف هذا الأسبوع" : "تفاصيل استلامات هذا الأسبوع";
+
+  function exportCSV() {
+    if (!openDetail || !detail.data) return;
+    const rows = detail.data;
+    const header = ["التاريخ", "رقم الطلب", "المورد", "المنتج", "الوحدة", "المطلوب", "المقبول", "التالف", "الفرق", "ملاحظة"];
+    const esc = (v: string | number | null) => {
+      const s = v == null ? "" : String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const body = rows.map((r) => [
+      new Date(r.date).toISOString().slice(0, 16).replace("T", " "),
+      r.orderNumber, r.supplier, r.product, r.unit,
+      r.ordered, r.accepted, r.damaged, r.diff, r.note ?? "",
+    ].map(esc).join(","));
+    const csv = "\uFEFF" + [header.join(","), ...body].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${titleFor(openDetail)}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportPDF() {
+    if (!openDetail || !detail.data) return;
+    const rows = detail.data;
+    const escHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+    const title = titleFor(openDetail);
+    const generatedAt = new Date().toLocaleString("ar-SA");
+    const tbody = rows.map((r) => `
+      <tr>
+        <td>${escHtml(new Date(r.date).toLocaleString("ar-SA"))}</td>
+        <td>${escHtml(r.orderNumber)}</td>
+        <td>${escHtml(r.supplier)}</td>
+        <td>${escHtml(r.product)}${r.note ? `<div class="note">${escHtml(r.note)}</div>` : ""}</td>
+        <td class="c">${r.ordered} ${escHtml(r.unit)}</td>
+        <td class="c">${r.accepted} ${escHtml(r.unit)}</td>
+        <td class="c">${r.damaged}</td>
+        <td class="c ${r.diff < 0 ? "neg" : ""}">${r.diff}</td>
+      </tr>`).join("");
+    const html = `<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>${escHtml(title)}</title>
+      <style>
+        @page { size: A4; margin: 14mm; }
+        body { font-family: "Cairo", "Tahoma", sans-serif; direction: rtl; color: #111; }
+        h1 { font-size: 18px; margin: 0 0 4px; }
+        .meta { font-size: 11px; color: #555; margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { border: 1px solid #ccc; padding: 6px; text-align: right; vertical-align: top; }
+        th { background: #f2f2f2; }
+        td.c { text-align: center; }
+        td.neg { color: #c00; font-weight: 700; }
+        .note { color: #777; font-size: 10px; margin-top: 2px; }
+        tfoot td { font-weight: 700; background: #fafafa; }
+      </style></head><body>
+      <h1>${escHtml(title)}</h1>
+      <div class="meta">تاريخ الإصدار: ${escHtml(generatedAt)} — عدد البنود: ${rows.length}</div>
+      <table>
+        <thead><tr>
+          <th>التاريخ</th><th>رقم الطلب</th><th>المورد</th><th>المنتج</th>
+          <th>المطلوب</th><th>المقبول</th><th>التالف</th><th>الفرق</th>
+        </tr></thead>
+        <tbody>${tbody}</tbody>
+      </table>
+      <script>window.onload = () => { window.print(); };</script>
+      </body></html>`;
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  }
 
   return (
     <AppShell title="لوحة الإدارة">
@@ -146,11 +237,9 @@ function AdminHome() {
       </div>
 
       <Dialog open={openDetail !== null} onOpenChange={(o) => !o && setOpenDetail(null)}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" dir="rtl">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
-            <DialogTitle>
-              {openDetail === "short" ? "تفاصيل النقص هذا الأسبوع" : "تفاصيل التالف هذا الأسبوع"}
-            </DialogTitle>
+            <DialogTitle>{openDetail ? titleFor(openDetail) : ""}</DialogTitle>
           </DialogHeader>
           {detail.isLoading ? (
             <div className="py-8 text-center text-muted-foreground">جارِ التحميل…</div>
@@ -158,8 +247,24 @@ function AdminHome() {
             <div className="py-8 text-center text-muted-foreground">لا توجد بيانات</div>
           ) : (
             <div className="space-y-3">
-              <div className="text-sm text-muted-foreground">
-                الإجمالي: <span className="font-extrabold text-foreground">{totalQty}</span> وحدة عبر {detail.data!.length} بند
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="text-sm text-muted-foreground">
+                  {openDetail === "all" ? (
+                    <>عدد البنود: <span className="font-extrabold text-foreground">{detail.data!.length}</span></>
+                  ) : (
+                    <>الإجمالي: <span className="font-extrabold text-foreground">{totalQty}</span> وحدة عبر {detail.data!.length} بند</>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button type="button" onClick={exportCSV}
+                    className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs font-bold hover:bg-muted">
+                    <Download className="w-3.5 h-3.5" /> CSV
+                  </button>
+                  <button type="button" onClick={exportPDF}
+                    className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs font-bold hover:bg-muted">
+                    <Printer className="w-3.5 h-3.5" /> PDF
+                  </button>
+                </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs border-collapse">
@@ -170,8 +275,8 @@ function AdminHome() {
                       <th className="p-2 text-right">المنتج</th>
                       <th className="p-2 text-center">مطلوب</th>
                       <th className="p-2 text-center">مقبول</th>
-                      {openDetail === "damaged" && <th className="p-2 text-center">تالف</th>}
-                      <th className="p-2 text-center">{openDetail === "short" ? "نقص" : "الكمية"}</th>
+                      <th className="p-2 text-center">تالف</th>
+                      <th className="p-2 text-center">الفرق</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -186,8 +291,8 @@ function AdminHome() {
                         </td>
                         <td className="p-2 text-center">{r.ordered} {r.unit}</td>
                         <td className="p-2 text-center">{r.accepted} {r.unit}</td>
-                        {openDetail === "damaged" && <td className="p-2 text-center text-destructive font-bold">{r.damaged}</td>}
-                        <td className="p-2 text-center text-destructive font-bold">{r.qty} {r.unit}</td>
+                        <td className="p-2 text-center">{r.damaged}</td>
+                        <td className={`p-2 text-center font-bold ${r.diff < 0 ? "text-destructive" : ""}`}>{r.diff}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -200,4 +305,3 @@ function AdminHome() {
     </AppShell>
   );
 }
-
