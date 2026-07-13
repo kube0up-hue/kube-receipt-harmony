@@ -174,19 +174,48 @@ function OrdersPage() {
           </div>
           <button onClick={exportCSV} disabled={!receipts.data?.length} className="kube-btn-secondary w-full mb-3 disabled:opacity-50">تصدير CSV</button>
           <div className="space-y-2">
-            {receipts.data?.map(r => (
-              <div key={r.id} className="kube-card">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="font-bold">{r.supplier?.name} · {r.id.slice(0,8)}</div>
-                  <StatusBadge status={r.status} />
+            {receipts.data?.map(r => {
+              const tgStatus = (r as any).telegram_notification_status as "pending" | "sent" | "failed" | undefined;
+              const tgError = (r as any).telegram_error as string | null | undefined;
+              const tgSentAt = (r as any).telegram_sent_at as string | null | undefined;
+              return (
+                <div key={r.id} className="kube-card">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="font-bold">{r.supplier?.name} · {r.id.slice(0,8)}</div>
+                    <StatusBadge status={r.status} />
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {format(new Date(r.received_at), "yyyy-MM-dd HH:mm")} · بواسطة {r.employee?.full_name ?? "—"}
+                    {r.order?.order_number && ` · طلب ${r.order.order_number}`}
+                  </div>
+                  <div className="text-xs mt-1">مطلوب {r.total_ordered} · مستلم {r.total_received} · مقبول {r.total_accepted} · تالف {r.total_damaged}</div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 border-t pt-2">
+                    <TelegramBadge status={tgStatus} sentAt={tgSentAt} error={tgError} />
+                    {isAdmin && tgStatus === "failed" && (
+                      <button
+                        onClick={() => handleResend(r.id, tgStatus)}
+                        disabled={resendingId === r.id}
+                        className="inline-flex items-center gap-1 text-xs font-bold rounded-md border px-2 py-1 hover:bg-muted disabled:opacity-50"
+                      >
+                        <RotateCw className="w-3 h-3" />
+                        إعادة إرسال إشعار تيليجرام
+                      </button>
+                    )}
+                    {isAdmin && tgStatus === "sent" && (
+                      <button
+                        onClick={() => handleResend(r.id, tgStatus)}
+                        disabled={resendingId === r.id}
+                        className="inline-flex items-center gap-1 text-[10px] rounded-md border px-2 py-1 hover:bg-muted disabled:opacity-50"
+                        title="إعادة إرسال قسرية (مدير)"
+                      >
+                        <Send className="w-3 h-3" />
+                        إعادة إرسال قسرية
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  {format(new Date(r.received_at), "yyyy-MM-dd HH:mm")} · بواسطة {r.employee?.full_name ?? "—"}
-                  {r.order?.order_number && ` · طلب ${r.order.order_number}`}
-                </div>
-                <div className="text-xs mt-1">مطلوب {r.total_ordered} · مستلم {r.total_received} · مقبول {r.total_accepted} · تالف {r.total_damaged}</div>
-              </div>
-            ))}
+              );
+            })}
             {(receipts.data?.length ?? 0) === 0 && <div className="kube-card text-center text-muted-foreground">لا توجد استلامات في هذه الفترة</div>}
           </div>
         </>
