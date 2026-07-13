@@ -27,6 +27,32 @@ function OrdersPage() {
   const [from, setFrom] = useState(() => daysAgoISO(30));
   const [to, setTo] = useState(() => todayISO());
   const [supplierId, setSupplierId] = useState<string>("");
+  const [resendingId, setResendingId] = useState<string | null>(null);
+  const qc = useQueryClient();
+  const resendFn = useServerFn(resendReceiptTelegram);
+  const { data: cu } = useCurrentUser();
+  const isAdmin = !!cu?.roles?.includes("admin");
+
+  async function handleResend(receiptId: string, currentStatus: string) {
+    if (!isAdmin) { toast.error("صلاحية المدير مطلوبة"); return; }
+    const force = currentStatus === "sent";
+    if (force) {
+      const ok = window.confirm("هذا الإشعار تم إرساله مسبقاً. هل تريد إعادة إرسال نسخة ثانية؟");
+      if (!ok) return;
+    }
+    setResendingId(receiptId);
+    try {
+      const res: any = await resendFn({ data: { receiptId, force } });
+      if (res?.ok && res?.skipped) toast.info("الإشعار مُرسل مسبقاً");
+      else if (res?.ok) toast.success("تم إرسال الإشعار");
+      else toast.error(`فشل الإرسال: ${res?.reason ?? "unknown"}`);
+      await qc.invalidateQueries({ queryKey: ["admin-receipts"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "فشل الإرسال");
+    } finally {
+      setResendingId(null);
+    }
+  }
 
   const suppliers = useQuery({
     queryKey: ["suppliers-all"],
