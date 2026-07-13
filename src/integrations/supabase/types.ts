@@ -275,6 +275,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_orders_effective"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "order_items_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -621,6 +628,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "receipts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_orders_effective"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "receipts_supplier_id_fkey"
             columns: ["supplier_id"]
             isOneToOne: false
@@ -691,7 +705,63 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_orders_effective: {
+        Row: {
+          created_at: string | null
+          created_by_user: string | null
+          effective_status: Database["public"]["Enums"]["order_status"] | null
+          employee_id: string | null
+          expected_delivery_date: string | null
+          id: string | null
+          note: string | null
+          order_date: string | null
+          order_number: string | null
+          stored_status: Database["public"]["Enums"]["order_status"] | null
+          supplier_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by_user?: string | null
+          effective_status?: never
+          employee_id?: string | null
+          expected_delivery_date?: string | null
+          id?: string | null
+          note?: string | null
+          order_date?: string | null
+          order_number?: string | null
+          stored_status?: Database["public"]["Enums"]["order_status"] | null
+          supplier_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by_user?: string | null
+          effective_status?: never
+          employee_id?: string | null
+          expected_delivery_date?: string | null
+          id?: string | null
+          note?: string | null
+          order_date?: string | null
+          order_number?: string | null
+          stored_status?: Database["public"]["Enums"]["order_status"] | null
+          supplier_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
