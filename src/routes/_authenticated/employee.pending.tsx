@@ -38,11 +38,11 @@ function PendingPage() {
       ) : (
         <div className="space-y-2">
           {data!.map((o) => (
-            <Link key={o.id} to="/employee/receive/$orderId" params={{ orderId: o.id }} className="kube-card flex items-center justify-between hover:border-primary transition">
+            <Link key={o.id!} to="/employee/receive/$orderId" params={{ orderId: o.id! }} className="kube-card flex items-center justify-between hover:border-primary transition">
               <div className="min-w-0">
                 <div className="font-bold">{o.supplier?.name}</div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  {o.order_number} · {format(new Date(o.order_date), "yyyy-MM-dd")} · <span className="font-semibold">{ageLabel(o.created_at)}</span>
+                  {o.order_number} · {o.order_date ? format(new Date(o.order_date), "yyyy-MM-dd") : "—"} · <span className="font-semibold">{ageLabel(o.created_at ?? new Date().toISOString())}</span>
                   {o.expected_delivery_date && <> · متوقع {format(new Date(o.expected_delivery_date), "yyyy-MM-dd")}</>}
                 </div>
                 {o.note && <div className="text-xs text-muted-foreground mt-1">📝 {o.note}</div>}
