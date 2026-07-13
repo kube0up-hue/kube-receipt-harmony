@@ -77,15 +77,15 @@ function EmployeeHome() {
           <div className="space-y-2">
             {pending.data!.map((o) => (
               <Link
-                key={o.id}
+                key={o.id!}
                 to="/employee/receive/$orderId"
-                params={{ orderId: o.id }}
+                params={{ orderId: o.id! }}
                 className="kube-card flex items-center justify-between hover:border-primary transition"
               >
                 <div className="min-w-0">
                   <div className="font-bold truncate">{o.supplier?.name ?? "—"}</div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    {o.order_number} · طلب {format(new Date(o.order_date), "yyyy-MM-dd")}
+                    {o.order_number} · طلب {o.order_date ? format(new Date(o.order_date), "yyyy-MM-dd") : "—"}
                     {o.expected_delivery_date && <> · متوقع {format(new Date(o.expected_delivery_date), "yyyy-MM-dd")}</>}
                   </div>
                 </div>
