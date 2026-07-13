@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
 import { toast } from "sonner";
-import { Camera, Copy, X } from "lucide-react";
+import { Camera, Copy, X, Ban } from "lucide-react";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { format } from "date-fns";
 
@@ -44,6 +44,8 @@ function ReceivePage() {
   const [note, setNote] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
   const orderQ = useQuery({
     queryKey: ["order", orderId],
@@ -146,6 +148,31 @@ function ReceivePage() {
     }
   }
 
+  async function onCancel() {
+    if (!cancelReason.trim()) return toast.error("أدخل سبب الإلغاء");
+    setSaving(true);
+    try {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes.user) throw new Error("جلسة منتهية");
+      const { error: updErr } = await supabase
+        .from("orders")
+        .update({ status: "cancelled", note: cancelReason })
+        .eq("id", orderId);
+      if (updErr) throw updErr;
+      await supabase.from("activity_log").insert({
+        actor_user: userRes.user.id, action: "cancel_order", entity: "orders", entity_id: orderId,
+        details: { reason: cancelReason },
+      });
+      await queryClient.invalidateQueries();
+      toast.success("تم إلغاء الطلب");
+      navigate({ to: "/employee" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "فشل الإلغاء");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (orderQ.isLoading || !lines || !totals) {
     return <AppShell title="استلام الطلب" back={{ to: "/employee" }}><div>جارٍ التحميل...</div></AppShell>;
   }
@@ -230,6 +257,26 @@ function ReceivePage() {
       <button type="button" onClick={() => setConfirming(true)} className="kube-btn-primary w-full mt-4">
         مراجعة وتأكيد
       </button>
+      <button type="button" onClick={() => setCancelling(true)} className="w-full mt-2 py-3 rounded-lg border border-kube-red/40 text-kube-red font-bold flex items-center justify-center gap-2">
+        <Ban className="w-4 h-4" /> إلغاء الطلب / لم يصل
+      </button>
+
+      {cancelling && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4" onClick={() => setCancelling(false)}>
+          <div className="bg-background rounded-2xl w-full max-w-md p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-bold text-lg">إلغاء الطلب</h3>
+            <p className="text-sm text-muted-foreground">سيتم إخراج الطلب من قائمة الاستلامات المعلقة. لا يمكن التراجع.</p>
+            <textarea rows={3} placeholder="سبب الإلغاء (إلزامي)" value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)} className="kube-input" />
+            <div className="flex gap-2">
+              <button onClick={() => setCancelling(false)} className="kube-btn-outline flex-1">تراجع</button>
+              <button disabled={saving} onClick={onCancel} className="flex-1 py-3 rounded-lg bg-kube-red text-white font-bold disabled:opacity-50">
+                {saving ? "..." : "تأكيد الإلغاء"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {confirming && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4" onClick={() => setConfirming(false)}>

@@ -14,13 +14,20 @@ function PendingPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, order_number, order_date, expected_delivery_date, note, supplier:suppliers(name)")
+        .select("id, order_number, order_date, created_at, expected_delivery_date, note, supplier:suppliers(name)")
         .eq("status", "pending_receipt")
-        .order("order_date", { ascending: false });
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
   });
+
+  function ageLabel(d: string) {
+    const diff = Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
+    if (diff === 0) return "اليوم";
+    if (diff === 1) return "أمس";
+    return `منذ ${diff} يوم`;
+  }
 
   return (
     <AppShell title="الطلبات بانتظار الاستلام" back={{ to: "/employee" }}>
@@ -35,7 +42,7 @@ function PendingPage() {
               <div className="min-w-0">
                 <div className="font-bold">{o.supplier?.name}</div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  {o.order_number} · {format(new Date(o.order_date), "yyyy-MM-dd")}
+                  {o.order_number} · {format(new Date(o.order_date), "yyyy-MM-dd")} · <span className="font-semibold">{ageLabel(o.created_at)}</span>
                   {o.expected_delivery_date && <> · متوقع {format(new Date(o.expected_delivery_date), "yyyy-MM-dd")}</>}
                 </div>
                 {o.note && <div className="text-xs text-muted-foreground mt-1">📝 {o.note}</div>}
