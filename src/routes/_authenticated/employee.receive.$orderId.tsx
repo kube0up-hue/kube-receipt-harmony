@@ -148,8 +148,13 @@ function ReceivePage() {
       });
       if (submitErr) throw submitErr;
 
-      // إشعار Telegram — لا يعرقل عملية الاستلام إن فشل
-      sendTelegram({ data: { receiptId } }).catch((e) => console.error("[telegram] notify failed", e));
+      // إشعار Telegram — يُنتظر لضمان تحديث حالة الإرسال قبل انتهاء Server Function،
+      // لكن فشل الإشعار لا يُلغي اعتماد الاستلام ولا يعرض خطأ للموظف.
+      try {
+        await sendTelegram({ data: { receiptId } });
+      } catch (error) {
+        console.error("Telegram notification failed:", error);
+      }
 
       await queryClient.invalidateQueries();
       toast.success("تم الاستلام");
