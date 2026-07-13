@@ -148,6 +148,9 @@ function ReceivePage() {
       });
       if (submitErr) throw submitErr;
 
+      // إشعار Telegram — لا يعرقل عملية الاستلام إن فشل
+      sendTelegram({ data: { receiptId } }).catch((e) => console.error("[telegram] notify failed", e));
+
       await queryClient.invalidateQueries();
       toast.success("تم الاستلام");
       navigate({ to: "/employee" });
