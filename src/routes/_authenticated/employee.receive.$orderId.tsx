@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
 import { toast } from "sonner";
-import { Camera, Copy, X } from "lucide-react";
+import { Camera, Copy, X, Ban } from "lucide-react";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { format } from "date-fns";
 
