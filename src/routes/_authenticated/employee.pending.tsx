@@ -14,13 +14,20 @@ function PendingPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, order_number, order_date, expected_delivery_date, note, supplier:suppliers(name)")
+        .select("id, order_number, order_date, created_at, expected_delivery_date, note, supplier:suppliers(name)")
         .eq("status", "pending_receipt")
-        .order("order_date", { ascending: false });
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
   });
+
+  function ageLabel(d: string) {
+    const diff = Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
+    if (diff === 0) return "اليوم";
+    if (diff === 1) return "أمس";
+    return `منذ ${diff} يوم`;
+  }
 
   return (
     <AppShell title="الطلبات بانتظار الاستلام" back={{ to: "/employee" }}>
