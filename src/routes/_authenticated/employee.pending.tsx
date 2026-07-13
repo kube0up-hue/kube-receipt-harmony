@@ -42,7 +42,7 @@ function PendingPage() {
               <div className="min-w-0">
                 <div className="font-bold">{o.supplier?.name}</div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  {o.order_number} · {format(new Date(o.order_date), "yyyy-MM-dd")}
+                  {o.order_number} · {format(new Date(o.order_date), "yyyy-MM-dd")} · <span className="font-semibold">{ageLabel(o.created_at)}</span>
                   {o.expected_delivery_date && <> · متوقع {format(new Date(o.expected_delivery_date), "yyyy-MM-dd")}</>}
                 </div>
                 {o.note && <div className="text-xs text-muted-foreground mt-1">📝 {o.note}</div>}
