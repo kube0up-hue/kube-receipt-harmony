@@ -7,6 +7,10 @@ import { toast } from "sonner";
 import { Camera, Copy, X, Ban } from "lucide-react";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { format } from "date-fns";
+import { useServerFn } from "@tanstack/react-start";
+import { notifyReceiptApproved } from "@/lib/telegram.functions";
+
+
 
 export const Route = createFileRoute("/_authenticated/employee/receive/$orderId")({
   component: ReceivePage,
@@ -46,6 +50,8 @@ function ReceivePage() {
   const [saving, setSaving] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
+  const sendTelegram = useServerFn(notifyReceiptApproved);
+
 
   const orderQ = useQuery({
     queryKey: ["order", orderId],
@@ -141,6 +147,9 @@ function ReceivePage() {
         p_photo_paths: photoPaths,
       });
       if (submitErr) throw submitErr;
+
+      // إشعار Telegram — لا يعرقل عملية الاستلام إن فشل
+      sendTelegram({ data: { receiptId } }).catch((e) => console.error("[telegram] notify failed", e));
 
       await queryClient.invalidateQueries();
       toast.success("تم الاستلام");
