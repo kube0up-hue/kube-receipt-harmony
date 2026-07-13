@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminHome,
 });
+
 
 function AdminHome() {
   const stats = useQuery({
