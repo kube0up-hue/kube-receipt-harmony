@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer } from "lucide-react";
+import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminHome,
@@ -163,10 +164,10 @@ function AdminHome() {
     const rows = detail.data;
     const escHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
     const title = titleFor(openDetail);
-    const generatedAt = new Date().toLocaleString("ar-SA");
+    const generatedAt = formatDateTimeAr(new Date());
     const tbody = rows.map((r) => `
       <tr>
-        <td>${escHtml(new Date(r.date).toLocaleString("ar-SA"))}</td>
+        <td>${escHtml(formatDateTimeAr(r.date))}</td>
         <td>${escHtml(r.orderNumber)}</td>
         <td>${escHtml(r.supplier)}</td>
         <td>${escHtml(r.product)}${r.note ? `<div class="note">${escHtml(r.note)}</div>` : ""}</td>
@@ -287,7 +288,7 @@ function AdminHome() {
                         <td className="p-2">
                           <div className="font-bold">{r.product}</div>
                           {r.note && <div className="text-[10px] text-muted-foreground mt-0.5">{r.note}</div>}
-                          <div className="text-[10px] text-muted-foreground">{new Date(r.date).toLocaleDateString("ar-SA")}</div>
+                          <div className="text-[10px] text-muted-foreground">{formatDateAr(r.date)}</div>
                         </td>
                         <td className="p-2 text-center">{r.ordered} {r.unit}</td>
                         <td className="p-2 text-center">{r.accepted} {r.unit}</td>

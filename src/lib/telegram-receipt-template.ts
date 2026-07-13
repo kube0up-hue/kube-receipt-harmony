@@ -96,27 +96,23 @@ export function buildReceiptTelegramMessage(payload: TelegramReceiptPayload): st
   }
   lines.push(DIVIDER);
 
-  lines.push("⚠️ <b>النواقص</b>");
-  if (shortItems.length === 0) {
-    lines.push("✅ لا يوجد نقص.");
-  } else {
+  if (shortItems.length > 0) {
+    lines.push("⚠️ <b>النواقص</b>");
     for (const it of shortItems) {
       lines.push(`• <b>${esc(it.product_name)}</b>`);
       lines.push(`   النقص: <code>${fmtNum(-it.diff)}</code>`);
     }
+    lines.push(DIVIDER);
   }
-  lines.push(DIVIDER);
 
-  lines.push("❌ <b>التالف</b>");
-  if (damagedItems.length === 0) {
-    lines.push("✅ لا يوجد تالف.");
-  } else {
+  if (damagedItems.length > 0) {
+    lines.push("❌ <b>التالف</b>");
     for (const it of damagedItems) {
       lines.push(`• <b>${esc(it.product_name)}</b>`);
       lines.push(`   التالف: <code>${fmtNum(it.damaged)}</code>`);
     }
+    lines.push(DIVIDER);
   }
-  lines.push(DIVIDER);
 
   if (note) {
     lines.push("📝 <b>ملاحظات</b>");

@@ -43,7 +43,7 @@ async function performSend(
   const { data: receipt, error: rErr } = await supabase
     .from("receipts")
     .select(
-      "id, status, note, received_at, telegram_notification_status, supplier:suppliers(name), employee:employees(name), order:orders(order_number)"
+      "id, status, note, received_at, telegram_notification_status, supplier:suppliers(name), employee:employees(full_name), order:orders(order_number)"
     )
     .eq("id", receiptId)
     .single();
@@ -85,7 +85,7 @@ async function performSend(
     supplier_name: (receipt as any).supplier?.name ?? "—",
     receipt_number: (receipt as any).order?.order_number ?? receipt.id.slice(0, 8),
     received_at: new Date(receipt.received_at as string),
-    employee_name: (receipt as any).employee?.name ?? "—",
+    employee_name: (receipt as any).employee?.full_name ?? "—",
     items,
     note: receipt.note,
   });
