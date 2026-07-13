@@ -238,3 +238,25 @@ function OrdersPage() {
     </AppShell>
   );
 }
+
+function TelegramBadge({ status, sentAt, error }: { status?: string; sentAt?: string | null; error?: string | null }) {
+  if (status === "sent") {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] rounded-md bg-green-100 text-green-800 px-2 py-1" title={sentAt ? `أُرسل: ${format(new Date(sentAt), "yyyy-MM-dd HH:mm")}` : undefined}>
+        <CheckCircle2 className="w-3 h-3" /> تيليجرام: تم الإرسال
+      </span>
+    );
+  }
+  if (status === "failed") {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] rounded-md bg-red-100 text-red-800 px-2 py-1" title={error ?? undefined}>
+        <AlertTriangle className="w-3 h-3" /> تيليجرام: فشل
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] rounded-md bg-muted text-muted-foreground px-2 py-1">
+      <Clock className="w-3 h-3" /> تيليجرام: بانتظار
+    </span>
+  );
+}
