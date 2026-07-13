@@ -44,6 +44,8 @@ function ReceivePage() {
   const [note, setNote] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
   const orderQ = useQuery({
     queryKey: ["order", orderId],
