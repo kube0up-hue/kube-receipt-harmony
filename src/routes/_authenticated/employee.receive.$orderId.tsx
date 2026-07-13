@@ -50,6 +50,8 @@ function ReceivePage() {
   const [saving, setSaving] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
+  const sendTelegram = useServerFn(notifyReceiptApproved);
+
 
   const orderQ = useQuery({
     queryKey: ["order", orderId],
