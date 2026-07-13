@@ -145,6 +145,7 @@ function ReceivePage() {
       toast.error(err instanceof Error ? err.message : "فشل الحفظ");
     } finally {
       setSaving(false);
+    }
   }
 
   async function onCancel() {
@@ -170,7 +171,6 @@ function ReceivePage() {
     } finally {
       setSaving(false);
     }
-  }
   }
 
   if (orderQ.isLoading || !lines || !totals) {
