@@ -14,9 +14,9 @@ function EmployeeHome() {
     queryKey: ["orders", "pending"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("orders")
+        .from("v_orders_effective")
         .select("id, order_number, order_date, expected_delivery_date, supplier:suppliers(name)")
-        .eq("status", "pending_receipt")
+        .eq("effective_status", "pending_receipt")
         .order("order_date", { ascending: false })
         .limit(20);
       if (error) throw error;
