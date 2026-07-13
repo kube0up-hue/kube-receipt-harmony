@@ -12,11 +12,17 @@ function AdminHome() {
   const stats = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
-      const today = new Date().toISOString().slice(0, 10);
+      // بداية اليوم بتوقيت الرياض (UTC+3) كلحظة UTC
+      const riyadhParts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Riyadh",
+        year: "numeric", month: "2-digit", day: "2-digit",
+      }).formatToParts(new Date()).reduce<Record<string, string>>((a, p) => { a[p.type] = p.value; return a; }, {});
+      const todayRiyadh = `${riyadhParts.year}-${riyadhParts.month}-${riyadhParts.day}`;
+      const startOfTodayUTC = new Date(`${todayRiyadh}T00:00:00+03:00`).toISOString();
       const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
       const [pending, todayR, unappr, invMatch, invUnmatch, invReady] = await Promise.all([
         supabase.from("v_orders_effective").select("id", { count: "exact", head: true }).eq("effective_status", "pending_receipt"),
-        supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", `${today}T00:00:00`),
+        supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", startOfTodayUTC),
         supabase.from("receipts").select("id", { count: "exact", head: true }).eq("status", "submitted"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "pending_match"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "unmatched"),
