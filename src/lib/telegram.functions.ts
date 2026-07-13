@@ -156,11 +156,13 @@ export const resendReceiptTelegram = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: isAdmin, error: roleErr } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
-    if (roleErr || !isAdmin) throw new Error("صلاحية المدير مطلوبة");
+    const { data: roleRow, error: roleErr } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (roleErr || !roleRow) throw new Error("صلاحية المدير مطلوبة");
     try {
       return await performSend(supabase, data.receiptId, { force: data.force });
     } catch (err) {
