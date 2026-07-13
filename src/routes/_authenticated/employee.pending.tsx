@@ -13,9 +13,9 @@ function PendingPage() {
     queryKey: ["orders", "pending", "all"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("orders")
+        .from("v_orders_effective")
         .select("id, order_number, order_date, created_at, expected_delivery_date, note, supplier:suppliers(name)")
-        .eq("status", "pending_receipt")
+        .eq("effective_status", "pending_receipt")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
