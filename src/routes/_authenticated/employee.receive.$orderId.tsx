@@ -257,6 +257,26 @@ function ReceivePage() {
       <button type="button" onClick={() => setConfirming(true)} className="kube-btn-primary w-full mt-4">
         مراجعة وتأكيد
       </button>
+      <button type="button" onClick={() => setCancelling(true)} className="w-full mt-2 py-3 rounded-lg border border-kube-red/40 text-kube-red font-bold flex items-center justify-center gap-2">
+        <Ban className="w-4 h-4" /> إلغاء الطلب / لم يصل
+      </button>
+
+      {cancelling && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4" onClick={() => setCancelling(false)}>
+          <div className="bg-background rounded-2xl w-full max-w-md p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-bold text-lg">إلغاء الطلب</h3>
+            <p className="text-sm text-muted-foreground">سيتم إخراج الطلب من قائمة الاستلامات المعلقة. لا يمكن التراجع.</p>
+            <textarea rows={3} placeholder="سبب الإلغاء (إلزامي)" value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)} className="kube-input" />
+            <div className="flex gap-2">
+              <button onClick={() => setCancelling(false)} className="kube-btn-outline flex-1">تراجع</button>
+              <button disabled={saving} onClick={onCancel} className="flex-1 py-3 rounded-lg bg-kube-red text-white font-bold disabled:opacity-50">
+                {saving ? "..." : "تأكيد الإلغاء"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {confirming && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4" onClick={() => setConfirming(false)}>
