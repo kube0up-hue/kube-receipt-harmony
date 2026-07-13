@@ -1,9 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
 import { format } from "date-fns";
+import { useServerFn } from "@tanstack/react-start";
+import { resendReceiptTelegram } from "@/lib/telegram.functions";
+import { useCurrentUser } from "@/lib/use-current-user";
+import { toast } from "sonner";
+import { Send, RotateCw, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
   component: OrdersPage,
@@ -22,6 +27,32 @@ function OrdersPage() {
   const [from, setFrom] = useState(() => daysAgoISO(30));
   const [to, setTo] = useState(() => todayISO());
   const [supplierId, setSupplierId] = useState<string>("");
+  const [resendingId, setResendingId] = useState<string | null>(null);
+  const qc = useQueryClient();
+  const resendFn = useServerFn(resendReceiptTelegram);
+  const { data: cu } = useCurrentUser();
+  const isAdmin = !!cu?.roles?.includes("admin");
+
+  async function handleResend(receiptId: string, currentStatus: string) {
+    if (!isAdmin) { toast.error("صلاحية المدير مطلوبة"); return; }
+    const force = currentStatus === "sent";
+    if (force) {
+      const ok = window.confirm("هذا الإشعار تم إرساله مسبقاً. هل تريد إعادة إرسال نسخة ثانية؟");
+      if (!ok) return;
+    }
+    setResendingId(receiptId);
+    try {
+      const res: any = await resendFn({ data: { receiptId, force } });
+      if (res?.ok && res?.skipped) toast.info("الإشعار مُرسل مسبقاً");
+      else if (res?.ok) toast.success("تم إرسال الإشعار");
+      else toast.error(`فشل الإرسال: ${res?.reason ?? "unknown"}`);
+      await qc.invalidateQueries({ queryKey: ["admin-receipts"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "فشل الإرسال");
+    } finally {
+      setResendingId(null);
+    }
+  }
 
   const suppliers = useQuery({
     queryKey: ["suppliers-all"],
@@ -36,7 +67,7 @@ function OrdersPage() {
     queryKey: ["admin-receipts", from, to, supplierId],
     queryFn: async () => {
       let q = supabase.from("receipts")
-        .select("id,received_at,status,total_ordered,total_received,total_accepted,total_damaged,total_short,total_over,supplier:suppliers(name),employee:employees(full_name),order:orders(order_number)")
+        .select("id,received_at,status,total_ordered,total_received,total_accepted,total_damaged,total_short,total_over,telegram_notification_status,telegram_sent_at,telegram_message_id,telegram_error,supplier:suppliers(name),employee:employees(full_name),order:orders(order_number)")
         .gte("received_at", `${from}T00:00:00`)
         .lte("received_at", `${to}T23:59:59`)
         .order("received_at", { ascending: false })
@@ -143,19 +174,48 @@ function OrdersPage() {
           </div>
           <button onClick={exportCSV} disabled={!receipts.data?.length} className="kube-btn-secondary w-full mb-3 disabled:opacity-50">تصدير CSV</button>
           <div className="space-y-2">
-            {receipts.data?.map(r => (
-              <div key={r.id} className="kube-card">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="font-bold">{r.supplier?.name} · {r.id.slice(0,8)}</div>
-                  <StatusBadge status={r.status} />
+            {receipts.data?.map(r => {
+              const tgStatus = (r as any).telegram_notification_status as "pending" | "sent" | "failed" | undefined;
+              const tgError = (r as any).telegram_error as string | null | undefined;
+              const tgSentAt = (r as any).telegram_sent_at as string | null | undefined;
+              return (
+                <div key={r.id} className="kube-card">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="font-bold">{r.supplier?.name} · {r.id.slice(0,8)}</div>
+                    <StatusBadge status={r.status} />
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {format(new Date(r.received_at), "yyyy-MM-dd HH:mm")} · بواسطة {r.employee?.full_name ?? "—"}
+                    {r.order?.order_number && ` · طلب ${r.order.order_number}`}
+                  </div>
+                  <div className="text-xs mt-1">مطلوب {r.total_ordered} · مستلم {r.total_received} · مقبول {r.total_accepted} · تالف {r.total_damaged}</div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 border-t pt-2">
+                    <TelegramBadge status={tgStatus} sentAt={tgSentAt} error={tgError} />
+                    {isAdmin && tgStatus === "failed" && (
+                      <button
+                        onClick={() => handleResend(r.id, tgStatus)}
+                        disabled={resendingId === r.id}
+                        className="inline-flex items-center gap-1 text-xs font-bold rounded-md border px-2 py-1 hover:bg-muted disabled:opacity-50"
+                      >
+                        <RotateCw className="w-3 h-3" />
+                        إعادة إرسال إشعار تيليجرام
+                      </button>
+                    )}
+                    {isAdmin && tgStatus === "sent" && (
+                      <button
+                        onClick={() => handleResend(r.id, tgStatus)}
+                        disabled={resendingId === r.id}
+                        className="inline-flex items-center gap-1 text-[10px] rounded-md border px-2 py-1 hover:bg-muted disabled:opacity-50"
+                        title="إعادة إرسال قسرية (مدير)"
+                      >
+                        <Send className="w-3 h-3" />
+                        إعادة إرسال قسرية
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  {format(new Date(r.received_at), "yyyy-MM-dd HH:mm")} · بواسطة {r.employee?.full_name ?? "—"}
-                  {r.order?.order_number && ` · طلب ${r.order.order_number}`}
-                </div>
-                <div className="text-xs mt-1">مطلوب {r.total_ordered} · مستلم {r.total_received} · مقبول {r.total_accepted} · تالف {r.total_damaged}</div>
-              </div>
-            ))}
+              );
+            })}
             {(receipts.data?.length ?? 0) === 0 && <div className="kube-card text-center text-muted-foreground">لا توجد استلامات في هذه الفترة</div>}
           </div>
         </>
@@ -176,5 +236,27 @@ function OrdersPage() {
         </div>
       )}
     </AppShell>
+  );
+}
+
+function TelegramBadge({ status, sentAt, error }: { status?: string; sentAt?: string | null; error?: string | null }) {
+  if (status === "sent") {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] rounded-md bg-green-100 text-green-800 px-2 py-1" title={sentAt ? `أُرسل: ${format(new Date(sentAt), "yyyy-MM-dd HH:mm")}` : undefined}>
+        <CheckCircle2 className="w-3 h-3" /> تيليجرام: تم الإرسال
+      </span>
+    );
+  }
+  if (status === "failed") {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] rounded-md bg-red-100 text-red-800 px-2 py-1" title={error ?? undefined}>
+        <AlertTriangle className="w-3 h-3" /> تيليجرام: فشل
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] rounded-md bg-muted text-muted-foreground px-2 py-1">
+      <Clock className="w-3 h-3" /> تيليجرام: بانتظار
+    </span>
   );
 }
