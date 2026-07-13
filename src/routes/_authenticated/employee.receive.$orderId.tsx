@@ -136,7 +136,7 @@ function ReceivePage() {
       const { error: submitErr } = await supabase.rpc("submit_order_receipt", {
         p_receipt_id: receiptId,
         p_order_id: order.id,
-        p_note: note || null,
+        p_note: note || "",
         p_items: itemsPayload,
         p_photo_paths: photoPaths,
       });
