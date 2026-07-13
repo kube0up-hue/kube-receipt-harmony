@@ -764,7 +764,16 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      submit_order_receipt: {
+        Args: {
+          p_items: Json
+          p_note: string
+          p_order_id: string
+          p_photo_paths?: Json
+          p_receipt_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "accountant" | "branch_employee"
