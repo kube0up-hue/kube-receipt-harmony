@@ -102,41 +102,45 @@ function ReceivePage() {
       const { data: emp } = await supabase.from("employees").select("id").eq("user_id", userRes.user.id).single();
       if (!emp) throw new Error("الموظف غير موجود");
 
-      const { data: receipt, error } = await supabase.from("receipts").insert({
-        order_id: order.id, supplier_id: order.supplier_id, employee_id: emp.id,
-        received_by_user: userRes.user.id, status: "submitted", note: note || null,
-      }).select("id").single();
-      if (error) throw error;
+      const { count: existingReceipts, error: existingErr } = await supabase
+        .from("receipts")
+        .select("id", { count: "exact", head: true })
+        .eq("order_id", order.id)
+        .in("status", ["submitted", "approved"]);
+      if (existingErr) throw existingErr;
+      if ((existingReceipts ?? 0) > 0) {
+        toast.error("هذا الطلب مستلم مسبقاً ولن يعود إلى بانتظار الاستلام");
+        navigate({ to: "/employee" });
+        return;
+      }
+
+      const receiptId = crypto.randomUUID();
+      const photoPaths: string[] = [];
+      for (const f of files) {
+        const storagePath = `${receiptId}/${crypto.randomUUID()}-${f.name}`;
+        const { error: upErr } = await supabase.storage.from("receipt-photos").upload(storagePath, f);
+        if (upErr) throw upErr;
+        photoPaths.push(storagePath);
+      }
 
       const itemsPayload = lines.map((l) => {
         const r = Number(l.received || 0), d = Number(l.damaged || 0);
         return {
-          receipt_id: receipt.id, product_id: l.productId,
-          ordered_qty: l.ordered, received_qty: r, damaged_qty: d, note: l.note || null,
+          product_id: l.productId,
+          received_qty: r,
+          damaged_qty: d,
+          note: l.note || null,
         };
       });
-      const { error: iErr } = await supabase.from("receipt_items").insert(itemsPayload);
-      if (iErr) throw iErr;
 
-      for (const f of files) {
-        const storage_path = `${receipt.id}/${crypto.randomUUID()}-${f.name}`;
-        const { error: upErr } = await supabase.storage.from("receipt-photos").upload(storage_path, f);
-        if (upErr) throw upErr;
-        await supabase.from("receipt_photos").insert({ receipt_id: receipt.id, storage_path, uploaded_by: userRes.user.id });
-      }
-
-      const { data: updated, error: updErr } = await supabase
-        .from("orders")
-        .update({ status: "received" })
-        .eq("id", order.id)
-        .select("id")
-        .single();
-      if (updErr || !updated) throw new Error("تعذّر تحديث حالة الطلب");
-
-      await supabase.from("activity_log").insert({
-        actor_user: userRes.user.id, action: "receive_order", entity: "receipts", entity_id: receipt.id,
-        details: { order_id: order.id },
+      const { error: submitErr } = await supabase.rpc("submit_order_receipt", {
+        p_receipt_id: receiptId,
+        p_order_id: order.id,
+        p_note: note || "",
+        p_items: itemsPayload,
+        p_photo_paths: photoPaths,
       });
+      if (submitErr) throw submitErr;
 
       await queryClient.invalidateQueries();
       toast.success("تم الاستلام");
