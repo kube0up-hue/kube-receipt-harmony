@@ -41,7 +41,7 @@ function OrdersPage() {
     queryKey: ["admin-receipts", from, to, supplierId],
     queryFn: async () => {
       let q = supabase.from("receipts")
-        .select("id,received_at,status,total_ordered,total_received,total_accepted,total_damaged,total_short,total_over,supplier:suppliers(name),employee:employees(full_name),order:orders(order_number)")
+        .select("id,received_at,status,total_ordered,total_received,total_accepted,total_damaged,total_short,total_over,telegram_notification_status,telegram_sent_at,telegram_message_id,telegram_error,supplier:suppliers(name),employee:employees(full_name),order:orders(order_number)")
         .gte("received_at", `${from}T00:00:00`)
         .lte("received_at", `${to}T23:59:59`)
         .order("received_at", { ascending: false })
