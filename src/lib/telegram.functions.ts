@@ -4,102 +4,167 @@ import { buildReceiptTelegramMessage, type TelegramReceiptItem } from "./telegra
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/telegram";
 
+type SendOutcome =
+  | { ok: true; messageId: number | null; skipped?: false }
+  | { ok: true; skipped: true; reason: "already_sent" }
+  | { ok: false; reason: string; status?: number };
+
+async function markTelegramStatus(
+  supabase: any,
+  receiptId: string,
+  status: "pending" | "sent" | "failed",
+  messageId: number | null,
+  error: string | null,
+) {
+  const { error: rpcErr } = await supabase.rpc("mark_receipt_telegram", {
+    p_receipt_id: receiptId,
+    p_status: status,
+    p_message_id: messageId,
+    p_error: error,
+  });
+  if (rpcErr) console.error("[telegram] mark_receipt_telegram failed", rpcErr);
+}
+
+async function performSend(
+  supabase: any,
+  receiptId: string,
+  opts: { force?: boolean } = {},
+): Promise<SendOutcome> {
+  const lovableKey = process.env.LOVABLE_API_KEY;
+  const telegramKey = process.env.TELEGRAM_API_KEY;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!lovableKey || !telegramKey || !chatId) {
+    const msg = "missing_env: LOVABLE_API_KEY/TELEGRAM_API_KEY/TELEGRAM_CHAT_ID";
+    console.error("[telegram]", msg);
+    await markTelegramStatus(supabase, receiptId, "failed", null, msg);
+    return { ok: false, reason: "missing_env" };
+  }
+
+  const { data: receipt, error: rErr } = await supabase
+    .from("receipts")
+    .select(
+      "id, status, note, received_at, telegram_notification_status, supplier:suppliers(name), employee:employees(name), order:orders(order_number)"
+    )
+    .eq("id", receiptId)
+    .single();
+  if (rErr || !receipt) {
+    console.error("[telegram] receipt fetch failed", rErr);
+    return { ok: false, reason: "receipt_not_found" };
+  }
+
+  // Only send for approved/submitted receipts (never drafts).
+  if (receipt.status !== "submitted" && receipt.status !== "approved") {
+    return { ok: false, reason: "not_approved" };
+  }
+
+  // Idempotency: skip if already sent unless caller explicitly forces (admin-only path).
+  if (receipt.telegram_notification_status === "sent" && !opts.force) {
+    return { ok: true, skipped: true, reason: "already_sent" };
+  }
+
+  const { data: rows, error: iErr } = await supabase
+    .from("receipt_items")
+    .select("ordered_qty, received_qty, damaged_qty, accepted_qty, diff, product:products(name)")
+    .eq("receipt_id", receiptId);
+  if (iErr) {
+    console.error("[telegram] items fetch failed", iErr);
+    await markTelegramStatus(supabase, receiptId, "failed", null, "items_fetch_failed");
+    return { ok: false, reason: "items_fetch_failed" };
+  }
+
+  const items: TelegramReceiptItem[] = (rows ?? []).map((r: any) => {
+    const ordered = Number(r.ordered_qty ?? 0);
+    const received = Number(r.received_qty ?? 0);
+    const damaged = Number(r.damaged_qty ?? 0);
+    const accepted = Number(r.accepted_qty ?? Math.max(received - damaged, 0));
+    const diff = Number(r.diff ?? accepted - ordered);
+    return { product_name: r.product?.name ?? "—", ordered, received, damaged, accepted, diff };
+  });
+
+  const text = buildReceiptTelegramMessage({
+    supplier_name: (receipt as any).supplier?.name ?? "—",
+    receipt_number: (receipt as any).order?.order_number ?? receipt.id.slice(0, 8),
+    received_at: new Date(receipt.received_at as string),
+    employee_name: (receipt as any).employee?.name ?? "—",
+    items,
+    note: receipt.note,
+  });
+
+  let res: Response;
+  try {
+    res = await fetch(`${GATEWAY_URL}/sendMessage`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${lovableKey}`,
+        "X-Connection-Api-Key": telegramKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[telegram] fetch threw", msg);
+    await markTelegramStatus(supabase, receiptId, "failed", null, `network: ${msg}`);
+    return { ok: false, reason: "network_error" };
+  }
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    const errMsg = `HTTP ${res.status}: ${body.slice(0, 500)}`;
+    console.error(`[telegram] sendMessage failed`, errMsg);
+    await markTelegramStatus(supabase, receiptId, "failed", null, errMsg);
+    return { ok: false, reason: "send_failed", status: res.status };
+  }
+
+  const payload = await res.json().catch(() => null as any);
+  // Provider-in-body error (Telegram returns { ok: false, description } on some 2xx)
+  if (payload && payload.ok === false) {
+    const errMsg = `telegram: ${payload.description ?? "unknown"}`;
+    console.error("[telegram] provider error", errMsg);
+    await markTelegramStatus(supabase, receiptId, "failed", null, errMsg);
+    return { ok: false, reason: "provider_error" };
+  }
+
+  const messageId: number | null = payload?.result?.message_id ?? null;
+  await markTelegramStatus(supabase, receiptId, "sent", messageId, null);
+  return { ok: true, messageId };
+}
+
+// Called automatically once after a receipt is submitted (fire-and-forget from client).
+// Idempotent — safe to call multiple times; skips when status is already 'sent'.
 export const notifyReceiptApproved = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { receiptId: string }) => {
-    if (!input?.receiptId || typeof input.receiptId !== "string") {
-      throw new Error("receiptId مطلوب");
-    }
+    if (!input?.receiptId || typeof input.receiptId !== "string") throw new Error("receiptId مطلوب");
     return input;
   })
   .handler(async ({ data, context }) => {
     try {
-      const lovableKey = process.env.LOVABLE_API_KEY;
-      const telegramKey = process.env.TELEGRAM_API_KEY;
-      const chatId = process.env.TELEGRAM_CHAT_ID;
-      if (!lovableKey || !telegramKey || !chatId) {
-        console.error("[telegram] Missing env: LOVABLE_API_KEY/TELEGRAM_API_KEY/TELEGRAM_CHAT_ID");
-        return { ok: false, reason: "missing_env" as const };
-      }
-
-      const { supabase } = context;
-
-      const { data: receipt, error: rErr } = await supabase
-        .from("receipts")
-        .select(
-          "id, status, note, received_at, supplier:suppliers(name), employee:employees(name), order:orders(order_number)"
-        )
-        .eq("id", data.receiptId)
-        .single();
-      if (rErr || !receipt) {
-        console.error("[telegram] receipt fetch failed", rErr);
-        return { ok: false, reason: "receipt_not_found" as const };
-      }
-
-      // Only send when the receipt is approved/submitted (not draft)
-      if (receipt.status !== "submitted" && receipt.status !== "approved") {
-        return { ok: false, reason: "not_approved" as const };
-      }
-
-      const { data: rows, error: iErr } = await supabase
-        .from("receipt_items")
-        .select("ordered_qty, received_qty, damaged_qty, accepted_qty, diff, product:products(name)")
-        .eq("receipt_id", data.receiptId);
-      if (iErr) {
-        console.error("[telegram] items fetch failed", iErr);
-        return { ok: false, reason: "items_fetch_failed" as const };
-      }
-
-      const items: TelegramReceiptItem[] = (rows ?? []).map((r: any) => {
-        const ordered = Number(r.ordered_qty ?? 0);
-        const received = Number(r.received_qty ?? 0);
-        const damaged = Number(r.damaged_qty ?? 0);
-        const accepted = Number(r.accepted_qty ?? Math.max(received - damaged, 0));
-        const diff = Number(r.diff ?? accepted - ordered);
-        return {
-          product_name: r.product?.name ?? "—",
-          ordered,
-          received,
-          damaged,
-          accepted,
-          diff,
-        };
-      });
-
-      const text = buildReceiptTelegramMessage({
-        supplier_name: (receipt as any).supplier?.name ?? "—",
-        receipt_number: (receipt as any).order?.order_number ?? receipt.id.slice(0, 8),
-        received_at: new Date(receipt.received_at as string),
-        employee_name: (receipt as any).employee?.name ?? "—",
-        items,
-        note: receipt.note,
-      });
-
-      const res = await fetch(`${GATEWAY_URL}/sendMessage`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${lovableKey}`,
-          "X-Connection-Api-Key": telegramKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text,
-          parse_mode: "HTML",
-          disable_web_page_preview: true,
-        }),
-      });
-
-      if (!res.ok) {
-        const body = await res.text().catch(() => "");
-        console.error(`[telegram] sendMessage failed [${res.status}] ${body}`);
-        return { ok: false, reason: "send_failed" as const, status: res.status };
-      }
-
-      return { ok: true as const };
+      return await performSend(context.supabase, data.receiptId);
     } catch (err) {
-      // Never let a Telegram failure bubble up — receipt must not fail.
       console.error("[telegram] notifyReceiptApproved threw", err);
-      return { ok: false, reason: "exception" as const };
+      return { ok: false as const, reason: "exception" };
+    }
+  });
+
+// Admin resend — allowed always (retries failed) and can force when already sent.
+export const resendReceiptTelegram = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { receiptId: string; force?: boolean }) => {
+    if (!input?.receiptId) throw new Error("receiptId مطلوب");
+    return { receiptId: input.receiptId, force: !!input.force };
+  })
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: isAdmin, error: roleErr } = await supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+    if (roleErr || !isAdmin) throw new Error("صلاحية المدير مطلوبة");
+    try {
+      return await performSend(supabase, data.receiptId, { force: data.force });
+    } catch (err) {
+      console.error("[telegram] resendReceiptTelegram threw", err);
+      return { ok: false as const, reason: "exception" };
     }
   });
