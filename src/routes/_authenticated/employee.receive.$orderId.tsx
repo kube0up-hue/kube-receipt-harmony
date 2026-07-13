@@ -102,6 +102,18 @@ function ReceivePage() {
       const { data: emp } = await supabase.from("employees").select("id").eq("user_id", userRes.user.id).single();
       if (!emp) throw new Error("الموظف غير موجود");
 
+      const { count: existingReceipts, error: existingErr } = await supabase
+        .from("receipts")
+        .select("id", { count: "exact", head: true })
+        .eq("order_id", order.id)
+        .in("status", ["submitted", "approved"]);
+      if (existingErr) throw existingErr;
+      if ((existingReceipts ?? 0) > 0) {
+        toast.error("هذا الطلب مستلم مسبقاً ولن يعود إلى بانتظار الاستلام");
+        navigate({ to: "/employee" });
+        return;
+      }
+
       const { data: receipt, error } = await supabase.from("receipts").insert({
         order_id: order.id, supplier_id: order.supplier_id, employee_id: emp.id,
         received_by_user: userRes.user.id, status: "submitted", note: note || null,
@@ -124,14 +136,6 @@ function ReceivePage() {
         if (upErr) throw upErr;
         await supabase.from("receipt_photos").insert({ receipt_id: receipt.id, storage_path, uploaded_by: userRes.user.id });
       }
-
-      const { data: updated, error: updErr } = await supabase
-        .from("orders")
-        .update({ status: "received" })
-        .eq("id", order.id)
-        .select("id")
-        .single();
-      if (updErr || !updated) throw new Error("تعذّر تحديث حالة الطلب");
 
       await supabase.from("activity_log").insert({
         actor_user: userRes.user.id, action: "receive_order", entity: "receipts", entity_id: receipt.id,
