@@ -314,7 +314,7 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
           </label>
 
           <div className="flex flex-col sm:flex-row gap-2 mt-4">
-            <button className="kube-btn-secondary flex-1" onClick={exportCSV} type="button">
+            <button className="flex-1 inline-flex items-center justify-center gap-2 border-2 border-foreground text-foreground rounded-xl px-4 py-3 font-bold hover:bg-foreground hover:text-background transition" onClick={exportCSV} type="button">
               <FileDown className="w-4 h-4" /> تصدير الأعداد (Excel)
             </button>
             <button className="kube-btn-primary flex-1" disabled={saveMut.isPending} onClick={() => saveMut.mutate()}>
