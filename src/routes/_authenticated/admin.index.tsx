@@ -323,11 +323,12 @@ function AdminHome() {
                       <th className="p-2 text-center">مقبول</th>
                       <th className="p-2 text-center">تالف</th>
                       <th className="p-2 text-center">الفرق</th>
+                      <th className="p-2 text-right">الصور</th>
                     </tr>
                   </thead>
                   <tbody>
                     {detail.data!.map((r, i) => (
-                      <tr key={i} className="border-t">
+                      <tr key={i} className="border-t align-top">
                         <td className="p-2 font-mono">{r.orderNumber}</td>
                         <td className="p-2">{r.supplier}</td>
                         <td className="p-2">
@@ -339,6 +340,7 @@ function AdminHome() {
                         <td className="p-2 text-center">{r.accepted} {r.unit}</td>
                         <td className="p-2 text-center">{r.damaged}</td>
                         <td className={`p-2 text-center font-bold ${r.diff < 0 ? "text-destructive" : ""}`}>{r.diff}</td>
+                        <td className="p-2"><ItemPhotos paths={r.photos} /></td>
                       </tr>
                     ))}
                   </tbody>
