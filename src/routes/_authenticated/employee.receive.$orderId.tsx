@@ -10,8 +10,6 @@ import { format } from "date-fns";
 import { useServerFn } from "@tanstack/react-start";
 import { notifyReceiptApproved } from "@/lib/telegram.functions";
 
-
-
 export const Route = createFileRoute("/_authenticated/employee/receive/$orderId")({
   component: ReceivePage,
 });
@@ -25,6 +23,7 @@ interface Line {
   received: string;
   damaged: string;
   note: string;
+  photos: File[];
 }
 
 function computeStatus(ordered: number, received: number, damaged: number): { status: string; accepted: number; diff: number } {
@@ -44,14 +43,12 @@ function ReceivePage() {
   const queryClient = useQueryClient();
   const { data: cu } = useCurrentUser();
   const [lines, setLines] = useState<Line[] | null>(null);
-  const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [saving, setSaving] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const sendTelegram = useServerFn(notifyReceiptApproved);
-
 
   const orderQ = useQuery({
     queryKey: ["order", orderId],
@@ -65,7 +62,7 @@ function ReceivePage() {
         setLines(data.items.map((it: any) => ({
           itemId: it.id, productId: it.product.id, productName: it.product.name,
           unit: it.product.unit, ordered: Number(it.ordered_qty),
-          received: "", damaged: "", note: "",
+          received: "", damaged: "", note: "", photos: [],
         })));
       }
       return data;
@@ -75,7 +72,7 @@ function ReceivePage() {
   const totals = useMemo(() => {
     if (!lines) return null;
     let ordered = 0, received = 0, accepted = 0, damaged = 0, short = 0, over = 0;
-    let requiresPhoto = false, requiresNote = false;
+    let missingPhotos = false, requiresNote = false;
     for (const l of lines) {
       const r = Number(l.received || 0), d = Number(l.damaged || 0);
       const c = computeStatus(l.ordered, r, d);
@@ -83,15 +80,21 @@ function ReceivePage() {
       if (c.diff < 0) short += -c.diff;
       if (c.diff > 0) over += c.diff;
       if (c.status !== "matched") requiresNote = requiresNote || !l.note.trim();
-      if (d > 0 || c.diff !== 0) requiresPhoto = true;
+      if (l.photos.length === 0) missingPhotos = true;
     }
-    return { ordered, received, accepted, damaged, short, over, requiresPhoto, requiresNote };
+    return { ordered, received, accepted, damaged, short, over, missingPhotos, requiresNote };
   }, [lines]);
 
   function updateLine(i: number, patch: Partial<Line>) {
     setLines((prev) => prev!.map((l, j) => j === i ? { ...l, ...patch } : l));
   }
-
+  function addPhotos(i: number, files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setLines((prev) => prev!.map((l, j) => j === i ? { ...l, photos: [...l.photos, ...Array.from(files)] } : l));
+  }
+  function removePhoto(i: number, k: number) {
+    setLines((prev) => prev!.map((l, j) => j === i ? { ...l, photos: l.photos.filter((_, x) => x !== k) } : l));
+  }
   function copyOrdered() {
     setLines((prev) => prev!.map((l) => ({ ...l, received: String(l.ordered) })));
   }
@@ -99,57 +102,50 @@ function ReceivePage() {
   async function onSubmit() {
     if (!lines || !totals || !cu) return;
     if (totals.requiresNote) return toast.error("أدخل ملاحظة لكل منتج به فرق أو تالف");
-    if (totals.requiresPhoto && files.length === 0) return toast.error("رفع صورة إلزامي عند وجود فرق أو تالف");
+    if (totals.missingPhotos) return toast.error("يجب تصوير كل صنف على حدة قبل التأكيد");
     setSaving(true);
     try {
       const { data: userRes } = await supabase.auth.getUser();
       if (!userRes.user) throw new Error("جلسة منتهية");
       const order = orderQ.data!;
-      const { data: emp } = await supabase.from("employees").select("id").eq("user_id", userRes.user.id).single();
-      if (!emp) throw new Error("الموظف غير موجود");
 
       const { count: existingReceipts, error: existingErr } = await supabase
-        .from("receipts")
-        .select("id", { count: "exact", head: true })
-        .eq("order_id", order.id)
-        .in("status", ["submitted", "approved"]);
+        .from("receipts").select("id", { count: "exact", head: true })
+        .eq("order_id", order.id).in("status", ["submitted", "approved"]);
       if (existingErr) throw existingErr;
       if ((existingReceipts ?? 0) > 0) {
-        toast.error("هذا الطلب مستلم مسبقاً ولن يعود إلى بانتظار الاستلام");
+        toast.error("هذا الطلب مستلم مسبقاً");
         navigate({ to: "/employee" });
         return;
       }
 
       const receiptId = crypto.randomUUID();
-      const photoPaths: string[] = [];
-      for (const f of files) {
-        const storagePath = `${receiptId}/${crypto.randomUUID()}-${f.name}`;
-        const { error: upErr } = await supabase.storage.from("receipt-photos").upload(storagePath, f);
-        if (upErr) throw upErr;
-        photoPaths.push(storagePath);
+      const photosPayload: { product_id: string; storage_path: string }[] = [];
+      for (const l of lines) {
+        for (const f of l.photos) {
+          const storagePath = `${receiptId}/${l.productId}/${crypto.randomUUID()}-${f.name}`;
+          const { error: upErr } = await supabase.storage.from("receipt-photos").upload(storagePath, f);
+          if (upErr) throw upErr;
+          photosPayload.push({ product_id: l.productId, storage_path: storagePath });
+        }
       }
 
-      const itemsPayload = lines.map((l) => {
-        const r = Number(l.received || 0), d = Number(l.damaged || 0);
-        return {
-          product_id: l.productId,
-          received_qty: r,
-          damaged_qty: d,
-          note: l.note || null,
-        };
-      });
+      const itemsPayload = lines.map((l) => ({
+        product_id: l.productId,
+        received_qty: Number(l.received || 0),
+        damaged_qty: Number(l.damaged || 0),
+        note: l.note || null,
+      }));
 
       const { error: submitErr } = await supabase.rpc("submit_order_receipt", {
         p_receipt_id: receiptId,
         p_order_id: order.id,
         p_note: note || "",
         p_items: itemsPayload,
-        p_photo_paths: photoPaths,
+        p_photos: photosPayload,
       });
       if (submitErr) throw submitErr;
 
-      // إشعار Telegram — يُنتظر لضمان تحديث حالة الإرسال قبل انتهاء Server Function،
-      // لكن فشل الإشعار لا يُلغي اعتماد الاستلام ولا يعرض خطأ للموظف.
       try {
         await sendTelegram({ data: { receiptId } });
       } catch (error) {
@@ -173,9 +169,7 @@ function ReceivePage() {
       const { data: userRes } = await supabase.auth.getUser();
       if (!userRes.user) throw new Error("جلسة منتهية");
       const { error: updErr } = await supabase
-        .from("orders")
-        .update({ status: "cancelled", note: cancelReason })
-        .eq("id", orderId);
+        .from("orders").update({ status: "cancelled", note: cancelReason }).eq("id", orderId);
       if (updErr) throw updErr;
       await supabase.from("activity_log").insert({
         actor_user: userRes.user.id, action: "cancel_order", entity: "orders", entity_id: orderId,
@@ -208,11 +202,16 @@ function ReceivePage() {
         </button>
       </div>
 
+      <div className="kube-card mb-3 bg-muted/50 text-xs text-muted-foreground">
+        📸 تصوير كل صنف على حدة إلزامي قبل تأكيد الاستلام.
+      </div>
+
       <div className="space-y-3">
         {lines.map((l, i) => {
           const r = Number(l.received || 0), d = Number(l.damaged || 0);
           const c = computeStatus(l.ordered, r, d);
           const needsNote = c.status !== "matched";
+          const hasPhoto = l.photos.length > 0;
           return (
             <div key={l.itemId} className="kube-card space-y-3">
               <div className="flex items-start justify-between gap-2">
@@ -244,30 +243,38 @@ function ReceivePage() {
                   value={l.note} onChange={(e) => updateLine(i, { note: e.target.value })}
                   className="kube-input" />
               )}
+
+              <div className={`rounded-lg border p-2 space-y-2 ${hasPhoto ? "border-border" : "border-kube-red/60 bg-kube-red/5"}`}>
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-bold">
+                    صور الصنف {!hasPhoto && <span className="text-kube-red">(إلزامي)</span>}
+                  </div>
+                  <label className="kube-btn-outline !py-1.5 !px-2 text-xs cursor-pointer">
+                    <Camera className="w-4 h-4" /> إضافة
+                    <input type="file" accept="image/*" multiple capture="environment" hidden
+                      onChange={(e) => addPhotos(i, e.target.files)} />
+                  </label>
+                </div>
+                {l.photos.length > 0 && (
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {l.photos.map((f, k) => (
+                      <div key={k} className="relative aspect-square bg-muted rounded overflow-hidden">
+                        <img src={URL.createObjectURL(f)} className="w-full h-full object-cover" alt="" />
+                        <button type="button" onClick={() => removePhoto(i, k)}
+                          className="absolute top-0.5 left-0.5 bg-background/80 rounded-full p-0.5">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
 
-      <div className="kube-card mt-4 space-y-3">
-        <div className="font-bold">صور الاستلام {totals.requiresPhoto && <span className="text-kube-red text-sm">(إلزامي)</span>}</div>
-        <label className="kube-btn-outline w-full cursor-pointer">
-          <Camera className="w-5 h-5" />
-          إضافة صور
-          <input type="file" accept="image/*" multiple capture="environment" hidden
-            onChange={(e) => setFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])])} />
-        </label>
-        {files.length > 0 && (
-          <div className="grid grid-cols-3 gap-2">
-            {files.map((f, i) => (
-              <div key={i} className="relative aspect-square bg-muted rounded overflow-hidden">
-                <img src={URL.createObjectURL(f)} className="w-full h-full object-cover" alt="" />
-                <button type="button" onClick={() => setFiles((p) => p.filter((_, j) => j !== i))}
-                  className="absolute top-1 left-1 bg-background/80 rounded-full p-1"><X className="w-3 h-3" /></button>
-              </div>
-            ))}
-          </div>
-        )}
+      <div className="kube-card mt-4">
         <textarea rows={2} placeholder="ملاحظة عامة (اختياري)" value={note}
           onChange={(e) => setNote(e.target.value)} className="kube-input" />
       </div>
@@ -283,7 +290,7 @@ function ReceivePage() {
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4" onClick={() => setCancelling(false)}>
           <div className="bg-background rounded-2xl w-full max-w-md p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-bold text-lg">إلغاء الطلب</h3>
-            <p className="text-sm text-muted-foreground">سيتم إخراج الطلب من قائمة الاستلامات المعلقة. لا يمكن التراجع.</p>
+            <p className="text-sm text-muted-foreground">سيتم إخراج الطلب من قائمة الاستلامات المعلقة.</p>
             <textarea rows={3} placeholder="سبب الإلغاء (إلزامي)" value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)} className="kube-input" />
             <div className="flex gap-2">
@@ -308,13 +315,16 @@ function ReceivePage() {
               <Row k="إجمالي النقص" v={totals.short} danger />
               <Row k="إجمالي الزيادة" v={totals.over} danger />
             </div>
+            {totals.missingPhotos && (
+              <div className="text-xs text-kube-red font-bold">⚠ يجب تصوير كل صنف قبل التأكيد.</div>
+            )}
             <div className="text-xs text-muted-foreground border-t pt-3">
               <div>الموظف: <span className="font-semibold text-foreground">{cu?.fullName ?? "—"}</span></div>
               <div>الوقت: {format(new Date(), "yyyy-MM-dd HH:mm")}</div>
             </div>
             <div className="flex gap-2">
               <button onClick={() => setConfirming(false)} className="kube-btn-outline flex-1">تراجع</button>
-              <button disabled={saving} onClick={onSubmit} className="kube-btn-primary flex-1 disabled:opacity-50">
+              <button disabled={saving || totals.missingPhotos} onClick={onSubmit} className="kube-btn-primary flex-1 disabled:opacity-50">
                 {saving ? "..." : "تم الاستلام"}
               </button>
             </div>
