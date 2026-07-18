@@ -19,8 +19,8 @@ async function markTelegramStatus(
   const { error: rpcErr } = await supabaseAdmin.rpc("mark_receipt_telegram", {
     p_receipt_id: receiptId,
     p_status: status,
-    p_message_id: messageId,
-    p_error: error,
+    p_message_id: messageId ?? undefined,
+    p_error: error ?? undefined,
   });
   if (rpcErr) console.error("[telegram] mark_receipt_telegram failed", rpcErr);
 }
