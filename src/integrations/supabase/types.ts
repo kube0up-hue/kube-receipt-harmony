@@ -523,6 +523,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          product_id: string | null
           receipt_id: string
           storage_path: string
           uploaded_by: string | null
@@ -530,6 +531,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          product_id?: string | null
           receipt_id: string
           storage_path: string
           uploaded_by?: string | null
@@ -537,11 +539,19 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          product_id?: string | null
           receipt_id?: string
           storage_path?: string
           uploaded_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "receipt_photos_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "receipt_photos_receipt_id_fkey"
             columns: ["receipt_id"]
@@ -790,7 +800,7 @@ export type Database = {
           p_items: Json
           p_note: string
           p_order_id: string
-          p_photo_paths?: Json
+          p_photos?: Json
           p_receipt_id: string
         }
         Returns: string
