@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer } from "lucide-react";
+import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ImageIcon } from "lucide-react";
 import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
@@ -15,6 +15,7 @@ type DetailMode = "short" | "damaged" | "all";
 
 interface DetailRow {
   receiptId: string;
+  productId: string;
   orderNumber: string;
   supplier: string;
   date: string;
@@ -26,6 +27,42 @@ interface DetailRow {
   diff: number;
   qty: number;
   note: string | null;
+  photos: string[];
+}
+
+function ItemPhotos({ paths }: { paths: string[] }) {
+  const [urls, setUrls] = useState<string[]>([]);
+  const [open, setOpen] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (paths.length === 0) { setUrls([]); return; }
+      const { data } = await supabase.storage.from("receipt-photos").createSignedUrls(paths, 3600);
+      if (cancelled) return;
+      setUrls((data ?? []).map((d) => d.signedUrl).filter(Boolean) as string[]);
+    })();
+    return () => { cancelled = true; };
+  }, [paths.join("|")]);
+  if (paths.length === 0) {
+    return <div className="text-[10px] text-kube-red flex items-center gap-1"><ImageIcon className="w-3 h-3" />بدون صور</div>;
+  }
+  return (
+    <>
+      <div className="flex flex-wrap gap-1">
+        {urls.map((u, i) => (
+          <button key={i} type="button" onClick={() => setOpen(u)}
+            className="w-10 h-10 rounded overflow-hidden border">
+            <img src={u} alt="" className="w-full h-full object-cover" />
+          </button>
+        ))}
+      </div>
+      {open && (
+        <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4" onClick={() => setOpen(null)}>
+          <img src={open} alt="" className="max-w-full max-h-full rounded" />
+        </div>
+      )}
+    </>
+  );
 }
 
 function AdminHome() {
@@ -79,19 +116,26 @@ function AdminHome() {
       const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
       const { data: receipts } = await supabase
         .from("receipts")
-        .select("id, received_at, order_id, orders(order_number, suppliers(name)), receipt_items(ordered_qty, received_qty, accepted_qty, damaged_qty, diff, note, products(name, unit))")
+        .select("id, received_at, order_id, orders(order_number, suppliers(name)), receipt_items(ordered_qty, received_qty, accepted_qty, damaged_qty, diff, note, products(id, name, unit)), receipt_photos(storage_path, product_id)")
         .gte("received_at", weekAgo)
         .order("received_at", { ascending: false });
       const rows: DetailRow[] = [];
       (receipts ?? []).forEach((r: any) => {
+        const photoMap: Record<string, string[]> = {};
+        (r.receipt_photos ?? []).forEach((p: any) => {
+          const key = p.product_id ?? "_";
+          (photoMap[key] ||= []).push(p.storage_path);
+        });
         (r.receipt_items ?? []).forEach((it: any) => {
           const shortQty = Number(it.diff) < 0 ? -Number(it.diff) : 0;
           const dmg = Number(it.damaged_qty ?? 0);
           const diff = Number(it.diff ?? 0);
           const qty = openDetail === "short" ? shortQty : openDetail === "damaged" ? dmg : Number(it.accepted_qty ?? 0);
           if (openDetail !== "all" && qty <= 0) return;
+          const pid = it.products?.id ?? "";
           rows.push({
             receiptId: r.id,
+            productId: pid,
             orderNumber: r.orders?.order_number ?? "-",
             supplier: r.orders?.suppliers?.name ?? "-",
             date: r.received_at,
@@ -103,6 +147,7 @@ function AdminHome() {
             diff,
             qty,
             note: it.note ?? null,
+            photos: [...(photoMap[pid] ?? []), ...(photoMap["_"] ?? [])],
           });
         });
       });
@@ -278,11 +323,12 @@ function AdminHome() {
                       <th className="p-2 text-center">مقبول</th>
                       <th className="p-2 text-center">تالف</th>
                       <th className="p-2 text-center">الفرق</th>
+                      <th className="p-2 text-right">الصور</th>
                     </tr>
                   </thead>
                   <tbody>
                     {detail.data!.map((r, i) => (
-                      <tr key={i} className="border-t">
+                      <tr key={i} className="border-t align-top">
                         <td className="p-2 font-mono">{r.orderNumber}</td>
                         <td className="p-2">{r.supplier}</td>
                         <td className="p-2">
@@ -294,6 +340,7 @@ function AdminHome() {
                         <td className="p-2 text-center">{r.accepted} {r.unit}</td>
                         <td className="p-2 text-center">{r.damaged}</td>
                         <td className={`p-2 text-center font-bold ${r.diff < 0 ? "text-destructive" : ""}`}>{r.diff}</td>
+                        <td className="p-2"><ItemPhotos paths={r.photos} /></td>
                       </tr>
                     ))}
                   </tbody>
