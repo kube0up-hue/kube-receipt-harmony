@@ -89,6 +89,37 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
     if (items.length === 0) toast.warning("لا توجد استلامات في هذه الفترة");
   };
 
+  const exportCSV = () => {
+    if (rows.length === 0) { toast.error("لا توجد بيانات"); return; }
+    const supplierName = suppliers.data?.find(s => s.id === supplierId)?.name ?? "";
+    const headers = ["المنتج","الوحدة","المطلوب","المستلم","التالف","المقبول","الكمية بالفاتورة","سعر الوحدة","الفرق","الإجمالي"];
+    const lines = rows.map(r => {
+      const iq = Number(r.invoiced_qty || 0);
+      const up = Number(r.unit_price || 0);
+      const diff = r.invoiced_qty === "" ? "" : iq - r.accepted_qty;
+      return [r.product_name, r.unit, r.ordered_qty, r.received_qty, r.damaged_qty, r.accepted_qty, r.invoiced_qty, r.unit_price, diff, (iq*up) || ""];
+    });
+    const esc = (v: unknown) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+    };
+    const meta = [
+      [`المورد:`, supplierName],
+      [`الفترة:`, `${periodStart} → ${periodEnd}`],
+      [],
+    ];
+    const csv = "\uFEFF" + [...meta, headers, ...lines].map(r => r.map(esc).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `مطابقة-${supplierName}-${periodStart}-${periodEnd}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("تم التصدير");
+  };
+
+
   const totals = useMemo(() => {
     let acc = 0, inv = 0, sum = 0;
     for (const r of rows) {
