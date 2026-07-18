@@ -10,13 +10,13 @@ type SendOutcome =
   | { ok: false; reason: string; status?: number };
 
 async function markTelegramStatus(
-  supabase: any,
   receiptId: string,
   status: "pending" | "sent" | "failed",
   messageId: number | null,
   error: string | null,
 ) {
-  const { error: rpcErr } = await supabase.rpc("mark_receipt_telegram", {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { error: rpcErr } = await supabaseAdmin.rpc("mark_receipt_telegram", {
     p_receipt_id: receiptId,
     p_status: status,
     p_message_id: messageId,
