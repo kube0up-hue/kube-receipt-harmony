@@ -36,7 +36,7 @@ async function performSend(
   if (!lovableKey || !telegramKey || !chatId) {
     const msg = "missing_env: LOVABLE_API_KEY/TELEGRAM_API_KEY/TELEGRAM_CHAT_ID";
     console.error("[telegram]", msg);
-    await markTelegramStatus(supabase, receiptId, "failed", null, msg);
+    await markTelegramStatus(receiptId, "failed", null, msg);
     return { ok: false, reason: "missing_env" };
   }
 
@@ -68,7 +68,7 @@ async function performSend(
     .eq("receipt_id", receiptId);
   if (iErr) {
     console.error("[telegram] items fetch failed", iErr);
-    await markTelegramStatus(supabase, receiptId, "failed", null, "items_fetch_failed");
+    await markTelegramStatus(receiptId, "failed", null, "items_fetch_failed");
     return { ok: false, reason: "items_fetch_failed" };
   }
 
@@ -104,7 +104,7 @@ async function performSend(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[telegram] fetch threw", msg);
-    await markTelegramStatus(supabase, receiptId, "failed", null, `network: ${msg}`);
+    await markTelegramStatus(receiptId, "failed", null, `network: ${msg}`);
     return { ok: false, reason: "network_error" };
   }
 
@@ -112,7 +112,7 @@ async function performSend(
     const body = await res.text().catch(() => "");
     const errMsg = `HTTP ${res.status}: ${body.slice(0, 500)}`;
     console.error(`[telegram] sendMessage failed`, errMsg);
-    await markTelegramStatus(supabase, receiptId, "failed", null, errMsg);
+    await markTelegramStatus(receiptId, "failed", null, errMsg);
     return { ok: false, reason: "send_failed", status: res.status };
   }
 
@@ -121,12 +121,12 @@ async function performSend(
   if (payload && payload.ok === false) {
     const errMsg = `telegram: ${payload.description ?? "unknown"}`;
     console.error("[telegram] provider error", errMsg);
-    await markTelegramStatus(supabase, receiptId, "failed", null, errMsg);
+    await markTelegramStatus(receiptId, "failed", null, errMsg);
     return { ok: false, reason: "provider_error" };
   }
 
   const messageId: number | null = payload?.result?.message_id ?? null;
-  await markTelegramStatus(supabase, receiptId, "sent", messageId, null);
+  await markTelegramStatus(receiptId, "sent", messageId, null);
   return { ok: true, messageId };
 }
 
