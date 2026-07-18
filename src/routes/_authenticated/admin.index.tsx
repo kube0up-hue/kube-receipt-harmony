@@ -116,19 +116,26 @@ function AdminHome() {
       const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
       const { data: receipts } = await supabase
         .from("receipts")
-        .select("id, received_at, order_id, orders(order_number, suppliers(name)), receipt_items(ordered_qty, received_qty, accepted_qty, damaged_qty, diff, note, products(name, unit))")
+        .select("id, received_at, order_id, orders(order_number, suppliers(name)), receipt_items(ordered_qty, received_qty, accepted_qty, damaged_qty, diff, note, products(id, name, unit)), receipt_photos(storage_path, product_id)")
         .gte("received_at", weekAgo)
         .order("received_at", { ascending: false });
       const rows: DetailRow[] = [];
       (receipts ?? []).forEach((r: any) => {
+        const photoMap: Record<string, string[]> = {};
+        (r.receipt_photos ?? []).forEach((p: any) => {
+          const key = p.product_id ?? "_";
+          (photoMap[key] ||= []).push(p.storage_path);
+        });
         (r.receipt_items ?? []).forEach((it: any) => {
           const shortQty = Number(it.diff) < 0 ? -Number(it.diff) : 0;
           const dmg = Number(it.damaged_qty ?? 0);
           const diff = Number(it.diff ?? 0);
           const qty = openDetail === "short" ? shortQty : openDetail === "damaged" ? dmg : Number(it.accepted_qty ?? 0);
           if (openDetail !== "all" && qty <= 0) return;
+          const pid = it.products?.id ?? "";
           rows.push({
             receiptId: r.id,
+            productId: pid,
             orderNumber: r.orders?.order_number ?? "-",
             supplier: r.orders?.suppliers?.name ?? "-",
             date: r.received_at,
@@ -140,6 +147,7 @@ function AdminHome() {
             diff,
             qty,
             note: it.note ?? null,
+            photos: [...(photoMap[pid] ?? []), ...(photoMap["_"] ?? [])],
           });
         });
       });
