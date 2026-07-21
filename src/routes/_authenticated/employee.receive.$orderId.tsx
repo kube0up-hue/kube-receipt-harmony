@@ -168,9 +168,12 @@ function ReceivePage() {
     try {
       const { data: userRes } = await supabase.auth.getUser();
       if (!userRes.user) throw new Error("جلسة منتهية");
-      const { error: updErr } = await supabase
-        .from("orders").update({ status: "cancelled", note: cancelReason }).eq("id", orderId);
+      const { data: updRows, error: updErr } = await supabase
+        .from("orders").update({ status: "cancelled", note: cancelReason }).eq("id", orderId).select("id");
       if (updErr) throw updErr;
+      if (!updRows || updRows.length === 0) {
+        throw new Error("لا تملك صلاحية إلغاء هذا الطلب");
+      }
       await supabase.from("activity_log").insert({
         actor_user: userRes.user.id, action: "cancel_order", entity: "orders", entity_id: orderId,
         details: { reason: cancelReason },
