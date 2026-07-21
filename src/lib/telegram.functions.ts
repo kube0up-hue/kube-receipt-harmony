@@ -32,8 +32,17 @@ async function performSend(
 ): Promise<SendOutcome> {
   const lovableKey = process.env.LOVABLE_API_KEY;
   const telegramKey = process.env.TELEGRAM_API_KEY;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!lovableKey || !telegramKey || !chatId) {
+  const rawIds = [
+    process.env.TELEGRAM_CHAT_ID,
+    process.env.TELEGRAM_CHAT_ID_2,
+    process.env.TELEGRAM_CHAT_ID_3,
+  ]
+    .filter(Boolean)
+    .flatMap((v) => String(v).split(","))
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const chatIds = Array.from(new Set(rawIds));
+  if (!lovableKey || !telegramKey || chatIds.length === 0) {
     const msg = "missing_env: LOVABLE_API_KEY/TELEGRAM_API_KEY/TELEGRAM_CHAT_ID";
     console.error("[telegram]", msg);
     await markTelegramStatus(receiptId, "failed", null, msg);
