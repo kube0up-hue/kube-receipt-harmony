@@ -99,44 +99,63 @@ async function performSend(
     note: receipt.note,
   });
 
-  let res: Response;
-  try {
-    res = await fetch(`${GATEWAY_URL}/sendMessage`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${lovableKey}`,
-        "X-Connection-Api-Key": telegramKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
-    });
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error("[telegram] fetch threw", msg);
-    await markTelegramStatus(receiptId, "failed", null, `network: ${msg}`);
-    return { ok: false, reason: "network_error" };
+  let firstMessageId: number | null = null;
+  const errors: string[] = [];
+  let successCount = 0;
+
+  for (const chatId of chatIds) {
+    let res: Response;
+    try {
+      res = await fetch(`${GATEWAY_URL}/sendMessage`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${lovableKey}`,
+          "X-Connection-Api-Key": telegramKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[telegram] fetch threw for ${chatId}`, msg);
+      errors.push(`${chatId}: network ${msg}`);
+      continue;
+    }
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      const errMsg = `HTTP ${res.status}: ${body.slice(0, 300)}`;
+      console.error(`[telegram] sendMessage failed for ${chatId}`, errMsg);
+      errors.push(`${chatId}: ${errMsg}`);
+      continue;
+    }
+
+    const payload = await res.json().catch(() => null as any);
+    if (payload && payload.ok === false) {
+      const errMsg = `telegram: ${payload.description ?? "unknown"}`;
+      console.error(`[telegram] provider error for ${chatId}`, errMsg);
+      errors.push(`${chatId}: ${errMsg}`);
+      continue;
+    }
+
+    const mid: number | null = payload?.result?.message_id ?? null;
+    if (firstMessageId === null) firstMessageId = mid;
+    successCount++;
   }
 
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    const errMsg = `HTTP ${res.status}: ${body.slice(0, 500)}`;
-    console.error(`[telegram] sendMessage failed`, errMsg);
+  if (successCount === 0) {
+    const errMsg = errors.join(" | ").slice(0, 500) || "unknown";
     await markTelegramStatus(receiptId, "failed", null, errMsg);
-    return { ok: false, reason: "send_failed", status: res.status };
+    return { ok: false, reason: "send_failed" };
   }
 
-  const payload = await res.json().catch(() => null as any);
-  // Provider-in-body error (Telegram returns { ok: false, description } on some 2xx)
-  if (payload && payload.ok === false) {
-    const errMsg = `telegram: ${payload.description ?? "unknown"}`;
-    console.error("[telegram] provider error", errMsg);
-    await markTelegramStatus(receiptId, "failed", null, errMsg);
-    return { ok: false, reason: "provider_error" };
-  }
-
-  const messageId: number | null = payload?.result?.message_id ?? null;
-  await markTelegramStatus(receiptId, "sent", messageId, null);
-  return { ok: true, messageId };
+  await markTelegramStatus(
+    receiptId,
+    "sent",
+    firstMessageId,
+    errors.length > 0 ? `partial: ${errors.join(" | ").slice(0, 400)}` : null,
+  );
+  return { ok: true, messageId: firstMessageId };
 }
 
 // Called automatically once after a receipt is submitted (fire-and-forget from client).
