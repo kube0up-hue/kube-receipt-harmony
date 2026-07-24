@@ -33,6 +33,7 @@ function AccountantHome() {
     { to: "/accountant/invoices", label: "كل الفواتير", icon: FileText },
     { to: "/accountant/suppliers", label: "الموردون", icon: Truck },
     { to: "/accountant/receipts", label: "الاستلامات", icon: ClipboardCheck },
+    { to: "/admin", label: "فحص سلامة البيانات (لوحة الإدارة)", icon: AlertTriangle },
   ];
   return (
     <AppShell title="واجهة المحاسب">
