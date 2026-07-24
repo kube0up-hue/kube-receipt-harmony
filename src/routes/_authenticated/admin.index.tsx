@@ -108,6 +108,115 @@ function AdminHome() {
 
   const s = stats.data;
   const [openDetail, setOpenDetail] = useState<null | DetailMode>(null);
+  const [integrityOpen, setIntegrityOpen] = useState(false);
+  const [integrityRunning, setIntegrityRunning] = useState(false);
+  const [integrityResult, setIntegrityResult] = useState<null | {
+    checkedAt: string;
+    issues: Array<{ kind: string; severity: "error" | "warn"; title: string; detail: string; ref?: string }>;
+  }>(null);
+
+  async function runIntegrityCheck() {
+    setIntegrityRunning(true);
+    setIntegrityOpen(true);
+    try {
+      const since = new Date(Date.now() - 24 * 3600_000).toISOString();
+      const issues: Array<{ kind: string; severity: "error" | "warn"; title: string; detail: string; ref?: string }> = [];
+
+      // 1) orders created in last 24h with no items
+      const { data: recentOrders } = await supabase
+        .from("orders")
+        .select("id, order_number, created_at, status, supplier:suppliers(name), order_items(id)")
+        .gte("created_at", since)
+        .order("created_at", { ascending: false });
+      (recentOrders ?? []).forEach((o: any) => {
+        if (!o.order_items || o.order_items.length === 0) {
+          issues.push({
+            kind: "order_no_items",
+            severity: "error",
+            title: `طلب بلا بنود: ${o.order_number}`,
+            detail: `المورد ${o.supplier?.name ?? "—"} · أُنشئ ${formatDateTimeAr(o.created_at)}`,
+            ref: o.order_number,
+          });
+        }
+      });
+
+      // 2) orders pending_receipt older than 24h (should have been received or cancelled)
+      const { data: staleOrders } = await supabase
+        .from("v_orders_effective")
+        .select("id, order_number, order_date, created_at, effective_status, supplier:suppliers(name)")
+        .eq("effective_status", "pending_receipt")
+        .lt("created_at", since)
+        .order("created_at", { ascending: true })
+        .limit(50);
+      (staleOrders ?? []).forEach((o: any) => {
+        const days = Math.floor((Date.now() - new Date(o.created_at).getTime()) / 86400000);
+        issues.push({
+          kind: "order_stale_pending",
+          severity: "warn",
+          title: `طلب معلق منذ ${days} يوم: ${o.order_number}`,
+          detail: `المورد ${o.supplier?.name ?? "—"} · تاريخ الطلب ${formatDateAr(o.order_date)}`,
+          ref: o.order_number,
+        });
+      });
+
+      // 3) receipts in last 24h with missing photos or item mismatch or telegram failures
+      const { data: recentReceipts } = await supabase
+        .from("receipts")
+        .select("id, received_at, status, telegram_notification_status, telegram_error, order:orders(order_number, order_items(product_id)), supplier:suppliers(name), receipt_items(product_id), receipt_photos(product_id)")
+        .gte("received_at", since)
+        .order("received_at", { ascending: false });
+      (recentReceipts ?? []).forEach((r: any) => {
+        const orderProducts: string[] = (r.order?.order_items ?? []).map((i: any) => i.product_id);
+        const receiptProducts: string[] = (r.receipt_items ?? []).map((i: any) => i.product_id);
+        const photoProducts = new Set((r.receipt_photos ?? []).map((p: any) => p.product_id).filter(Boolean));
+        const ordNum = r.order?.order_number ?? r.id.slice(0, 8);
+
+        if (orderProducts.length > 0 && receiptProducts.length !== orderProducts.length) {
+          issues.push({
+            kind: "receipt_items_mismatch",
+            severity: "error",
+            title: `عدد بنود الاستلام لا يطابق الطلب: ${ordNum}`,
+            detail: `بنود الطلب ${orderProducts.length} · بنود الاستلام ${receiptProducts.length}`,
+            ref: ordNum,
+          });
+        }
+        const missingPhotos = receiptProducts.filter((pid) => !photoProducts.has(pid));
+        if (missingPhotos.length > 0) {
+          issues.push({
+            kind: "receipt_missing_photos",
+            severity: "error",
+            title: `استلام بدون صور لبعض الأصناف: ${ordNum}`,
+            detail: `${missingPhotos.length} صنف بلا صورة · المورد ${r.supplier?.name ?? "—"}`,
+            ref: ordNum,
+          });
+        }
+        if (r.telegram_notification_status === "failed") {
+          issues.push({
+            kind: "telegram_failed",
+            severity: "warn",
+            title: `فشل إشعار تيليجرام: ${ordNum}`,
+            detail: r.telegram_error ?? "سبب غير معروف",
+            ref: ordNum,
+          });
+        }
+      });
+
+      setIntegrityResult({ checkedAt: new Date().toISOString(), issues });
+    } catch (err) {
+      setIntegrityResult({
+        checkedAt: new Date().toISOString(),
+        issues: [{
+          kind: "check_failed",
+          severity: "error",
+          title: "تعذر إكمال الفحص",
+          detail: err instanceof Error ? err.message : String(err),
+        }],
+      });
+    } finally {
+      setIntegrityRunning(false);
+    }
+  }
+
 
   const detail = useQuery({
     enabled: openDetail !== null,
