@@ -61,40 +61,28 @@ function NewOrderPage() {
     if (cleanLines.length === 0) return toast.error("أضف منتجاً واحداً على الأقل بكمية");
     setSaving(true);
     try {
-      // Ensure the auth token is fresh — a stale token makes auth.uid() null on the server
-      // and the RLS check on orders.created_by_user fails.
+      // Refresh session so auth.uid() is valid server-side.
       const { data: sessionRes } = await supabase.auth.getSession();
-      if (sessionRes.session) {
-        await supabase.auth.refreshSession();
-      }
-      const { data: userRes, error: userErr } = await supabase.auth.getUser();
-      if (userErr || !userRes.user) throw new Error("انتهت الجلسة، يرجى تسجيل الدخول مجدداً");
-      const { data: emp } = await supabase.from("employees").select("id").eq("user_id", userRes.user.id).single();
-      if (!emp) throw new Error("الموظف غير موجود");
+      if (!sessionRes.session) throw new Error("انتهت الجلسة، يرجى تسجيل الدخول مجدداً");
+      await supabase.auth.refreshSession();
 
-      const { data: order, error } = await supabase.from("orders").insert({
-        supplier_id: supplierId,
-        employee_id: emp.id,
-        created_by_user: userRes.user.id,
-        expected_delivery_date: expected || null,
-        note: note || null,
-      }).select("id, order_number").single();
-      if (error) throw error;
-
-      const { error: itemsErr } = await supabase.from("order_items").insert(
-        cleanLines.map((l) => ({ order_id: order.id, product_id: l.productId, ordered_qty: Number(l.qty) })),
-      );
-      if (itemsErr) throw itemsErr;
-
-      await supabase.from("activity_log").insert({
-        actor_user: userRes.user.id, action: "create_order", entity: "orders", entity_id: order.id,
-        details: { order_number: order.order_number },
+      // Atomic RPC: creates order + items + activity log in one transaction.
+      // Either everything succeeds or nothing is saved — no more silent partial failures.
+      const { data, error } = await supabase.rpc("submit_new_order", {
+        p_supplier_id: supplierId,
+        p_expected_delivery_date: expected || null,
+        p_note: note || null,
+        p_items: cleanLines.map((l) => ({ product_id: l.productId, ordered_qty: Number(l.qty) })),
       });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row?.id || !row?.order_number) throw new Error("لم يتم حفظ الطلب، حاول مرة أخرى");
 
-      toast.success(`تم حفظ الطلب ${order.order_number}`);
+      toast.success(`تم حفظ الطلب ${row.order_number}`);
       navigate({ to: "/employee" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "فشل الحفظ");
+      const msg = err instanceof Error ? err.message : "فشل الحفظ";
+      toast.error(msg, { duration: 6000 });
     } finally {
       setSaving(false);
     }
