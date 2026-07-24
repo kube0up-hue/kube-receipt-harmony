@@ -382,6 +382,17 @@ function AdminHome() {
           );
         })}
       </div>
+      <div className="mb-4">
+        <button
+          type="button"
+          onClick={runIntegrityCheck}
+          disabled={integrityRunning}
+          className="w-full kube-card flex items-center justify-center gap-2 font-bold hover:border-primary transition disabled:opacity-60"
+        >
+          <ShieldCheck className="w-5 h-5" />
+          {integrityRunning ? "جارٍ فحص سلامة البيانات…" : "فحص سلامة البيانات (آخر 24 ساعة)"}
+        </button>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {links.map((l) => (
           <Link key={l.to} to={l.to} className="kube-card flex items-center gap-3 hover:border-primary transition">
@@ -390,6 +401,47 @@ function AdminHome() {
           </Link>
         ))}
       </div>
+
+      <Dialog open={integrityOpen} onOpenChange={setIntegrityOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5" /> فحص سلامة البيانات
+            </DialogTitle>
+          </DialogHeader>
+          {integrityRunning ? (
+            <div className="py-8 text-center text-muted-foreground">جارِ الفحص…</div>
+          ) : !integrityResult ? null : integrityResult.issues.length === 0 ? (
+            <div className="py-8 text-center">
+              <CheckCircle2 className="w-10 h-10 mx-auto text-green-600 mb-2" />
+              <div className="font-bold">لا توجد مشاكل خلال آخر 24 ساعة</div>
+              <div className="text-xs text-muted-foreground mt-1">آخر فحص: {formatDateTimeAr(integrityResult.checkedAt)}</div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="text-xs text-muted-foreground">
+                عُثر على {integrityResult.issues.length} تنبيه · آخر فحص: {formatDateTimeAr(integrityResult.checkedAt)}
+              </div>
+              {integrityResult.issues.map((it, i) => (
+                <div key={i} className={`kube-card border-r-4 ${it.severity === "error" ? "border-r-destructive" : "border-r-amber-500"}`}>
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className={`w-4 h-4 mt-0.5 ${it.severity === "error" ? "text-destructive" : "text-amber-600"}`} />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-sm">{it.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{it.detail}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div className="pt-2 flex justify-end">
+                <button type="button" onClick={runIntegrityCheck} className="kube-btn-secondary text-xs">إعادة الفحص</button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+
 
       <Dialog open={openDetail !== null} onOpenChange={(o) => !o && setOpenDetail(null)}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" dir="rtl">
