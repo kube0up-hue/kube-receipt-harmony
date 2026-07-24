@@ -795,6 +795,18 @@ export type Database = {
         }
         Returns: undefined
       }
+      submit_new_order: {
+        Args: {
+          p_expected_delivery_date: string
+          p_items: Json
+          p_note: string
+          p_supplier_id: string
+        }
+        Returns: {
+          id: string
+          order_number: string
+        }[]
+      }
       submit_order_receipt: {
         Args: {
           p_items: Json
