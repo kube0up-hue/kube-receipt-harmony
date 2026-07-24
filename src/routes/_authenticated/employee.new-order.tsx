@@ -70,8 +70,8 @@ function NewOrderPage() {
       // Either everything succeeds or nothing is saved — no more silent partial failures.
       const { data, error } = await supabase.rpc("submit_new_order", {
         p_supplier_id: supplierId,
-        p_expected_delivery_date: expected || null,
-        p_note: note || null,
+        p_expected_delivery_date: expected || (null as unknown as string),
+        p_note: note || (null as unknown as string),
         p_items: cleanLines.map((l) => ({ product_id: l.productId, ordered_qty: Number(l.qty) })),
       });
       if (error) throw error;
