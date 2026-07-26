@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, Save } from "lucide-react";
 
 const UNITS = ["حبة", "لتر", "كيلو", "كرتون", "صينية", "عبوة"] as const;
 type Unit = typeof UNITS[number];
