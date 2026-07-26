@@ -32,6 +32,7 @@ function AccountantHome() {
     { to: "/accountant/invoices/new", label: "فاتورة مورد جديدة", icon: FileText },
     { to: "/accountant/invoices", label: "كل الفواتير", icon: FileText },
     { to: "/accountant/suppliers", label: "الموردون", icon: Truck },
+    { to: "/accountant/dues", label: "المبالغ المستحقة للسداد", icon: Wallet },
     { to: "/accountant/receipts", label: "الاستلامات", icon: ClipboardCheck },
     { to: "/admin", label: "فحص سلامة البيانات (لوحة الإدارة)", icon: AlertTriangle },
   ];
