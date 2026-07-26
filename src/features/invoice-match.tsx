@@ -259,12 +259,19 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                   <th className="text-center py-2">الكمية بالفاتورة</th>
                   <th className="text-center py-2">سعر الوحدة</th>
                   <th className="text-center py-2">الفرق</th>
+                  <th className="text-center py-2 font-bold text-foreground">المستحق</th>
+                  <th className="text-center py-2">قيمة الفاتورة</th>
+                  <th className="text-center py-2">فرق المبلغ</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((r, i) => {
                   const iq = Number(r.invoiced_qty || 0);
+                  const up = Number(r.unit_price || 0);
                   const diff = iq - r.accepted_qty;
+                  const due = r.accepted_qty * up;
+                  const invAmt = iq * up;
+                  const amtDiff = invAmt - due;
                   return (
                     <tr key={r.product_id} className="border-b border-border/50">
                       <td className="py-2">
@@ -281,7 +288,7 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                           onChange={e => setRows(rows.map((x, j) => j === i ? { ...x, invoiced_qty: e.target.value } : x))} />
                       </td>
                       <td>
-                        <input type="number" inputMode="decimal" step="0.001" min="0"
+                        <input type="number" inputMode="decimal" step="0.01" min="0"
                           className="kube-input w-24 text-center mx-auto"
                           value={r.unit_price}
                           onChange={e => setRows(rows.map((x, j) => j === i ? { ...x, unit_price: e.target.value } : x))} />
@@ -289,10 +296,15 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                       <td className={`text-center font-bold ${diff === 0 ? "text-success" : "text-kube-red"}`}>
                         {r.invoiced_qty === "" ? "—" : diff > 0 ? `+${diff}` : diff}
                       </td>
+                      <td className="text-center font-bold whitespace-nowrap">{money(due)}</td>
+                      <td className="text-center whitespace-nowrap">{money(invAmt)}</td>
+                      <td className={`text-center font-bold whitespace-nowrap ${amtDiff === 0 ? "text-success" : "text-kube-red"}`}>
+                        {amtDiff > 0 ? `+${money(amtDiff)}` : money(amtDiff)}
+                      </td>
                     </tr>
                   );
                 })}
-                {rows.length === 0 && <tr><td colSpan={7} className="text-center py-6 text-muted-foreground">لا توجد منتجات</td></tr>}
+                {rows.length === 0 && <tr><td colSpan={10} className="text-center py-6 text-muted-foreground">لا توجد منتجات</td></tr>}
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-border font-bold">
@@ -301,10 +313,33 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                   <td className="text-center">{totals.acc}</td>
                   <td className="text-center">{totals.inv}</td>
                   <td></td><td></td>
+                  <td className="text-center whitespace-nowrap">{money(totals.due)}</td>
+                  <td className="text-center whitespace-nowrap">{money(totals.sum)}</td>
+                  <td className={`text-center whitespace-nowrap ${totals.sum - totals.due === 0 ? "text-success" : "text-kube-red"}`}>
+                    {money(totals.sum - totals.due)}
+                  </td>
                 </tr>
               </tfoot>
             </table>
           </div>
+
+          <div className="grid sm:grid-cols-3 gap-3 mt-4">
+            <div className="kube-card bg-muted/40 text-center">
+              <div className="text-xs text-muted-foreground">المستحق للسداد (حسب المقبول)</div>
+              <div className="text-2xl font-extrabold">{money(totals.due)}</div>
+            </div>
+            <div className="kube-card bg-muted/40 text-center">
+              <div className="text-xs text-muted-foreground">إجمالي قيمة الفاتورة</div>
+              <div className="text-2xl font-extrabold">{money(totals.sum)}</div>
+            </div>
+            <div className="kube-card bg-muted/40 text-center">
+              <div className="text-xs text-muted-foreground">فرق المبلغ</div>
+              <div className={`text-2xl font-extrabold ${totals.sum - totals.due === 0 ? "text-success" : "text-kube-red"}`}>
+                {money(totals.sum - totals.due)}
+              </div>
+            </div>
+          </div>
+
 
           <div className="grid sm:grid-cols-3 gap-3 mt-4">
             <label className="block">
