@@ -26,8 +26,10 @@ import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin.payments'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
 import { Route as AuthenticatedAdminEmployeesRouteImport } from './routes/_authenticated/admin.employees'
+import { Route as AuthenticatedAdminDuesRouteImport } from './routes/_authenticated/admin.dues'
 import { Route as AuthenticatedAccountantSuppliersRouteImport } from './routes/_authenticated/accountant.suppliers'
 import { Route as AuthenticatedAccountantReceiptsRouteImport } from './routes/_authenticated/accountant.receipts'
+import { Route as AuthenticatedAccountantDuesRouteImport } from './routes/_authenticated/accountant.dues'
 import { Route as AuthenticatedAdminInvoicesIndexRouteImport } from './routes/_authenticated/admin.invoices.index'
 import { Route as AuthenticatedAccountantInvoicesIndexRouteImport } from './routes/_authenticated/accountant.invoices.index'
 import { Route as AuthenticatedEmployeeReceiveOrderIdRouteImport } from './routes/_authenticated/employee.receive.$orderId'
@@ -133,6 +135,11 @@ const AuthenticatedAdminEmployeesRoute =
     path: '/admin/employees',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminDuesRoute = AuthenticatedAdminDuesRouteImport.update({
+  id: '/admin/dues',
+  path: '/admin/dues',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAccountantSuppliersRoute =
   AuthenticatedAccountantSuppliersRouteImport.update({
     id: '/accountant/suppliers',
@@ -143,6 +150,12 @@ const AuthenticatedAccountantReceiptsRoute =
   AuthenticatedAccountantReceiptsRouteImport.update({
     id: '/accountant/receipts',
     path: '/accountant/receipts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAccountantDuesRoute =
+  AuthenticatedAccountantDuesRouteImport.update({
+    id: '/accountant/dues',
+    path: '/accountant/dues',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminInvoicesIndexRoute =
@@ -191,8 +204,10 @@ const AuthenticatedAccountantInvoicesInvoiceIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/accountant/dues': typeof AuthenticatedAccountantDuesRoute
   '/accountant/receipts': typeof AuthenticatedAccountantReceiptsRoute
   '/accountant/suppliers': typeof AuthenticatedAccountantSuppliersRoute
+  '/admin/dues': typeof AuthenticatedAdminDuesRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
@@ -218,8 +233,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/accountant/dues': typeof AuthenticatedAccountantDuesRoute
   '/accountant/receipts': typeof AuthenticatedAccountantReceiptsRoute
   '/accountant/suppliers': typeof AuthenticatedAccountantSuppliersRoute
+  '/admin/dues': typeof AuthenticatedAdminDuesRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
@@ -247,8 +264,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/accountant/dues': typeof AuthenticatedAccountantDuesRoute
   '/_authenticated/accountant/receipts': typeof AuthenticatedAccountantReceiptsRoute
   '/_authenticated/accountant/suppliers': typeof AuthenticatedAccountantSuppliersRoute
+  '/_authenticated/admin/dues': typeof AuthenticatedAdminDuesRoute
   '/_authenticated/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
@@ -276,8 +295,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/accountant/dues'
     | '/accountant/receipts'
     | '/accountant/suppliers'
+    | '/admin/dues'
     | '/admin/employees'
     | '/admin/orders'
     | '/admin/payments'
@@ -303,8 +324,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/accountant/dues'
     | '/accountant/receipts'
     | '/accountant/suppliers'
+    | '/admin/dues'
     | '/admin/employees'
     | '/admin/orders'
     | '/admin/payments'
@@ -331,8 +354,10 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/accountant/dues'
     | '/_authenticated/accountant/receipts'
     | '/_authenticated/accountant/suppliers'
+    | '/_authenticated/admin/dues'
     | '/_authenticated/admin/employees'
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/payments'
@@ -483,6 +508,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEmployeesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/dues': {
+      id: '/_authenticated/admin/dues'
+      path: '/admin/dues'
+      fullPath: '/admin/dues'
+      preLoaderRoute: typeof AuthenticatedAdminDuesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/accountant/suppliers': {
       id: '/_authenticated/accountant/suppliers'
       path: '/accountant/suppliers'
@@ -495,6 +527,13 @@ declare module '@tanstack/react-router' {
       path: '/accountant/receipts'
       fullPath: '/accountant/receipts'
       preLoaderRoute: typeof AuthenticatedAccountantReceiptsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/accountant/dues': {
+      id: '/_authenticated/accountant/dues'
+      path: '/accountant/dues'
+      fullPath: '/accountant/dues'
+      preLoaderRoute: typeof AuthenticatedAccountantDuesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/invoices/': {
@@ -550,8 +589,10 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAccountantDuesRoute: typeof AuthenticatedAccountantDuesRoute
   AuthenticatedAccountantReceiptsRoute: typeof AuthenticatedAccountantReceiptsRoute
   AuthenticatedAccountantSuppliersRoute: typeof AuthenticatedAccountantSuppliersRoute
+  AuthenticatedAdminDuesRoute: typeof AuthenticatedAdminDuesRoute
   AuthenticatedAdminEmployeesRoute: typeof AuthenticatedAdminEmployeesRoute
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
   AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
@@ -576,8 +617,10 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAccountantDuesRoute: AuthenticatedAccountantDuesRoute,
   AuthenticatedAccountantReceiptsRoute: AuthenticatedAccountantReceiptsRoute,
   AuthenticatedAccountantSuppliersRoute: AuthenticatedAccountantSuppliersRoute,
+  AuthenticatedAdminDuesRoute: AuthenticatedAdminDuesRoute,
   AuthenticatedAdminEmployeesRoute: AuthenticatedAdminEmployeesRoute,
   AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
   AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,

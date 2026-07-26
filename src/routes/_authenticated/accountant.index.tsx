@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
-import { FileText, Truck, ClipboardCheck, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { FileText, Truck, ClipboardCheck, AlertTriangle, CheckCircle2, XCircle, Wallet } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/accountant/")({
   component: AccountantHome,
@@ -32,6 +32,7 @@ function AccountantHome() {
     { to: "/accountant/invoices/new", label: "فاتورة مورد جديدة", icon: FileText },
     { to: "/accountant/invoices", label: "كل الفواتير", icon: FileText },
     { to: "/accountant/suppliers", label: "الموردون", icon: Truck },
+    { to: "/accountant/dues", label: "المبالغ المستحقة للسداد", icon: Wallet },
     { to: "/accountant/receipts", label: "الاستلامات", icon: ClipboardCheck },
     { to: "/admin", label: "فحص سلامة البيانات (لوحة الإدارة)", icon: AlertTriangle },
   ];
