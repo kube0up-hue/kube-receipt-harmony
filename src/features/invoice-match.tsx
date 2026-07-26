@@ -47,7 +47,7 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
     if (!supplierId) { toast.error("اختر المورد"); return; }
     // Get all products for supplier
     const { data: prods, error: pErr } = await supabase
-      .from("products").select("id,name,unit,sort_order")
+      .from("products").select("id,name,unit,sort_order,unit_price")
       .eq("supplier_id", supplierId).eq("is_hidden", false)
       .order("sort_order").order("name");
     if (pErr) { toast.error(pErr.message); return; }
@@ -78,10 +78,12 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
 
     const newRows: Row[] = (prods ?? []).map(p => {
       const a = agg.get(p.id) ?? { o: 0, r: 0, d: 0, a: 0 };
+      const price = Number((p as { unit_price?: number | string }).unit_price ?? 0);
       return {
         product_id: p.id, product_name: p.name, unit: p.unit,
         accepted_qty: a.a, received_qty: a.r, damaged_qty: a.d, ordered_qty: a.o,
-        invoiced_qty: "", unit_price: "",
+        invoiced_qty: a.a ? String(a.a) : "",
+        unit_price: price ? String(price) : "",
       };
     });
     setRows(newRows);
@@ -89,15 +91,19 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
     if (items.length === 0) toast.warning("لا توجد استلامات في هذه الفترة");
   };
 
+  const money = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
   const exportCSV = () => {
     if (rows.length === 0) { toast.error("لا توجد بيانات"); return; }
     const supplierName = suppliers.data?.find(s => s.id === supplierId)?.name ?? "";
-    const headers = ["المنتج","الوحدة","المطلوب","المستلم","التالف","المقبول","الكمية بالفاتورة","سعر الوحدة","الفرق","الإجمالي"];
+    const headers = ["المنتج","الوحدة","المطلوب","المستلم","التالف","المقبول","الكمية بالفاتورة","سعر الوحدة","الفرق","المستحق (المقبول)","قيمة الفاتورة","فرق المبلغ"];
     const lines = rows.map(r => {
       const iq = Number(r.invoiced_qty || 0);
       const up = Number(r.unit_price || 0);
       const diff = r.invoiced_qty === "" ? "" : iq - r.accepted_qty;
-      return [r.product_name, r.unit, r.ordered_qty, r.received_qty, r.damaged_qty, r.accepted_qty, r.invoiced_qty, r.unit_price, diff, (iq*up) || ""];
+      const due = r.accepted_qty * up;
+      const invAmt = iq * up;
+      return [r.product_name, r.unit, r.ordered_qty, r.received_qty, r.damaged_qty, r.accepted_qty, r.invoiced_qty, r.unit_price, diff, due.toFixed(2), invAmt.toFixed(2), (invAmt - due).toFixed(2)];
     });
     const esc = (v: unknown) => {
       const s = String(v ?? "");
@@ -108,7 +114,13 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
       [`الفترة:`, `${periodStart} → ${periodEnd}`],
       [],
     ];
-    const csv = "\uFEFF" + [...meta, headers, ...lines].map(r => r.map(esc).join(",")).join("\n");
+    const foot = [
+      [],
+      ["الإجمالي المستحق للسداد", totals.due.toFixed(2)],
+      ["إجمالي قيمة الفاتورة", totals.sum.toFixed(2)],
+      ["فرق المبلغ", (totals.sum - totals.due).toFixed(2)],
+    ];
+    const csv = "\uFEFF" + [...meta, headers, ...lines, ...foot].map(r => r.map(esc).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -121,16 +133,18 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
 
 
   const totals = useMemo(() => {
-    let acc = 0, inv = 0, sum = 0;
+    let acc = 0, inv = 0, sum = 0, due = 0;
     for (const r of rows) {
       acc += r.accepted_qty;
       const iq = Number(r.invoiced_qty || 0);
       const up = Number(r.unit_price || 0);
       inv += iq;
       sum += iq * up;
+      due += r.accepted_qty * up;
     }
-    return { acc, inv, sum };
+    return { acc, inv, sum, due };
   }, [rows]);
+
 
   const saveMut = useMutation({
     mutationFn: async () => {
@@ -245,12 +259,19 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                   <th className="text-center py-2">الكمية بالفاتورة</th>
                   <th className="text-center py-2">سعر الوحدة</th>
                   <th className="text-center py-2">الفرق</th>
+                  <th className="text-center py-2 font-bold text-foreground">المستحق</th>
+                  <th className="text-center py-2">قيمة الفاتورة</th>
+                  <th className="text-center py-2">فرق المبلغ</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((r, i) => {
                   const iq = Number(r.invoiced_qty || 0);
+                  const up = Number(r.unit_price || 0);
                   const diff = iq - r.accepted_qty;
+                  const due = r.accepted_qty * up;
+                  const invAmt = iq * up;
+                  const amtDiff = invAmt - due;
                   return (
                     <tr key={r.product_id} className="border-b border-border/50">
                       <td className="py-2">
@@ -267,7 +288,7 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                           onChange={e => setRows(rows.map((x, j) => j === i ? { ...x, invoiced_qty: e.target.value } : x))} />
                       </td>
                       <td>
-                        <input type="number" inputMode="decimal" step="0.001" min="0"
+                        <input type="number" inputMode="decimal" step="0.01" min="0"
                           className="kube-input w-24 text-center mx-auto"
                           value={r.unit_price}
                           onChange={e => setRows(rows.map((x, j) => j === i ? { ...x, unit_price: e.target.value } : x))} />
@@ -275,10 +296,15 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                       <td className={`text-center font-bold ${diff === 0 ? "text-success" : "text-kube-red"}`}>
                         {r.invoiced_qty === "" ? "—" : diff > 0 ? `+${diff}` : diff}
                       </td>
+                      <td className="text-center font-bold whitespace-nowrap">{money(due)}</td>
+                      <td className="text-center whitespace-nowrap">{money(invAmt)}</td>
+                      <td className={`text-center font-bold whitespace-nowrap ${amtDiff === 0 ? "text-success" : "text-kube-red"}`}>
+                        {amtDiff > 0 ? `+${money(amtDiff)}` : money(amtDiff)}
+                      </td>
                     </tr>
                   );
                 })}
-                {rows.length === 0 && <tr><td colSpan={7} className="text-center py-6 text-muted-foreground">لا توجد منتجات</td></tr>}
+                {rows.length === 0 && <tr><td colSpan={10} className="text-center py-6 text-muted-foreground">لا توجد منتجات</td></tr>}
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-border font-bold">
@@ -287,10 +313,33 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                   <td className="text-center">{totals.acc}</td>
                   <td className="text-center">{totals.inv}</td>
                   <td></td><td></td>
+                  <td className="text-center whitespace-nowrap">{money(totals.due)}</td>
+                  <td className="text-center whitespace-nowrap">{money(totals.sum)}</td>
+                  <td className={`text-center whitespace-nowrap ${totals.sum - totals.due === 0 ? "text-success" : "text-kube-red"}`}>
+                    {money(totals.sum - totals.due)}
+                  </td>
                 </tr>
               </tfoot>
             </table>
           </div>
+
+          <div className="grid sm:grid-cols-3 gap-3 mt-4">
+            <div className="kube-card bg-muted/40 text-center">
+              <div className="text-xs text-muted-foreground">المستحق للسداد (حسب المقبول)</div>
+              <div className="text-2xl font-extrabold">{money(totals.due)}</div>
+            </div>
+            <div className="kube-card bg-muted/40 text-center">
+              <div className="text-xs text-muted-foreground">إجمالي قيمة الفاتورة</div>
+              <div className="text-2xl font-extrabold">{money(totals.sum)}</div>
+            </div>
+            <div className="kube-card bg-muted/40 text-center">
+              <div className="text-xs text-muted-foreground">فرق المبلغ</div>
+              <div className={`text-2xl font-extrabold ${totals.sum - totals.due === 0 ? "text-success" : "text-kube-red"}`}>
+                {money(totals.sum - totals.due)}
+              </div>
+            </div>
+          </div>
+
 
           <div className="grid sm:grid-cols-3 gap-3 mt-4">
             <label className="block">

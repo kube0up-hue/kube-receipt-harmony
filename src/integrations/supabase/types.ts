@@ -403,6 +403,7 @@ export type Database = {
           sort_order: number
           supplier_id: string
           unit: Database["public"]["Enums"]["unit_type"]
+          unit_price: number
           updated_at: string
         }
         Insert: {
@@ -413,6 +414,7 @@ export type Database = {
           sort_order?: number
           supplier_id: string
           unit: Database["public"]["Enums"]["unit_type"]
+          unit_price?: number
           updated_at?: string
         }
         Update: {
@@ -423,6 +425,7 @@ export type Database = {
           sort_order?: number
           supplier_id?: string
           unit?: Database["public"]["Enums"]["unit_type"]
+          unit_price?: number
           updated_at?: string
         }
         Relationships: [
