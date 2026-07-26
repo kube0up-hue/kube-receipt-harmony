@@ -47,7 +47,7 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
     if (!supplierId) { toast.error("اختر المورد"); return; }
     // Get all products for supplier
     const { data: prods, error: pErr } = await supabase
-      .from("products").select("id,name,unit,sort_order")
+      .from("products").select("id,name,unit,sort_order,unit_price")
       .eq("supplier_id", supplierId).eq("is_hidden", false)
       .order("sort_order").order("name");
     if (pErr) { toast.error(pErr.message); return; }
@@ -78,10 +78,12 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
 
     const newRows: Row[] = (prods ?? []).map(p => {
       const a = agg.get(p.id) ?? { o: 0, r: 0, d: 0, a: 0 };
+      const price = Number((p as { unit_price?: number | string }).unit_price ?? 0);
       return {
         product_id: p.id, product_name: p.name, unit: p.unit,
         accepted_qty: a.a, received_qty: a.r, damaged_qty: a.d, ordered_qty: a.o,
-        invoiced_qty: "", unit_price: "",
+        invoiced_qty: a.a ? String(a.a) : "",
+        unit_price: price ? String(price) : "",
       };
     });
     setRows(newRows);
@@ -89,15 +91,19 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
     if (items.length === 0) toast.warning("لا توجد استلامات في هذه الفترة");
   };
 
+  const money = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
   const exportCSV = () => {
     if (rows.length === 0) { toast.error("لا توجد بيانات"); return; }
     const supplierName = suppliers.data?.find(s => s.id === supplierId)?.name ?? "";
-    const headers = ["المنتج","الوحدة","المطلوب","المستلم","التالف","المقبول","الكمية بالفاتورة","سعر الوحدة","الفرق","الإجمالي"];
+    const headers = ["المنتج","الوحدة","المطلوب","المستلم","التالف","المقبول","الكمية بالفاتورة","سعر الوحدة","الفرق","المستحق (المقبول)","قيمة الفاتورة","فرق المبلغ"];
     const lines = rows.map(r => {
       const iq = Number(r.invoiced_qty || 0);
       const up = Number(r.unit_price || 0);
       const diff = r.invoiced_qty === "" ? "" : iq - r.accepted_qty;
-      return [r.product_name, r.unit, r.ordered_qty, r.received_qty, r.damaged_qty, r.accepted_qty, r.invoiced_qty, r.unit_price, diff, (iq*up) || ""];
+      const due = r.accepted_qty * up;
+      const invAmt = iq * up;
+      return [r.product_name, r.unit, r.ordered_qty, r.received_qty, r.damaged_qty, r.accepted_qty, r.invoiced_qty, r.unit_price, diff, due.toFixed(2), invAmt.toFixed(2), (invAmt - due).toFixed(2)];
     });
     const esc = (v: unknown) => {
       const s = String(v ?? "");
@@ -108,7 +114,13 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
       [`الفترة:`, `${periodStart} → ${periodEnd}`],
       [],
     ];
-    const csv = "\uFEFF" + [...meta, headers, ...lines].map(r => r.map(esc).join(",")).join("\n");
+    const foot = [
+      [],
+      ["الإجمالي المستحق للسداد", totals.due.toFixed(2)],
+      ["إجمالي قيمة الفاتورة", totals.sum.toFixed(2)],
+      ["فرق المبلغ", (totals.sum - totals.due).toFixed(2)],
+    ];
+    const csv = "\uFEFF" + [...meta, headers, ...lines, ...foot].map(r => r.map(esc).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -121,16 +133,18 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
 
 
   const totals = useMemo(() => {
-    let acc = 0, inv = 0, sum = 0;
+    let acc = 0, inv = 0, sum = 0, due = 0;
     for (const r of rows) {
       acc += r.accepted_qty;
       const iq = Number(r.invoiced_qty || 0);
       const up = Number(r.unit_price || 0);
       inv += iq;
       sum += iq * up;
+      due += r.accepted_qty * up;
     }
-    return { acc, inv, sum };
+    return { acc, inv, sum, due };
   }, [rows]);
+
 
   const saveMut = useMutation({
     mutationFn: async () => {
