@@ -283,6 +283,7 @@ function AdminHome() {
     { to: "/admin/orders", label: "الطلبات والاستلامات", icon: ClipboardList },
     { to: "/admin/invoices", label: "الفواتير", icon: FileText },
     { to: "/admin/payments", label: "السداد", icon: Wallet },
+    { to: "/admin/dues", label: "المبالغ المستحقة للسداد", icon: Wallet },
     { to: "/admin/reports", label: "التقارير", icon: BarChart3 },
   ];
 
