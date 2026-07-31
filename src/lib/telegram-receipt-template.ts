@@ -17,6 +17,8 @@ export interface TelegramReceiptPayload {
   employee_name: string;
   items: TelegramReceiptItem[];
   note?: string | null;
+  /** true when this is a manual/late resend, not the instant notification */
+  resent?: boolean;
 }
 
 const DIVIDER = "━━━━━━━━━━━━━━━━━━";
