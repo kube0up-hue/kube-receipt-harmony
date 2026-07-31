@@ -74,6 +74,9 @@ export function buildReceiptTelegramMessage(payload: TelegramReceiptPayload): st
       : "✅ مكتمل";
 
   const lines: string[] = [];
+  if (payload.resent) {
+    lines.push("🔁 <b>إعادة إرسال إشعار سابق (ليس استلاماً جديداً)</b>");
+  }
   lines.push("📦 <b>تم تسجيل استلام جديد</b>");
   lines.push(DIVIDER);
   lines.push(`🏭 <b>المورد:</b>\n${esc(payload.supplier_name)}`);
