@@ -71,6 +71,20 @@ async function performSend(
     return { ok: true, skipped: true, reason: "already_sent" };
   }
 
+  // Freshness guard: an automatic notification must go out at the moment of
+  // receiving. If the receipt is older than the window, never auto-send —
+  // otherwise a delayed/retried call would look like a brand-new receipt.
+  const receivedAt = new Date(receipt.received_at as string);
+  const ageMs = Date.now() - receivedAt.getTime();
+  const FRESH_WINDOW_MS = 5 * 60 * 1000;
+  const isLate = ageMs > FRESH_WINDOW_MS;
+  if (isLate && !opts.force) {
+    const msg = `stale_skipped: الاستلام أقدم من ${Math.round(ageMs / 60000)} دقيقة — لم يُرسل تلقائياً`;
+    console.error("[telegram]", msg);
+    await markTelegramStatus(receiptId, "failed", null, msg);
+    return { ok: false, reason: "stale" };
+  }
+
   const { data: rows, error: iErr } = await supabase
     .from("receipt_items")
     .select("ordered_qty, received_qty, damaged_qty, accepted_qty, diff, product:products(name)")
@@ -93,10 +107,11 @@ async function performSend(
   const text = buildReceiptTelegramMessage({
     supplier_name: (receipt as any).supplier?.name ?? "—",
     receipt_number: (receipt as any).order?.order_number ?? receipt.id.slice(0, 8),
-    received_at: new Date(receipt.received_at as string),
+    received_at: receivedAt,
     employee_name: (receipt as any).employee?.full_name ?? "—",
     items,
     note: receipt.note,
+    resent: isLate || !!opts.force,
   });
 
   let firstMessageId: number | null = null;
