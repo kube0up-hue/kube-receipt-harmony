@@ -28,7 +28,7 @@ async function markTelegramStatus(
 async function performSend(
   supabase: any,
   receiptId: string,
-  opts: { force?: boolean } = {},
+  opts: { force?: boolean; allowStale?: boolean } = {},
 ): Promise<SendOutcome> {
   const lovableKey = process.env.LOVABLE_API_KEY;
   const telegramKey = process.env.TELEGRAM_API_KEY;
@@ -78,7 +78,7 @@ async function performSend(
   const ageMs = Date.now() - receivedAt.getTime();
   const FRESH_WINDOW_MS = 5 * 60 * 1000;
   const isLate = ageMs > FRESH_WINDOW_MS;
-  if (isLate && !opts.force) {
+  if (isLate && !opts.force && !opts.allowStale) {
     const msg = `stale_skipped: الاستلام أقدم من ${Math.round(ageMs / 60000)} دقيقة — لم يُرسل تلقائياً`;
     console.error("[telegram]", msg);
     await markTelegramStatus(receiptId, "failed", null, msg);
@@ -207,7 +207,7 @@ export const resendReceiptTelegram = createServerFn({ method: "POST" })
       .maybeSingle();
     if (roleErr || !roleRow) throw new Error("صلاحية المدير مطلوبة");
     try {
-      return await performSend(supabase, data.receiptId, { force: data.force });
+      return await performSend(supabase, data.receiptId, { force: data.force, allowStale: true });
     } catch (err) {
       console.error("[telegram] resendReceiptTelegram threw", err);
       return { ok: false as const, reason: "exception" };
