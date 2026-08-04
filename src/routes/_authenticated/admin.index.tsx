@@ -32,8 +32,6 @@ interface DetailRow {
   photos: string[];
 }
 
-const DETAIL_DAYS: Record<DetailMode, number> = { all: 14, damaged: 14, short: 14 };
-
 
 
 function AdminHome() {
