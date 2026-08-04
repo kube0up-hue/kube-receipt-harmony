@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ImageIcon, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
+import { ReceiptItemPhotos } from "@/features/receipt-photo-viewer";
+
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminHome,
@@ -30,40 +32,7 @@ interface DetailRow {
   photos: string[];
 }
 
-function ItemPhotos({ paths }: { paths: string[] }) {
-  const [urls, setUrls] = useState<string[]>([]);
-  const [open, setOpen] = useState<string | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      if (paths.length === 0) { setUrls([]); return; }
-      const { data } = await supabase.storage.from("receipt-photos").createSignedUrls(paths, 3600);
-      if (cancelled) return;
-      setUrls((data ?? []).map((d) => d.signedUrl).filter(Boolean) as string[]);
-    })();
-    return () => { cancelled = true; };
-  }, [paths.join("|")]);
-  if (paths.length === 0) {
-    return <div className="text-[10px] text-kube-red flex items-center gap-1"><ImageIcon className="w-3 h-3" />بدون صور</div>;
-  }
-  return (
-    <>
-      <div className="flex flex-wrap gap-1">
-        {urls.map((u, i) => (
-          <button key={i} type="button" onClick={() => setOpen(u)}
-            className="w-10 h-10 rounded overflow-hidden border">
-            <img src={u} alt="" className="w-full h-full object-cover" />
-          </button>
-        ))}
-      </div>
-      {open && (
-        <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4" onClick={() => setOpen(null)}>
-          <img src={open} alt="" className="max-w-full max-h-full rounded" />
-        </div>
-      )}
-    </>
-  );
-}
+
 
 function AdminHome() {
   const stats = useQuery({
@@ -76,7 +45,7 @@ function AdminHome() {
       }).formatToParts(new Date()).reduce<Record<string, string>>((a, p) => { a[p.type] = p.value; return a; }, {});
       const todayRiyadh = `${riyadhParts.year}-${riyadhParts.month}-${riyadhParts.day}`;
       const startOfTodayUTC = new Date(`${todayRiyadh}T00:00:00+03:00`).toISOString();
-      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      const weekAgo = new Date(Date.now() - 14 * 86400000).toISOString();
       const [pending, todayR, unappr, invMatch, invUnmatch, invReady, weekReceipts] = await Promise.all([
         supabase.from("v_orders_effective").select("id", { count: "exact", head: true }).eq("effective_status", "pending_receipt"),
         supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", startOfTodayUTC),
@@ -222,7 +191,7 @@ function AdminHome() {
     enabled: openDetail !== null,
     queryKey: ["admin-stats-detail", openDetail],
     queryFn: async () => {
-      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      const weekAgo = new Date(Date.now() - 14 * 86400000).toISOString();
       const { data: receipts } = await supabase
         .from("receipts")
         .select("id, received_at, order_id, orders(order_number, suppliers(name)), receipt_items(ordered_qty, received_qty, accepted_qty, damaged_qty, diff, note, products(id, name, unit)), receipt_photos(storage_path, product_id)")
@@ -267,10 +236,10 @@ function AdminHome() {
   const cards: Array<{ label: string; v: number | undefined; onClick?: () => void }> = [
     { label: "طلبات بانتظار الاستلام", v: s?.pending },
     { label: "استلامات اليوم", v: s?.today },
-    { label: "استلامات هذا الأسبوع", v: s?.weekReceipts, onClick: () => setOpenDetail("all") },
+    { label: "استلامات آخر أسبوعين", v: s?.weekReceipts, onClick: () => setOpenDetail("all") },
     { label: "استلامات غير معتمدة", v: s?.unappr },
-    { label: "تالف هذا الأسبوع", v: s?.damaged, onClick: () => setOpenDetail("damaged") },
-    { label: "نقص هذا الأسبوع", v: s?.short, onClick: () => setOpenDetail("short") },
+    { label: "تالف آخر أسبوعين", v: s?.damaged, onClick: () => setOpenDetail("damaged") },
+    { label: "نقص آخر أسبوعين", v: s?.short, onClick: () => setOpenDetail("short") },
     { label: "فواتير بانتظار المطابقة", v: s?.invMatch },
     { label: "فواتير غير مطابقة", v: s?.invUnmatch },
     { label: "فواتير جاهزة للتحويل", v: s?.invReady },
@@ -289,7 +258,7 @@ function AdminHome() {
 
   const totalQty = (detail.data ?? []).reduce((a, r) => a + r.qty, 0);
   const titleFor = (m: DetailMode) =>
-    m === "short" ? "تفاصيل النقص هذا الأسبوع" : m === "damaged" ? "تفاصيل التالف هذا الأسبوع" : "تفاصيل استلامات هذا الأسبوع";
+    m === "short" ? "تفاصيل النقص — آخر أسبوعين" : m === "damaged" ? "تفاصيل التالف — آخر أسبوعين" : "تفاصيل الاستلامات — آخر أسبوعين";
 
   function exportCSV() {
     if (!openDetail || !detail.data) return;
@@ -502,7 +471,17 @@ function AdminHome() {
                         <td className="p-2 text-center">{r.accepted} {r.unit}</td>
                         <td className="p-2 text-center">{r.damaged}</td>
                         <td className={`p-2 text-center font-bold ${r.diff < 0 ? "text-destructive" : ""}`}>{r.diff}</td>
-                        <td className="p-2"><ItemPhotos paths={r.photos} /></td>
+                        <td className="p-2">
+                          <ReceiptItemPhotos
+                            paths={r.photos}
+                            meta={{
+                              product: r.product, unit: r.unit, supplier: r.supplier,
+                              orderNumber: r.orderNumber, date: r.date,
+                              ordered: r.ordered, accepted: r.accepted,
+                              damaged: r.damaged, diff: r.diff,
+                            }}
+                          />
+                        </td>
                       </tr>
                     ))}
                   </tbody>
