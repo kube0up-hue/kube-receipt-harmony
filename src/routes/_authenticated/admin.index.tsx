@@ -47,7 +47,7 @@ function AdminHome() {
       }).formatToParts(new Date()).reduce<Record<string, string>>((a, p) => { a[p.type] = p.value; return a; }, {});
       const todayRiyadh = `${riyadhParts.year}-${riyadhParts.month}-${riyadhParts.day}`;
       const startOfTodayUTC = new Date(`${todayRiyadh}T00:00:00+03:00`).toISOString();
-      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      const weekAgo = new Date(Date.now() - 14 * 86400000).toISOString();
       const [pending, todayR, unappr, invMatch, invUnmatch, invReady, weekReceipts] = await Promise.all([
         supabase.from("v_orders_effective").select("id", { count: "exact", head: true }).eq("effective_status", "pending_receipt"),
         supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", startOfTodayUTC),
@@ -193,7 +193,7 @@ function AdminHome() {
     enabled: openDetail !== null,
     queryKey: ["admin-stats-detail", openDetail],
     queryFn: async () => {
-      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      const weekAgo = new Date(Date.now() - 14 * 86400000).toISOString();
       const { data: receipts } = await supabase
         .from("receipts")
         .select("id, received_at, order_id, orders(order_number, suppliers(name)), receipt_items(ordered_qty, received_qty, accepted_qty, damaged_qty, diff, note, products(id, name, unit)), receipt_photos(storage_path, product_id)")
@@ -238,10 +238,10 @@ function AdminHome() {
   const cards: Array<{ label: string; v: number | undefined; onClick?: () => void }> = [
     { label: "طلبات بانتظار الاستلام", v: s?.pending },
     { label: "استلامات اليوم", v: s?.today },
-    { label: "استلامات هذا الأسبوع", v: s?.weekReceipts, onClick: () => setOpenDetail("all") },
+    { label: "استلامات آخر أسبوعين", v: s?.weekReceipts, onClick: () => setOpenDetail("all") },
     { label: "استلامات غير معتمدة", v: s?.unappr },
-    { label: "تالف هذا الأسبوع", v: s?.damaged, onClick: () => setOpenDetail("damaged") },
-    { label: "نقص هذا الأسبوع", v: s?.short, onClick: () => setOpenDetail("short") },
+    { label: "تالف آخر أسبوعين", v: s?.damaged, onClick: () => setOpenDetail("damaged") },
+    { label: "نقص آخر أسبوعين", v: s?.short, onClick: () => setOpenDetail("short") },
     { label: "فواتير بانتظار المطابقة", v: s?.invMatch },
     { label: "فواتير غير مطابقة", v: s?.invUnmatch },
     { label: "فواتير جاهزة للتحويل", v: s?.invReady },
@@ -260,7 +260,7 @@ function AdminHome() {
 
   const totalQty = (detail.data ?? []).reduce((a, r) => a + r.qty, 0);
   const titleFor = (m: DetailMode) =>
-    m === "short" ? "تفاصيل النقص هذا الأسبوع" : m === "damaged" ? "تفاصيل التالف هذا الأسبوع" : "تفاصيل استلامات هذا الأسبوع";
+    m === "short" ? "تفاصيل النقص — آخر أسبوعين" : m === "damaged" ? "تفاصيل التالف — آخر أسبوعين" : "تفاصيل الاستلامات — آخر أسبوعين";
 
   function exportCSV() {
     if (!openDetail || !detail.data) return;
@@ -473,7 +473,17 @@ function AdminHome() {
                         <td className="p-2 text-center">{r.accepted} {r.unit}</td>
                         <td className="p-2 text-center">{r.damaged}</td>
                         <td className={`p-2 text-center font-bold ${r.diff < 0 ? "text-destructive" : ""}`}>{r.diff}</td>
-                        <td className="p-2"><ItemPhotos paths={r.photos} /></td>
+                        <td className="p-2">
+                          <ReceiptItemPhotos
+                            paths={r.photos}
+                            meta={{
+                              product: r.product, unit: r.unit, supplier: r.supplier,
+                              orderNumber: r.orderNumber, date: r.date,
+                              ordered: r.ordered, accepted: r.accepted,
+                              damaged: r.damaged, diff: r.diff,
+                            }}
+                          />
+                        </td>
                       </tr>
                     ))}
                   </tbody>
