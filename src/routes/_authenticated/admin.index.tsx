@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ImageIcon, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
+import { ReceiptItemPhotos } from "@/features/receipt-photo-viewer";
+
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminHome,
