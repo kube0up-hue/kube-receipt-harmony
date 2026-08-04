@@ -32,40 +32,9 @@ interface DetailRow {
   photos: string[];
 }
 
-function ItemPhotos({ paths }: { paths: string[] }) {
-  const [urls, setUrls] = useState<string[]>([]);
-  const [open, setOpen] = useState<string | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      if (paths.length === 0) { setUrls([]); return; }
-      const { data } = await supabase.storage.from("receipt-photos").createSignedUrls(paths, 3600);
-      if (cancelled) return;
-      setUrls((data ?? []).map((d) => d.signedUrl).filter(Boolean) as string[]);
-    })();
-    return () => { cancelled = true; };
-  }, [paths.join("|")]);
-  if (paths.length === 0) {
-    return <div className="text-[10px] text-kube-red flex items-center gap-1"><ImageIcon className="w-3 h-3" />بدون صور</div>;
-  }
-  return (
-    <>
-      <div className="flex flex-wrap gap-1">
-        {urls.map((u, i) => (
-          <button key={i} type="button" onClick={() => setOpen(u)}
-            className="w-10 h-10 rounded overflow-hidden border">
-            <img src={u} alt="" className="w-full h-full object-cover" />
-          </button>
-        ))}
-      </div>
-      {open && (
-        <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4" onClick={() => setOpen(null)}>
-          <img src={open} alt="" className="max-w-full max-h-full rounded" />
-        </div>
-      )}
-    </>
-  );
-}
+const DETAIL_DAYS: Record<DetailMode, number> = { all: 14, damaged: 14, short: 14 };
+
+
 
 function AdminHome() {
   const stats = useQuery({
