@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDateTimeAr } from "@/lib/format-date";
 import { formatQty, formatSigned } from "@/lib/money";
-import { ImageIcon, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, Loader2, RefreshCw } from "lucide-react";
+import { ImageIcon, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, RefreshCw } from "lucide-react";
 
 export interface PhotoMeta {
   product: string;
