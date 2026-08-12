@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Download } from "lucide-react";
+import { formatMoney, num, round2, sumMoney } from "@/lib/money";
+import { downloadCsv } from "@/lib/csv";
 
 type Row = {
   invoiceId: string;
@@ -21,17 +23,18 @@ const statusLabel: Record<string, string> = {
   pending_match: "بانتظار المطابقة",
   unmatched: "غير مطابقة",
   matched_ready: "جاهزة للتحويل",
+  approved_for_payment: "معتمدة للسداد",
   paid: "مسددة",
 };
 
-const money = (n: number) =>
-  n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const money = formatMoney;
 
 function payLabel(r: Row) {
   if (r.paid <= 0) return { label: "غير مسددة", cls: "bg-destructive/10 text-destructive" };
   if (r.remaining > 0.009) return { label: "مسددة جزئياً", cls: "bg-amber-500/15 text-amber-700" };
   return { label: "مسددة بالكامل", cls: "bg-emerald-500/15 text-emerald-700" };
 }
+
 
 export function DuesReport() {
   const [from, setFrom] = useState(() => {
@@ -78,12 +81,12 @@ export function DuesReport() {
       if (pErr) throw pErr;
       const paidMap = new Map<string, number>();
       for (const p of pays ?? []) {
-        paidMap.set(p.invoice_id, (paidMap.get(p.invoice_id) ?? 0) + Number(p.amount ?? 0));
+        paidMap.set(p.invoice_id, round2((paidMap.get(p.invoice_id) ?? 0) + round2(num(p.amount))));
       }
 
       return invoices.map((i) => {
-        const total = Number(i.total_amount ?? 0);
-        const paid = paidMap.get(i.id) ?? 0;
+        const total = round2(num(i.total_amount));
+        const paid = round2(paidMap.get(i.id) ?? 0);
         return {
           invoiceId: i.id,
           invoiceNumber: i.invoice_number,
@@ -94,7 +97,7 @@ export function DuesReport() {
           supplierName: i.suppliers?.name ?? "—",
           total,
           paid,
-          remaining: Math.max(total - paid, 0),
+          remaining: Math.max(round2(total - paid), 0),
           status: i.status,
         };
       });
@@ -114,34 +117,56 @@ export function DuesReport() {
       id,
       name: g.name,
       rows: g.rows,
-      total: g.rows.reduce((a, r) => a + r.total, 0),
-      paid: g.rows.reduce((a, r) => a + r.paid, 0),
-      remaining: g.rows.reduce((a, r) => a + r.remaining, 0),
+      total: sumMoney(g.rows.map((r) => r.total)),
+      paid: sumMoney(g.rows.map((r) => r.paid)),
+      remaining: sumMoney(g.rows.map((r) => r.remaining)),
     }));
   }, [rows]);
 
   const grand = {
-    total: groups.reduce((a, g) => a + g.total, 0),
-    paid: groups.reduce((a, g) => a + g.paid, 0),
-    remaining: groups.reduce((a, g) => a + g.remaining, 0),
+    total: sumMoney(groups.map((g) => g.total)),
+    paid: sumMoney(groups.map((g) => g.paid)),
+    remaining: sumMoney(groups.map((g) => g.remaining)),
   };
 
   function exportCSV() {
-    const header = ["المورد", "رقم الفاتورة", "تاريخ الفاتورة", "بداية الفترة", "نهاية الفترة", "إجمالي الفاتورة", "المسدَّد", "المتبقي المستحق", "حالة الفاتورة", "حالة السداد"];
-    const body = rows.map((r) => [
-      r.supplierName, r.invoiceNumber, r.invoiceDate, r.periodStart ?? "", r.periodEnd ?? "",
-      r.total.toFixed(2), r.paid.toFixed(2), r.remaining.toFixed(2),
-      statusLabel[r.status] ?? r.status, payLabel(r).label,
-    ]);
-    body.push(["الإجمالي", "", "", "", "", grand.total.toFixed(2), grand.paid.toFixed(2), grand.remaining.toFixed(2), "", ""]);
-    const csv = "\uFEFF" + [header, ...body].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\r\n");
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `المبالغ-المستحقة-${from}_${to}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const supplierName = supplierId
+      ? (suppliers.data ?? []).find((s) => s.id === supplierId)?.name ?? "—"
+      : "كل الموردين";
+    const body: (string | number)[][] = [];
+    for (const g of groups) {
+      for (const r of g.rows) {
+        body.push([
+          g.name, r.invoiceNumber, r.invoiceDate,
+          r.periodStart ?? "", r.periodEnd ?? "",
+          formatMoney(r.total), formatMoney(r.paid), formatMoney(r.remaining),
+          statusLabel[r.status] ?? r.status, payLabel(r).label,
+        ]);
+      }
+      body.push([
+        `إجمالي ${g.name}`, "", "", "", "",
+        formatMoney(g.total), formatMoney(g.paid), formatMoney(g.remaining), "", "",
+      ]);
+    }
+    downloadCsv(`المبالغ-المستحقة-${from}_${to}`, {
+      title: "تقرير المبالغ المستحقة للسداد",
+      meta: [
+        ["المورد", supplierName],
+        ["الفترة", `${from} → ${to}`],
+        ["عدد الفواتير", rows.length],
+      ],
+      columns: [
+        "المورد", "رقم الفاتورة", "تاريخ الفاتورة", "بداية فترة المطابقة", "نهاية فترة المطابقة",
+        "إجمالي الفاتورة (ر.س)", "المسدَّد (ر.س)", "المتبقي المستحق (ر.س)", "حالة الفاتورة", "حالة السداد",
+      ],
+      rows: body,
+      totals: [
+        ["الإجمالي العام", "", "", "", "", formatMoney(grand.total), formatMoney(grand.paid), formatMoney(grand.remaining), "", ""],
+      ],
+      notes: ["المتبقي المستحق = إجمالي الفاتورة − المسدَّد", "جميع المبالغ بالريال السعودي ومقرَّبة إلى خانتين"],
+    });
   }
+
 
   return (
     <div className="space-y-4">

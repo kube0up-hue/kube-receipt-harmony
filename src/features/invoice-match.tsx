@@ -4,6 +4,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Search, Save, FileDown } from "lucide-react";
+import { formatMoney, formatQty, formatSigned, lineAmount, num, round2, round3, sumMoney } from "@/lib/money";
+import { downloadCsv } from "@/lib/csv";
+
 
 
 type Row = {
@@ -78,11 +81,11 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
 
     const newRows: Row[] = (prods ?? []).map(p => {
       const a = agg.get(p.id) ?? { o: 0, r: 0, d: 0, a: 0 };
-      const price = Number((p as { unit_price?: number | string }).unit_price ?? 0);
+      const price = round2(num((p as { unit_price?: number | string }).unit_price));
       return {
         product_id: p.id, product_name: p.name, unit: p.unit,
-        accepted_qty: a.a, received_qty: a.r, damaged_qty: a.d, ordered_qty: a.o,
-        invoiced_qty: a.a ? String(a.a) : "",
+        accepted_qty: round3(a.a), received_qty: round3(a.r), damaged_qty: round3(a.d), ordered_qty: round3(a.o),
+        invoiced_qty: a.a ? String(round3(a.a)) : "",
         unit_price: price ? String(price) : "",
       };
     });
@@ -91,59 +94,68 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
     if (items.length === 0) toast.warning("لا توجد استلامات في هذه الفترة");
   };
 
-  const money = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const money = formatMoney;
 
   const exportCSV = () => {
     if (rows.length === 0) { toast.error("لا توجد بيانات"); return; }
     const supplierName = suppliers.data?.find(s => s.id === supplierId)?.name ?? "";
-    const headers = ["المنتج","الوحدة","المطلوب","المستلم","التالف","المقبول","الكمية بالفاتورة","سعر الوحدة","الفرق","المستحق (المقبول)","قيمة الفاتورة","فرق المبلغ"];
-    const lines = rows.map(r => {
-      const iq = Number(r.invoiced_qty || 0);
-      const up = Number(r.unit_price || 0);
-      const diff = r.invoiced_qty === "" ? "" : iq - r.accepted_qty;
-      const due = r.accepted_qty * up;
-      const invAmt = iq * up;
-      return [r.product_name, r.unit, r.ordered_qty, r.received_qty, r.damaged_qty, r.accepted_qty, r.invoiced_qty, r.unit_price, diff, due.toFixed(2), invAmt.toFixed(2), (invAmt - due).toFixed(2)];
+    downloadCsv(`مطابقة-${supplierName}-${periodStart}_${periodEnd}`, {
+      title: "تقرير مطابقة فاتورة مورد",
+      meta: [
+        ["المورد", supplierName],
+        ["فترة المطابقة", `${periodStart} → ${periodEnd}`],
+        ["رقم الفاتورة", invoiceNumber || "—"],
+        ["تاريخ الفاتورة", invoiceDate || "—"],
+        ["عدد الأصناف", rows.length],
+      ],
+      columns: [
+        "#", "الصنف", "الوحدة", "المطلوب", "المستلم", "التالف", "المقبول",
+        "الكمية بالفاتورة", "فرق الكمية", "سعر الوحدة (ر.س)",
+        "المستحق للسداد (ر.س)", "قيمة الفاتورة (ر.س)", "فرق المبلغ (ر.س)", "الحالة",
+      ],
+      rows: rows.map((r, i) => {
+        const iq = round3(num(r.invoiced_qty));
+        const up = round2(num(r.unit_price));
+        const diff = r.invoiced_qty === "" ? null : round3(iq - r.accepted_qty);
+        const due = lineAmount(r.accepted_qty, up);
+        const invAmt = lineAmount(iq, up);
+        const amtDiff = round2(invAmt - due);
+        const state = r.invoiced_qty === "" ? "غير مُدخل" : diff === 0 ? "مطابق" : (diff ?? 0) > 0 ? "الفاتورة أعلى" : "الفاتورة أقل";
+        return [
+          i + 1, r.product_name, r.unit,
+          formatQty(r.ordered_qty), formatQty(r.received_qty), formatQty(r.damaged_qty), formatQty(r.accepted_qty),
+          r.invoiced_qty === "" ? "" : formatQty(iq),
+          diff === null ? "" : formatSigned(diff, "qty"),
+          formatMoney(up), formatMoney(due), formatMoney(invAmt), formatSigned(amtDiff), state,
+        ];
+      }),
+      totals: [
+        ["الإجمالي", "", "", "", "", "", formatQty(totals.acc), formatQty(totals.inv), "", "", formatMoney(totals.due), formatMoney(totals.sum), formatSigned(round2(totals.sum - totals.due)), ""],
+        ["الإجمالي المستحق للسداد (ر.س)", formatMoney(totals.due)],
+        ["إجمالي قيمة الفاتورة (ر.س)", formatMoney(totals.sum)],
+        ["فرق المبلغ (ر.س)", formatSigned(round2(totals.sum - totals.due))],
+      ],
+      notes: ["المستحق للسداد = الكمية المقبولة × سعر الوحدة", "جميع المبالغ مقرَّبة إلى خانتين عشريتين"],
     });
-    const esc = (v: unknown) => {
-      const s = String(v ?? "");
-      return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
-    };
-    const meta = [
-      [`المورد:`, supplierName],
-      [`الفترة:`, `${periodStart} → ${periodEnd}`],
-      [],
-    ];
-    const foot = [
-      [],
-      ["الإجمالي المستحق للسداد", totals.due.toFixed(2)],
-      ["إجمالي قيمة الفاتورة", totals.sum.toFixed(2)],
-      ["فرق المبلغ", (totals.sum - totals.due).toFixed(2)],
-    ];
-    const csv = "\uFEFF" + [...meta, headers, ...lines, ...foot].map(r => r.map(esc).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `مطابقة-${supplierName}-${periodStart}-${periodEnd}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
     toast.success("تم التصدير");
   };
 
 
   const totals = useMemo(() => {
-    let acc = 0, inv = 0, sum = 0, due = 0;
+    let acc = 0, inv = 0;
+    const sums: number[] = [];
+    const dues: number[] = [];
     for (const r of rows) {
       acc += r.accepted_qty;
-      const iq = Number(r.invoiced_qty || 0);
-      const up = Number(r.unit_price || 0);
+      const iq = round3(num(r.invoiced_qty));
+      const up = round2(num(r.unit_price));
       inv += iq;
-      sum += iq * up;
-      due += r.accepted_qty * up;
+      sums.push(lineAmount(iq, up));
+      dues.push(lineAmount(r.accepted_qty, up));
     }
-    return { acc, inv, sum, due };
+    return { acc: round3(acc), inv: round3(inv), sum: sumMoney(sums), due: sumMoney(dues) };
   }, [rows]);
+
 
 
   const saveMut = useMutation({
@@ -152,10 +164,10 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("جلسة غير صالحة");
 
-      const totalAmt = totalAmount ? Number(totalAmount) : totals.sum;
+      const totalAmt = totalAmount ? round2(num(totalAmount)) : totals.sum;
 
       // Determine invoice status
-      const hasDiff = rows.some(r => Number(r.invoiced_qty || 0) !== r.accepted_qty);
+      const hasDiff = rows.some(r => round3(num(r.invoiced_qty)) !== r.accepted_qty);
       const status = hasDiff ? "unmatched" : "matched_ready";
 
       const { data: inv, error: invErr } = await supabase.from("invoices").insert({
@@ -172,13 +184,13 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
       if (invErr) throw invErr;
 
       const itemsToInsert = rows
-        .filter(r => Number(r.invoiced_qty || 0) > 0)
+        .filter(r => round3(num(r.invoiced_qty)) > 0)
         .map(r => {
-          const iq = Number(r.invoiced_qty);
-          const up = Number(r.unit_price || 0);
+          const iq = round3(num(r.invoiced_qty));
+          const up = round2(num(r.unit_price));
           return {
             invoice_id: inv.id, product_id: r.product_id,
-            invoiced_qty: iq, unit_price: up, line_total: iq * up,
+            invoiced_qty: iq, unit_price: up, line_total: lineAmount(iq, up),
           };
         });
       if (itemsToInsert.length) {
@@ -188,10 +200,10 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
 
       type MStatus = "matched" | "invoice_higher" | "invoice_lower" | "in_invoice_not_received" | "received_not_in_invoice" | "has_damage_in_invoice" | "needs_review";
       const matchesToInsert = rows
-        .filter(r => r.accepted_qty > 0 || Number(r.invoiced_qty || 0) > 0)
+        .filter(r => r.accepted_qty > 0 || round3(num(r.invoiced_qty)) > 0)
         .map(r => {
-          const iq = Number(r.invoiced_qty || 0);
-          const diff = iq - r.accepted_qty;
+          const iq = round3(num(r.invoiced_qty));
+          const diff = round3(iq - r.accepted_qty);
           let mstatus: MStatus = "matched";
           if (r.accepted_qty === 0 && iq > 0) mstatus = "in_invoice_not_received";
           else if (iq === 0 && r.accepted_qty > 0) mstatus = "received_not_in_invoice";
@@ -205,6 +217,7 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
             total_invoiced: iq, invoice_diff: diff, status: mstatus,
           };
         });
+
       if (matchesToInsert.length) {
         const { error } = await supabase.from("invoice_matches").insert(matchesToInsert);
         if (error) throw error;
@@ -266,21 +279,21 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
               </thead>
               <tbody>
                 {rows.map((r, i) => {
-                  const iq = Number(r.invoiced_qty || 0);
-                  const up = Number(r.unit_price || 0);
-                  const diff = iq - r.accepted_qty;
-                  const due = r.accepted_qty * up;
-                  const invAmt = iq * up;
-                  const amtDiff = invAmt - due;
+                  const iq = round3(num(r.invoiced_qty));
+                  const up = round2(num(r.unit_price));
+                  const diff = round3(iq - r.accepted_qty);
+                  const due = lineAmount(r.accepted_qty, up);
+                  const invAmt = lineAmount(iq, up);
+                  const amtDiff = round2(invAmt - due);
                   return (
                     <tr key={r.product_id} className="border-b border-border/50">
                       <td className="py-2">
                         <div className="font-semibold">{r.product_name}</div>
                         <div className="text-xs text-muted-foreground">{r.unit}</div>
                       </td>
-                      <td className="text-center">{r.received_qty}</td>
-                      <td className="text-center text-kube-red">{r.damaged_qty || "—"}</td>
-                      <td className="text-center font-bold">{r.accepted_qty}</td>
+                      <td className="text-center">{formatQty(r.received_qty)}</td>
+                      <td className="text-center text-kube-red">{r.damaged_qty ? formatQty(r.damaged_qty) : "—"}</td>
+                      <td className="text-center font-bold">{formatQty(r.accepted_qty)}</td>
                       <td>
                         <input type="number" inputMode="decimal" step="0.001" min="0"
                           className="kube-input w-24 text-center mx-auto"
@@ -291,15 +304,19 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                         <input type="number" inputMode="decimal" step="0.01" min="0"
                           className="kube-input w-24 text-center mx-auto"
                           value={r.unit_price}
-                          onChange={e => setRows(rows.map((x, j) => j === i ? { ...x, unit_price: e.target.value } : x))} />
+                          onChange={e => setRows(rows.map((x, j) => j === i ? { ...x, unit_price: e.target.value } : x))}
+                          onBlur={e => {
+                            const v = e.target.value === "" ? "" : String(round2(num(e.target.value)));
+                            setRows(rows.map((x, j) => j === i ? { ...x, unit_price: v } : x));
+                          }} />
                       </td>
                       <td className={`text-center font-bold ${diff === 0 ? "text-success" : "text-kube-red"}`}>
-                        {r.invoiced_qty === "" ? "—" : diff > 0 ? `+${diff}` : diff}
+                        {r.invoiced_qty === "" ? "—" : formatSigned(diff, "qty")}
                       </td>
                       <td className="text-center font-bold whitespace-nowrap">{money(due)}</td>
                       <td className="text-center whitespace-nowrap">{money(invAmt)}</td>
                       <td className={`text-center font-bold whitespace-nowrap ${amtDiff === 0 ? "text-success" : "text-kube-red"}`}>
-                        {amtDiff > 0 ? `+${money(amtDiff)}` : money(amtDiff)}
+                        {formatSigned(amtDiff)}
                       </td>
                     </tr>
                   );
@@ -310,16 +327,17 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                 <tr className="border-t-2 border-border font-bold">
                   <td className="py-2">الإجمالي</td>
                   <td></td><td></td>
-                  <td className="text-center">{totals.acc}</td>
-                  <td className="text-center">{totals.inv}</td>
+                  <td className="text-center">{formatQty(totals.acc)}</td>
+                  <td className="text-center">{formatQty(totals.inv)}</td>
                   <td></td><td></td>
                   <td className="text-center whitespace-nowrap">{money(totals.due)}</td>
                   <td className="text-center whitespace-nowrap">{money(totals.sum)}</td>
-                  <td className={`text-center whitespace-nowrap ${totals.sum - totals.due === 0 ? "text-success" : "text-kube-red"}`}>
-                    {money(totals.sum - totals.due)}
+                  <td className={`text-center whitespace-nowrap ${round2(totals.sum - totals.due) === 0 ? "text-success" : "text-kube-red"}`}>
+                    {formatSigned(round2(totals.sum - totals.due))}
                   </td>
                 </tr>
               </tfoot>
+
             </table>
           </div>
 
@@ -334,8 +352,8 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
             </div>
             <div className="kube-card bg-muted/40 text-center">
               <div className="text-xs text-muted-foreground">فرق المبلغ</div>
-              <div className={`text-2xl font-extrabold ${totals.sum - totals.due === 0 ? "text-success" : "text-kube-red"}`}>
-                {money(totals.sum - totals.due)}
+              <div className={`text-2xl font-extrabold ${round2(totals.sum - totals.due) === 0 ? "text-success" : "text-kube-red"}`}>
+                {formatSigned(round2(totals.sum - totals.due))}
               </div>
             </div>
           </div>
@@ -354,9 +372,16 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
               <span className="text-xs text-muted-foreground">الإجمالي (اختياري)</span>
               <input type="number" inputMode="decimal" step="0.01" className="kube-input w-full"
                 value={totalAmount} onChange={e => setTotalAmount(e.target.value)}
-                placeholder={String(totals.sum.toFixed(2))} />
+                onBlur={e => setTotalAmount(e.target.value === "" ? "" : String(round2(num(e.target.value))))}
+                placeholder={formatMoney(totals.sum)} />
+              {totalAmount !== "" && round2(num(totalAmount)) !== totals.sum && (
+                <span className="mt-1 block text-[11px] font-bold text-kube-red">
+                  يختلف عن مجموع البنود ({money(totals.sum)}) بفرق {formatSigned(round2(num(totalAmount) - totals.sum))}
+                </span>
+              )}
             </label>
           </div>
+
           <label className="block mt-3">
             <span className="text-xs text-muted-foreground">ملاحظة</span>
             <textarea className="kube-input w-full" rows={2} value={note} onChange={e => setNote(e.target.value)} />
