@@ -58,8 +58,9 @@ export function InvoiceDetail({ invoiceId, base }: { invoiceId: string; base: "/
 
   const payMut = useMutation({
     mutationFn: async () => {
-      const amt = amount ? Number(amount) : Number(inv.data?.total_amount ?? 0);
+      const amt = round2(amount ? num(amount) : num(inv.data?.total_amount));
       const { error: pErr } = await supabase.from("payments").insert({
+
         invoice_id: invoiceId, amount: amt,
         reference_number: reference || null,
         payment_date: new Date().toISOString().slice(0, 10),
