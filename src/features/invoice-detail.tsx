@@ -176,7 +176,7 @@ export function InvoiceDetail({ invoiceId, base }: { invoiceId: string; base: "/
             {payments.data!.map(p => (
               <div key={p.id} className="flex justify-between text-sm border-b border-border/50 py-2">
                 <span>{format(new Date(p.payment_date), "yyyy-MM-dd")} · {p.reference_number ?? "—"}</span>
-                <span className="font-bold">{Number(p.amount).toFixed(2)}</span>
+                <span className="font-bold">{formatMoney(num(p.amount))} ر.س</span>
               </div>
             ))}
           </div>
