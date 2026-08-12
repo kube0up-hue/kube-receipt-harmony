@@ -82,7 +82,7 @@ export function InvoiceDetail({ invoiceId, base }: { invoiceId: string; base: "/
   if (!inv.data) return <AppShell title="فاتورة" back={{ to: `${base}/invoices` }}><div className="kube-card">غير موجودة</div></AppShell>;
 
   const i = inv.data;
-  const totalDiff = (matches.data ?? []).reduce((a, m) => a + Number(m.invoice_diff), 0);
+  const totalDiff = round3((matches.data ?? []).reduce((a, m) => a + round3(num(m.invoice_diff)), 0));
 
   return (
     <AppShell title={`فاتورة ${i.invoice_number}`} back={{ to: `${base}/invoices` }}>
