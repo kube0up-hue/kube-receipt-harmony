@@ -151,8 +151,11 @@ export function InvoiceDetail({ invoiceId, base }: { invoiceId: string; base: "/
           <div className="grid sm:grid-cols-2 gap-3">
             <label className="block">
               <span className="text-xs text-muted-foreground">المبلغ المحوّل</span>
-              <input type="number" className="kube-input w-full" value={amount} onChange={e => setAmount(e.target.value)}
-                placeholder={Number(i.total_amount).toFixed(2)} />
+              <input type="number" inputMode="decimal" step="0.01" className="kube-input w-full" value={amount}
+                onChange={e => setAmount(e.target.value)}
+                onBlur={e => setAmount(e.target.value === "" ? "" : String(round2(num(e.target.value))))}
+                placeholder={formatMoney(num(i.total_amount))} />
+
             </label>
             <label className="block">
               <span className="text-xs text-muted-foreground">رقم المرجع (اختياري)</span>
