@@ -279,21 +279,21 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
               </thead>
               <tbody>
                 {rows.map((r, i) => {
-                  const iq = Number(r.invoiced_qty || 0);
-                  const up = Number(r.unit_price || 0);
-                  const diff = iq - r.accepted_qty;
-                  const due = r.accepted_qty * up;
-                  const invAmt = iq * up;
-                  const amtDiff = invAmt - due;
+                  const iq = round3(num(r.invoiced_qty));
+                  const up = round2(num(r.unit_price));
+                  const diff = round3(iq - r.accepted_qty);
+                  const due = lineAmount(r.accepted_qty, up);
+                  const invAmt = lineAmount(iq, up);
+                  const amtDiff = round2(invAmt - due);
                   return (
                     <tr key={r.product_id} className="border-b border-border/50">
                       <td className="py-2">
                         <div className="font-semibold">{r.product_name}</div>
                         <div className="text-xs text-muted-foreground">{r.unit}</div>
                       </td>
-                      <td className="text-center">{r.received_qty}</td>
-                      <td className="text-center text-kube-red">{r.damaged_qty || "—"}</td>
-                      <td className="text-center font-bold">{r.accepted_qty}</td>
+                      <td className="text-center">{formatQty(r.received_qty)}</td>
+                      <td className="text-center text-kube-red">{r.damaged_qty ? formatQty(r.damaged_qty) : "—"}</td>
+                      <td className="text-center font-bold">{formatQty(r.accepted_qty)}</td>
                       <td>
                         <input type="number" inputMode="decimal" step="0.001" min="0"
                           className="kube-input w-24 text-center mx-auto"
@@ -304,15 +304,19 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                         <input type="number" inputMode="decimal" step="0.01" min="0"
                           className="kube-input w-24 text-center mx-auto"
                           value={r.unit_price}
-                          onChange={e => setRows(rows.map((x, j) => j === i ? { ...x, unit_price: e.target.value } : x))} />
+                          onChange={e => setRows(rows.map((x, j) => j === i ? { ...x, unit_price: e.target.value } : x))}
+                          onBlur={e => {
+                            const v = e.target.value === "" ? "" : String(round2(num(e.target.value)));
+                            setRows(rows.map((x, j) => j === i ? { ...x, unit_price: v } : x));
+                          }} />
                       </td>
                       <td className={`text-center font-bold ${diff === 0 ? "text-success" : "text-kube-red"}`}>
-                        {r.invoiced_qty === "" ? "—" : diff > 0 ? `+${diff}` : diff}
+                        {r.invoiced_qty === "" ? "—" : formatSigned(diff, "qty")}
                       </td>
                       <td className="text-center font-bold whitespace-nowrap">{money(due)}</td>
                       <td className="text-center whitespace-nowrap">{money(invAmt)}</td>
                       <td className={`text-center font-bold whitespace-nowrap ${amtDiff === 0 ? "text-success" : "text-kube-red"}`}>
-                        {amtDiff > 0 ? `+${money(amtDiff)}` : money(amtDiff)}
+                        {formatSigned(amtDiff)}
                       </td>
                     </tr>
                   );
@@ -323,16 +327,17 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                 <tr className="border-t-2 border-border font-bold">
                   <td className="py-2">الإجمالي</td>
                   <td></td><td></td>
-                  <td className="text-center">{totals.acc}</td>
-                  <td className="text-center">{totals.inv}</td>
+                  <td className="text-center">{formatQty(totals.acc)}</td>
+                  <td className="text-center">{formatQty(totals.inv)}</td>
                   <td></td><td></td>
                   <td className="text-center whitespace-nowrap">{money(totals.due)}</td>
                   <td className="text-center whitespace-nowrap">{money(totals.sum)}</td>
-                  <td className={`text-center whitespace-nowrap ${totals.sum - totals.due === 0 ? "text-success" : "text-kube-red"}`}>
-                    {money(totals.sum - totals.due)}
+                  <td className={`text-center whitespace-nowrap ${round2(totals.sum - totals.due) === 0 ? "text-success" : "text-kube-red"}`}>
+                    {formatSigned(round2(totals.sum - totals.due))}
                   </td>
                 </tr>
               </tfoot>
+
             </table>
           </div>
 
