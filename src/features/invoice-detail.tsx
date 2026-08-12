@@ -96,7 +96,7 @@ export function InvoiceDetail({ invoiceId, base }: { invoiceId: string; base: "/
           <div>تاريخ: <span className="text-foreground font-semibold">{format(new Date(i.invoice_date), "yyyy-MM-dd")}</span></div>
           <div>من: {format(new Date(i.period_start), "yyyy-MM-dd")}</div>
           <div>إلى: {format(new Date(i.period_end), "yyyy-MM-dd")}</div>
-          <div className="col-span-2">الإجمالي: <span className="text-foreground font-bold">{Number(i.total_amount).toFixed(2)}</span></div>
+          <div className="col-span-2">الإجمالي: <span className="text-foreground font-bold">{formatMoney(num(i.total_amount))} ر.س</span></div>
         </div>
       </div>
 
