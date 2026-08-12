@@ -122,12 +122,12 @@ export function InvoiceDetail({ invoiceId, base }: { invoiceId: string; base: "/
                     <div className="font-semibold">{m.product?.name}</div>
                     <div className="text-xs text-muted-foreground">{m.product?.unit ?? ""}</div>
                   </td>
-                  <td className="text-center">{m.total_received}</td>
-                  <td className="text-center text-kube-red">{Number(m.total_damaged) || "—"}</td>
-                  <td className="text-center font-bold">{m.total_accepted}</td>
-                  <td className="text-center">{m.total_invoiced}</td>
-                  <td className={`text-center font-bold ${Number(m.invoice_diff) === 0 ? "text-success" : "text-kube-red"}`}>
-                    {Number(m.invoice_diff) > 0 ? `+${m.invoice_diff}` : m.invoice_diff}
+                  <td className="text-center">{formatQty(num(m.total_received))}</td>
+                  <td className="text-center text-kube-red">{num(m.total_damaged) ? formatQty(num(m.total_damaged)) : "—"}</td>
+                  <td className="text-center font-bold">{formatQty(num(m.total_accepted))}</td>
+                  <td className="text-center">{formatQty(num(m.total_invoiced))}</td>
+                  <td className={`text-center font-bold ${round3(num(m.invoice_diff)) === 0 ? "text-success" : "text-kube-red"}`}>
+                    {formatSigned(round3(num(m.invoice_diff)), "qty")}
                   </td>
                   <td className="text-center text-xs">{M_LABEL[m.status] ?? m.status}</td>
                 </tr>
@@ -136,9 +136,10 @@ export function InvoiceDetail({ invoiceId, base }: { invoiceId: string; base: "/
             <tfoot>
               <tr className="border-t-2 border-border font-bold">
                 <td className="py-2" colSpan={5}>إجمالي الفرق</td>
-                <td className={`text-center ${totalDiff === 0 ? "text-success" : "text-kube-red"}`}>{totalDiff}</td>
+                <td className={`text-center ${totalDiff === 0 ? "text-success" : "text-kube-red"}`}>{formatSigned(totalDiff, "qty")}</td>
                 <td></td>
               </tr>
+
             </tfoot>
           </table>
         </div>
