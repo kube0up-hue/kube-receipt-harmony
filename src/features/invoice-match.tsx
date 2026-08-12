@@ -164,10 +164,10 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("جلسة غير صالحة");
 
-      const totalAmt = totalAmount ? Number(totalAmount) : totals.sum;
+      const totalAmt = totalAmount ? round2(num(totalAmount)) : totals.sum;
 
       // Determine invoice status
-      const hasDiff = rows.some(r => Number(r.invoiced_qty || 0) !== r.accepted_qty);
+      const hasDiff = rows.some(r => round3(num(r.invoiced_qty)) !== r.accepted_qty);
       const status = hasDiff ? "unmatched" : "matched_ready";
 
       const { data: inv, error: invErr } = await supabase.from("invoices").insert({
@@ -184,13 +184,13 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
       if (invErr) throw invErr;
 
       const itemsToInsert = rows
-        .filter(r => Number(r.invoiced_qty || 0) > 0)
+        .filter(r => round3(num(r.invoiced_qty)) > 0)
         .map(r => {
-          const iq = Number(r.invoiced_qty);
-          const up = Number(r.unit_price || 0);
+          const iq = round3(num(r.invoiced_qty));
+          const up = round2(num(r.unit_price));
           return {
             invoice_id: inv.id, product_id: r.product_id,
-            invoiced_qty: iq, unit_price: up, line_total: iq * up,
+            invoiced_qty: iq, unit_price: up, line_total: lineAmount(iq, up),
           };
         });
       if (itemsToInsert.length) {
@@ -200,10 +200,10 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
 
       type MStatus = "matched" | "invoice_higher" | "invoice_lower" | "in_invoice_not_received" | "received_not_in_invoice" | "has_damage_in_invoice" | "needs_review";
       const matchesToInsert = rows
-        .filter(r => r.accepted_qty > 0 || Number(r.invoiced_qty || 0) > 0)
+        .filter(r => r.accepted_qty > 0 || round3(num(r.invoiced_qty)) > 0)
         .map(r => {
-          const iq = Number(r.invoiced_qty || 0);
-          const diff = iq - r.accepted_qty;
+          const iq = round3(num(r.invoiced_qty));
+          const diff = round3(iq - r.accepted_qty);
           let mstatus: MStatus = "matched";
           if (r.accepted_qty === 0 && iq > 0) mstatus = "in_invoice_not_received";
           else if (iq === 0 && r.accepted_qty > 0) mstatus = "received_not_in_invoice";
@@ -217,6 +217,7 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
             total_invoiced: iq, invoice_diff: diff, status: mstatus,
           };
         });
+
       if (matchesToInsert.length) {
         const { error } = await supabase.from("invoice_matches").insert(matchesToInsert);
         if (error) throw error;
