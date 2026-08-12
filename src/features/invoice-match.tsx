@@ -352,8 +352,8 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
             </div>
             <div className="kube-card bg-muted/40 text-center">
               <div className="text-xs text-muted-foreground">فرق المبلغ</div>
-              <div className={`text-2xl font-extrabold ${totals.sum - totals.due === 0 ? "text-success" : "text-kube-red"}`}>
-                {money(totals.sum - totals.due)}
+              <div className={`text-2xl font-extrabold ${round2(totals.sum - totals.due) === 0 ? "text-success" : "text-kube-red"}`}>
+                {formatSigned(round2(totals.sum - totals.due))}
               </div>
             </div>
           </div>
@@ -372,9 +372,16 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
               <span className="text-xs text-muted-foreground">الإجمالي (اختياري)</span>
               <input type="number" inputMode="decimal" step="0.01" className="kube-input w-full"
                 value={totalAmount} onChange={e => setTotalAmount(e.target.value)}
-                placeholder={String(totals.sum.toFixed(2))} />
+                onBlur={e => setTotalAmount(e.target.value === "" ? "" : String(round2(num(e.target.value))))}
+                placeholder={formatMoney(totals.sum)} />
+              {totalAmount !== "" && round2(num(totalAmount)) !== totals.sum && (
+                <span className="mt-1 block text-[11px] font-bold text-kube-red">
+                  يختلف عن مجموع البنود ({money(totals.sum)}) بفرق {formatSigned(round2(num(totalAmount) - totals.sum))}
+                </span>
+              )}
             </label>
           </div>
+
           <label className="block mt-3">
             <span className="text-xs text-muted-foreground">ملاحظة</span>
             <textarea className="kube-input w-full" rows={2} value={note} onChange={e => setNote(e.target.value)} />
