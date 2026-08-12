@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Download } from "lucide-react";
+import { formatMoney, num, round2, sumMoney } from "@/lib/money";
+import { downloadCsv } from "@/lib/csv";
 
 type Row = {
   invoiceId: string;
@@ -21,17 +23,18 @@ const statusLabel: Record<string, string> = {
   pending_match: "بانتظار المطابقة",
   unmatched: "غير مطابقة",
   matched_ready: "جاهزة للتحويل",
+  approved_for_payment: "معتمدة للسداد",
   paid: "مسددة",
 };
 
-const money = (n: number) =>
-  n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const money = formatMoney;
 
 function payLabel(r: Row) {
   if (r.paid <= 0) return { label: "غير مسددة", cls: "bg-destructive/10 text-destructive" };
   if (r.remaining > 0.009) return { label: "مسددة جزئياً", cls: "bg-amber-500/15 text-amber-700" };
   return { label: "مسددة بالكامل", cls: "bg-emerald-500/15 text-emerald-700" };
 }
+
 
 export function DuesReport() {
   const [from, setFrom] = useState(() => {
