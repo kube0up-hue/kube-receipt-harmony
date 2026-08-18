@@ -2,21 +2,24 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
-import { format } from "date-fns";
+import { formatDateTimeAr } from "@/lib/format-date";
+import { riyadhToday, riyadhDayStart } from "@/lib/riyadh-time";
 
 export const Route = createFileRoute("/_authenticated/employee/today")({
   component: TodayPage,
 });
 
 function TodayPage() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = riyadhToday();
   const { data, isLoading } = useQuery({
     queryKey: ["receipts", "today-full", today],
+    staleTime: 0,
+    refetchOnMount: "always",
     queryFn: async () => {
       const { data, error } = await supabase
         .from("receipts")
         .select("id, received_at, status, total_received, total_accepted, total_damaged, total_short, total_over, supplier:suppliers(name)")
-        .gte("received_at", `${today}T00:00:00`)
+        .gte("received_at", riyadhDayStart(today))
         .order("received_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
@@ -37,7 +40,7 @@ function TodayPage() {
                 <div className="font-bold">{r.supplier?.name}</div>
                 <StatusBadge status={r.status} />
               </div>
-              <div className="text-xs text-muted-foreground mb-2">{format(new Date(r.received_at), "yyyy-MM-dd HH:mm")}</div>
+              <div className="text-xs text-muted-foreground mb-2">{formatDateTimeAr(r.received_at)}</div>
               <div className="grid grid-cols-4 gap-2 text-center text-xs">
                 <Stat label="مستلم" val={r.total_received} />
                 <Stat label="مقبول" val={r.total_accepted} />

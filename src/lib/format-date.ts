@@ -5,10 +5,12 @@
 const DATE_OPTS: Intl.DateTimeFormatOptions = {
   calendar: "gregory",
   numberingSystem: "latn",
+  timeZone: "Asia/Riyadh",
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
 };
+
 
 const DATETIME_OPTS: Intl.DateTimeFormatOptions = {
   ...DATE_OPTS,

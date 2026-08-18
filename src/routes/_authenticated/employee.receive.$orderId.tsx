@@ -1,14 +1,15 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
 import { toast } from "sonner";
-import { Camera, Copy, X, Ban } from "lucide-react";
+import { Camera, Copy, X, Ban, CheckCircle2 } from "lucide-react";
 import { useCurrentUser } from "@/lib/use-current-user";
-import { format } from "date-fns";
+import { formatDateTimeAr } from "@/lib/format-date";
 import { useServerFn } from "@tanstack/react-start";
 import { notifyReceiptApproved } from "@/lib/telegram.functions";
+import { removePendingOrderFromCache, refreshOrderQueries } from "@/lib/use-pending-orders";
 
 export const Route = createFileRoute("/_authenticated/employee/receive/$orderId")({
   component: ReceivePage,
@@ -48,22 +49,37 @@ function ReceivePage() {
   const [saving, setSaving] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
+  const submitLock = useRef(false);
   const sendTelegram = useServerFn(notifyReceiptApproved);
 
   const orderQ = useQuery({
     queryKey: ["order", orderId],
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
     queryFn: async () => {
+      // Effective status is computed live from receipt rows, so an already-received
+      // order can never be opened for a second receipt.
       const { data, error } = await supabase
-        .from("orders")
-        .select("id, order_number, status, supplier_id, supplier:suppliers(name), items:order_items(id, ordered_qty, product:products(id, name, unit))")
-        .eq("id", orderId).single();
+        .from("v_orders_effective")
+        .select("id, order_number, effective_status, supplier_id, supplier:suppliers(name), items:order_items(id, ordered_qty, product:products(id, name, unit))")
+        .eq("id", orderId)
+        .single();
       if (error) throw error;
       if (!lines) {
-        setLines(data.items.map((it: any) => ({
-          itemId: it.id, productId: it.product.id, productName: it.product.name,
-          unit: it.product.unit, ordered: Number(it.ordered_qty),
-          received: "", damaged: "", note: "", photos: [],
-        })));
+        setLines(
+          (data.items ?? []).map((it: any) => ({
+            itemId: it.id,
+            productId: it.product.id,
+            productName: it.product.name,
+            unit: it.product.unit,
+            ordered: Number(it.ordered_qty),
+            received: "",
+            damaged: "",
+            note: "",
+            photos: [],
+          })),
+        );
       }
       return data;
     },
@@ -99,23 +115,31 @@ function ReceivePage() {
     setLines((prev) => prev!.map((l) => ({ ...l, received: String(l.ordered) })));
   }
 
+  async function leaveToList(message?: string, kind: "success" | "error" = "success") {
+    removePendingOrderFromCache(queryClient, orderId);
+    await refreshOrderQueries(queryClient);
+    if (message) kind === "success" ? toast.success(message) : toast.error(message);
+    navigate({ to: "/employee" });
+  }
+
   async function onSubmit() {
     if (!lines || !totals || !cu) return;
     if (totals.requiresNote) return toast.error("أدخل ملاحظة لكل منتج به فرق أو تالف");
     if (totals.missingPhotos) return toast.error("يجب تصوير كل صنف على حدة قبل التأكيد");
+    if (submitLock.current) return;
+    submitLock.current = true;
     setSaving(true);
     try {
       const { data: userRes } = await supabase.auth.getUser();
-      if (!userRes.user) throw new Error("جلسة منتهية");
+      if (!userRes.user) throw new Error("جلسة منتهية، يرجى تسجيل الدخول مجدداً");
       const order = orderQ.data!;
 
       const { count: existingReceipts, error: existingErr } = await supabase
         .from("receipts").select("id", { count: "exact", head: true })
-        .eq("order_id", order.id).in("status", ["submitted", "approved"]);
+        .eq("order_id", order.id!).in("status", ["submitted", "approved"]);
       if (existingErr) throw existingErr;
       if ((existingReceipts ?? 0) > 0) {
-        toast.error("هذا الطلب مستلم مسبقاً");
-        navigate({ to: "/employee" });
+        await leaveToList("هذا الطلب مستلم مسبقاً", "error");
         return;
       }
 
@@ -139,12 +163,16 @@ function ReceivePage() {
 
       const { error: submitErr } = await supabase.rpc("submit_order_receipt", {
         p_receipt_id: receiptId,
-        p_order_id: order.id,
+        p_order_id: order.id!,
         p_note: note || "",
         p_items: itemsPayload,
         p_photos: photosPayload,
       });
       if (submitErr) throw submitErr;
+
+      // The order is now received: drop it from the pending list before we navigate,
+      // so it can never flash back onto the employee's screen.
+      removePendingOrderFromCache(queryClient, orderId);
 
       try {
         await sendTelegram({ data: { receiptId } });
@@ -152,18 +180,24 @@ function ReceivePage() {
         console.error("Telegram notification failed:", error);
       }
 
-      await queryClient.invalidateQueries();
-      toast.success("تم الاستلام");
-      navigate({ to: "/employee" });
+      await leaveToList("تم الاستلام");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "فشل الحفظ");
+      const raw = err instanceof Error ? err.message : "فشل الحفظ";
+      if (raw.includes("مستلم مسبقاً") || raw.includes("استلام مسجل") || raw.includes("ملغى")) {
+        await leaveToList(raw, "error");
+      } else {
+        toast.error(raw, { duration: 6000 });
+      }
     } finally {
+      submitLock.current = false;
       setSaving(false);
     }
   }
 
   async function onCancel() {
     if (!cancelReason.trim()) return toast.error("أدخل سبب الإلغاء");
+    if (submitLock.current) return;
+    submitLock.current = true;
     setSaving(true);
     try {
       const { data: userRes } = await supabase.auth.getUser();
@@ -178,12 +212,11 @@ function ReceivePage() {
         actor_user: userRes.user.id, action: "cancel_order", entity: "orders", entity_id: orderId,
         details: { reason: cancelReason },
       });
-      await queryClient.invalidateQueries();
-      toast.success("تم إلغاء الطلب");
-      navigate({ to: "/employee" });
+      await leaveToList("تم إلغاء الطلب");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "فشل الإلغاء");
     } finally {
+      submitLock.current = false;
       setSaving(false);
     }
   }
@@ -192,6 +225,23 @@ function ReceivePage() {
     return <AppShell title="استلام الطلب" back={{ to: "/employee" }}><div>جارٍ التحميل...</div></AppShell>;
   }
   const order = orderQ.data!;
+
+  if (order.effective_status !== "pending_receipt") {
+    const done = order.effective_status === "received";
+    return (
+      <AppShell title="استلام الطلب" back={{ to: "/employee" }}>
+        <div className="kube-card text-center space-y-3 py-8">
+          <CheckCircle2 className={`w-10 h-10 mx-auto ${done ? "text-success" : "text-kube-red"}`} />
+          <div className="font-bold text-lg">{done ? "هذا الطلب مستلم مسبقاً" : "هذا الطلب ملغى"}</div>
+          <div className="text-sm text-muted-foreground">
+            {order.order_number} — {order.supplier?.name}
+          </div>
+          <p className="text-sm text-muted-foreground">لا يمكن تسجيل استلام آخر لنفس الطلب.</p>
+          <Link to="/employee" className="kube-btn-primary inline-flex">رجوع للواجهة</Link>
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell title={`استلام: ${order.order_number}`} back={{ to: "/employee" }}>
@@ -307,7 +357,7 @@ function ReceivePage() {
       )}
 
       {confirming && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4" onClick={() => setConfirming(false)}>
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4" onClick={() => !saving && setConfirming(false)}>
           <div className="bg-background rounded-2xl w-full max-w-md p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-bold text-lg">تأكيد الاستلام</h3>
             <div className="grid grid-cols-2 gap-2 text-sm">
@@ -323,12 +373,12 @@ function ReceivePage() {
             )}
             <div className="text-xs text-muted-foreground border-t pt-3">
               <div>الموظف: <span className="font-semibold text-foreground">{cu?.fullName ?? "—"}</span></div>
-              <div>الوقت: {format(new Date(), "yyyy-MM-dd HH:mm")}</div>
+              <div>الوقت: {formatDateTimeAr(new Date())}</div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setConfirming(false)} className="kube-btn-outline flex-1">تراجع</button>
+              <button disabled={saving} onClick={() => setConfirming(false)} className="kube-btn-outline flex-1 disabled:opacity-50">تراجع</button>
               <button disabled={saving || totals.missingPhotos} onClick={onSubmit} className="kube-btn-primary flex-1 disabled:opacity-50">
-                {saving ? "..." : "تم الاستلام"}
+                {saving ? "جارٍ الحفظ..." : "تم الاستلام"}
               </button>
             </div>
           </div>
