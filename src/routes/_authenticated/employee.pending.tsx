@@ -1,36 +1,32 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
-import { format } from "date-fns";
+import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
+import { usePendingOrders } from "@/lib/use-pending-orders";
+import { RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/employee/pending")({
   component: PendingPage,
 });
 
 function PendingPage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["orders", "pending", "all"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("v_orders_effective")
-        .select("id, order_number, order_date, created_at, expected_delivery_date, note, supplier:suppliers(name)")
-        .eq("effective_status", "pending_receipt")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
+  const { data, isLoading, isFetching, dataUpdatedAt, refetch } = usePendingOrders();
 
   function ageLabel(d: string) {
     const diff = Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
-    if (diff === 0) return "اليوم";
+    if (diff <= 0) return "اليوم";
     if (diff === 1) return "أمس";
     return `منذ ${diff} يوم`;
   }
 
   return (
     <AppShell title="الطلبات بانتظار الاستلام" back={{ to: "/employee" }}>
+      <div className="flex items-center justify-between mb-3 text-xs text-muted-foreground">
+        <span>آخر تحديث: {dataUpdatedAt ? formatDateTimeAr(dataUpdatedAt) : "—"}</span>
+        <button type="button" onClick={() => void refetch()} className="kube-btn-outline !min-h-0 !py-1 !px-3">
+          <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
+          تحديث
+        </button>
+      </div>
       {isLoading ? (
         <div className="text-sm text-muted-foreground">جارٍ التحميل...</div>
       ) : (data?.length ?? 0) === 0 ? (
@@ -38,12 +34,12 @@ function PendingPage() {
       ) : (
         <div className="space-y-2">
           {data!.map((o) => (
-            <Link key={o.id!} to="/employee/receive/$orderId" params={{ orderId: o.id! }} className="kube-card flex items-center justify-between hover:border-primary transition">
+            <Link key={o.id} to="/employee/receive/$orderId" params={{ orderId: o.id }} className="kube-card flex items-center justify-between hover:border-primary transition">
               <div className="min-w-0">
                 <div className="font-bold">{o.supplier?.name}</div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  {o.order_number} · {o.order_date ? format(new Date(o.order_date), "yyyy-MM-dd") : "—"} · <span className="font-semibold">{ageLabel(o.created_at ?? new Date().toISOString())}</span>
-                  {o.expected_delivery_date && <> · متوقع {format(new Date(o.expected_delivery_date), "yyyy-MM-dd")}</>}
+                  {o.order_number} · {o.order_date ? formatDateAr(`${o.order_date}T12:00:00+03:00`) : "—"} · <span className="font-semibold">{ageLabel(o.created_at ?? new Date().toISOString())}</span>
+                  {o.expected_delivery_date && <> · متوقع {formatDateAr(`${o.expected_delivery_date}T12:00:00+03:00`)}</>}
                 </div>
                 {o.note && <div className="text-xs text-muted-foreground mt-1">📝 {o.note}</div>}
               </div>
