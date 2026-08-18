@@ -3,35 +3,27 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
 import { PlusCircle, PackageCheck, Clock, History, CalendarX } from "lucide-react";
-import { format } from "date-fns";
+import { formatDateAr } from "@/lib/format-date";
+import { riyadhToday, riyadhDayStart } from "@/lib/riyadh-time";
+import { usePendingOrders } from "@/lib/use-pending-orders";
 
 export const Route = createFileRoute("/_authenticated/employee/")({
   component: EmployeeHome,
 });
 
 function EmployeeHome() {
-  const pending = useQuery({
-    queryKey: ["orders", "pending"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("v_orders_effective")
-        .select("id, order_number, order_date, expected_delivery_date, supplier:suppliers(name)")
-        .eq("effective_status", "pending_receipt")
-        .order("order_date", { ascending: false })
-        .limit(20);
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
+  const pending = usePendingOrders(20);
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = riyadhToday();
   const todayReceipts = useQuery({
     queryKey: ["receipts", "today", today],
+    staleTime: 0,
+    refetchOnMount: "always",
     queryFn: async () => {
       const { data, error } = await supabase
         .from("receipts")
         .select("id, received_at, supplier:suppliers(name), total_received, total_damaged")
-        .gte("received_at", `${today}T00:00:00`)
+        .gte("received_at", riyadhDayStart(today))
         .order("received_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
@@ -77,16 +69,16 @@ function EmployeeHome() {
           <div className="space-y-2">
             {pending.data!.map((o) => (
               <Link
-                key={o.id!}
+                key={o.id}
                 to="/employee/receive/$orderId"
-                params={{ orderId: o.id! }}
+                params={{ orderId: o.id }}
                 className="kube-card flex items-center justify-between hover:border-primary transition"
               >
                 <div className="min-w-0">
                   <div className="font-bold truncate">{o.supplier?.name ?? "—"}</div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    {o.order_number} · طلب {o.order_date ? format(new Date(o.order_date), "yyyy-MM-dd") : "—"}
-                    {o.expected_delivery_date && <> · متوقع {format(new Date(o.expected_delivery_date), "yyyy-MM-dd")}</>}
+                    {o.order_number} · طلب {o.order_date ? formatDateAr(`${o.order_date}T12:00:00+03:00`) : "—"}
+                    {o.expected_delivery_date && <> · متوقع {formatDateAr(`${o.expected_delivery_date}T12:00:00+03:00`)}</>}
                   </div>
                 </div>
                 <StatusBadge status="pending_receipt" />
