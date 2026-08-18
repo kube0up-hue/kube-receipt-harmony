@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
+import { refreshOrderQueries } from "@/lib/use-pending-orders";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/employee/new-order")({
   component: NewOrderPage,
@@ -14,6 +16,8 @@ interface Line { productId: string; qty: string }
 
 function NewOrderPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const submitLock = useRef(false);
   const [supplierId, setSupplierId] = useState("");
   const [expected, setExpected] = useState("");
   const [note, setNote] = useState("");
@@ -59,6 +63,8 @@ function NewOrderPage() {
     if (!supplierId) return toast.error("اختر المورد");
     const cleanLines = lines.filter((l) => Number(l.qty) > 0);
     if (cleanLines.length === 0) return toast.error("أضف منتجاً واحداً على الأقل بكمية");
+    if (submitLock.current) return;
+    submitLock.current = true;
     setSaving(true);
     try {
       // Refresh session so auth.uid() is valid server-side.
@@ -78,12 +84,15 @@ function NewOrderPage() {
       const row = Array.isArray(data) ? data[0] : data;
       if (!row?.id || !row?.order_number) throw new Error("لم يتم حفظ الطلب، حاول مرة أخرى");
 
+      // Wait for the pending list to actually refresh so the employee sees the new order.
+      await refreshOrderQueries(queryClient);
       toast.success(`تم حفظ الطلب ${row.order_number}`);
       navigate({ to: "/employee" });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "فشل الحفظ";
       toast.error(msg, { duration: 6000 });
     } finally {
+      submitLock.current = false;
       setSaving(false);
     }
   }
