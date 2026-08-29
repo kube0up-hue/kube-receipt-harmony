@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { riyadhToday } from "@/lib/riyadh-time";
 import { AppShell, StatusBadge } from "@/components/app-shell";
 import { toast } from "sonner";
 import { CheckCircle2, Loader2 } from "lucide-react";
@@ -63,7 +64,7 @@ export function InvoiceDetail({ invoiceId, base }: { invoiceId: string; base: "/
 
         invoice_id: invoiceId, amount: amt,
         reference_number: reference || null,
-        payment_date: new Date().toISOString().slice(0, 10),
+        payment_date: riyadhToday(),
       });
       if (pErr) throw pErr;
       const { error: uErr } = await supabase.from("invoices")

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { riyadhDayOffset, riyadhToday } from "@/lib/riyadh-time";
 import { Download } from "lucide-react";
 import { formatMoney, num, round2, sumMoney } from "@/lib/money";
 import { downloadCsv } from "@/lib/csv";
@@ -37,12 +38,8 @@ function payLabel(r: Row) {
 
 
 export function DuesReport() {
-  const [from, setFrom] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 30);
-    return d.toISOString().slice(0, 10);
-  });
-  const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
+  const [from, setFrom] = useState(() => riyadhDayOffset(-30));
+  const [to, setTo] = useState(() => riyadhToday());
   const [supplierId, setSupplierId] = useState("");
 
   const suppliers = useQuery({
