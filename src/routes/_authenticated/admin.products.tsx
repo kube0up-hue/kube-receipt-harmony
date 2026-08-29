@@ -73,6 +73,8 @@ function ProductsPage() {
   const addMut = useMutation({
     mutationFn: async () => {
       if (!supplierId) throw new Error("اختر المورد");
+      if (!name.trim()) throw new Error("اسم الصنف مطلوب");
+      if (round2(num(price)) <= 0) throw new Error("أدخل سعر وحدة أكبر من صفر — الصنف بدون سعر يفسد مطابقة الفواتير");
       const { error } = await supabase.from("products").insert({
         supplier_id: supplierId, name: name.trim(), unit, unit_price: round2(num(price)),
       });

@@ -22,8 +22,19 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const [tab, setTab] = useState<"pin" | "email">("pin");
   const [hasAdmin, setHasAdmin] = useState<boolean | null>(null);
+  const [mounted, setMounted] = useState(false);
   const checkAdmin = useServerFn(adminExists);
+  useEffect(() => { setMounted(true); }, []);
   useEffect(() => { checkAdmin().then((r) => setHasAdmin(r.exists)).catch(() => setHasAdmin(true)); }, [checkAdmin]);
+
+  // First paint must match the server output exactly (this route is client-rendered).
+  if (!mounted || hasAdmin === null) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+        <img src={"/kube-logo.png"} alt="KUBE" className="h-32 sm:h-40 w-auto opacity-70" />
+      </div>
+    );
+  }
 
   if (hasAdmin === false) return <SetupAdmin onDone={() => setHasAdmin(true)} />;
 

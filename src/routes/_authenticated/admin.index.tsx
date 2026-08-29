@@ -159,12 +159,13 @@ function AdminHome() {
             ref: ordNum,
           });
         }
-        if (r.telegram_notification_status === "failed") {
+        if (r.telegram_notification_status === "failed" || r.telegram_notification_status === "pending") {
+          const failed = r.telegram_notification_status === "failed";
           issues.push({
             kind: "telegram_failed",
             severity: "warn",
-            title: `فشل إشعار تيليجرام: ${ordNum}`,
-            detail: r.telegram_error ?? "سبب غير معروف",
+            title: `${failed ? "فشل" : "لم يُرسل"} إشعار تيليجرام: ${ordNum}`,
+            detail: r.telegram_error ?? (failed ? "سبب غير معروف" : "الإشعار معلّق — أعد الإرسال من سجل الاستلامات"),
             ref: ordNum,
           });
         }
