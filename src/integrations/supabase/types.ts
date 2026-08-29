@@ -789,6 +789,20 @@ export type Database = {
       }
     }
     Functions: {
+      find_overlapping_invoices: {
+        Args: {
+          p_period_end: string
+          p_period_start: string
+          p_supplier_id: string
+        }
+        Returns: {
+          id: string
+          invoice_number: string
+          period_end: string
+          period_start: string
+          total_amount: number
+        }[]
+      }
       mark_receipt_telegram: {
         Args: {
           p_error?: string
@@ -797,6 +811,20 @@ export type Database = {
           p_status: string
         }
         Returns: undefined
+      }
+      submit_invoice_match: {
+        Args: {
+          p_invoice_date: string
+          p_invoice_number: string
+          p_items: Json
+          p_matches: Json
+          p_note: string
+          p_period_end: string
+          p_period_start: string
+          p_supplier_id: string
+          p_total_amount: number
+        }
+        Returns: string
       }
       submit_new_order: {
         Args: {
