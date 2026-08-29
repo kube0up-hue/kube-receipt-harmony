@@ -9,6 +9,7 @@ import { resendReceiptTelegram } from "@/lib/telegram.functions";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { toast } from "sonner";
 import { Send, RotateCw, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
+import { riyadhDayEndExclusive, riyadhDayOffset, riyadhDayStart, riyadhToday } from "@/lib/riyadh-time";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
   component: OrdersPage,
@@ -16,11 +17,8 @@ export const Route = createFileRoute("/_authenticated/admin/orders")({
 
 type Tab = "receipts" | "orders";
 
-function todayISO() { return new Date().toISOString().slice(0, 10); }
-function daysAgoISO(n: number) {
-  const d = new Date(); d.setDate(d.getDate() - n);
-  return d.toISOString().slice(0, 10);
-}
+function todayISO() { return riyadhToday(); }
+function daysAgoISO(n: number) { return riyadhDayOffset(-n); }
 
 function OrdersPage() {
   const [tab, setTab] = useState<Tab>("receipts");
@@ -68,8 +66,8 @@ function OrdersPage() {
     queryFn: async () => {
       let q = supabase.from("receipts")
         .select("id,received_at,status,total_ordered,total_received,total_accepted,total_damaged,total_short,total_over,telegram_notification_status,telegram_sent_at,telegram_message_id,telegram_error,supplier:suppliers(name),employee:employees(full_name),order:orders(order_number)")
-        .gte("received_at", `${from}T00:00:00`)
-        .lte("received_at", `${to}T23:59:59`)
+        .gte("received_at", riyadhDayStart(from))
+        .lt("received_at", riyadhDayEndExclusive(to))
         .order("received_at", { ascending: false })
         .limit(1000);
       if (supplierId) q = q.eq("supplier_id", supplierId);

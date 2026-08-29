@@ -199,3 +199,30 @@ export const upsertEmployee = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true, id: inserted.id };
   });
+
+/**
+ * listEmployeesAdmin — admin-only listing that includes pin_code.
+ * The pin_code column is not readable through the Data API by any signed-in
+ * user (not even the employee themselves), so admins read it here after a
+ * server-side role check.
+ */
+export const listEmployeesAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: adminRow, error: roleErr } = await context.supabase
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (roleErr) throw new Error(roleErr.message);
+    if (!adminRow) throw new Error("غير مصرح: هذه العملية للمدير فقط");
+
+    const { data, error } = await supabaseAdmin
+      .from("employees")
+      .select("id, full_name, pin_code, branch, is_active")
+      .order("full_name");
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });

@@ -39,6 +39,7 @@ function ProductsPage() {
   const [price, setPrice] = useState("");
   const [q, setQ] = useState("");
   const [filterSupplier, setFilterSupplier] = useState("");
+  const [onlyNoPrice, setOnlyNoPrice] = useState(false);
   const [editing, setEditing] = useState<Record<string, EditState>>({});
   const [confirmDelete, setConfirmDelete] = useState<ProductRow | null>(null);
 
@@ -73,6 +74,8 @@ function ProductsPage() {
   const addMut = useMutation({
     mutationFn: async () => {
       if (!supplierId) throw new Error("اختر المورد");
+      if (!name.trim()) throw new Error("اسم الصنف مطلوب");
+      if (round2(num(price)) <= 0) throw new Error("أدخل سعر وحدة أكبر من صفر — الصنف بدون سعر يفسد مطابقة الفواتير");
       const { error } = await supabase.from("products").insert({
         supplier_id: supplierId, name: name.trim(), unit, unit_price: round2(num(price)),
       });
@@ -149,6 +152,7 @@ function ProductsPage() {
     const rows = (products.data ?? []).filter((p) => {
       if (filterSupplier && p.supplier_id !== filterSupplier) return false;
       if (q.trim() && !p.name.includes(q.trim())) return false;
+      if (onlyNoPrice && p.unit_price > 0) return false;
       return true;
     });
     const map = new Map<string, { name: string; items: ProductRow[] }>();
@@ -158,7 +162,7 @@ function ProductsPage() {
       map.set(p.supplier_id, g);
     }
     return [...map.entries()].map(([id, g]) => ({ id, ...g }));
-  }, [products.data, q, filterSupplier]);
+  }, [products.data, q, filterSupplier, onlyNoPrice]);
 
   const noPrice = (products.data ?? []).filter((p) => !p.is_hidden && p.unit_price <= 0).length;
 
@@ -198,7 +202,15 @@ function ProductsPage() {
           <div className="flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-bold text-destructive">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             {noPrice} صنف بدون سعر — سيؤثر على دقة المطابقة المالية
+            <button type="button" className="ms-auto underline" onClick={() => setOnlyNoPrice(true)}>
+              عرضها لإدخال الأسعار
+            </button>
           </div>
+        )}
+        {onlyNoPrice && (
+          <button type="button" className="kube-btn-outline !min-h-0 !py-1 !px-3 text-xs" onClick={() => setOnlyNoPrice(false)}>
+            إلغاء فلتر «بدون سعر»
+          </button>
         )}
       </div>
 

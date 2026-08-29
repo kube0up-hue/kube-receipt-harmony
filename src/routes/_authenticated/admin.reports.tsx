@@ -3,24 +3,22 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
+import { riyadhDayEndExclusive, riyadhDayOffset, riyadhDayStart, riyadhToday } from "@/lib/riyadh-time";
 
 export const Route = createFileRoute("/_authenticated/admin/reports")({
   component: ReportsPage,
 });
 
 function ReportsPage() {
-  const [from, setFrom] = useState(() => {
-    const d = new Date(); d.setDate(d.getDate() - 30);
-    return d.toISOString().slice(0, 10);
-  });
-  const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
+  const [from, setFrom] = useState(() => riyadhDayOffset(-30));
+  const [to, setTo] = useState(() => riyadhToday());
 
   const { data } = useQuery({
     queryKey: ["report", from, to],
     queryFn: async () => {
       const { data: recs } = await supabase.from("receipts")
         .select("total_accepted,total_damaged,total_short,total_over,supplier_id")
-        .gte("received_at", `${from}T00:00:00`).lte("received_at", `${to}T23:59:59`);
+        .gte("received_at", riyadhDayStart(from)).lt("received_at", riyadhDayEndExclusive(to));
       const { data: invs } = await supabase.from("invoices")
         .select("total_amount,status,supplier_id")
         .gte("invoice_date", from).lte("invoice_date", to);

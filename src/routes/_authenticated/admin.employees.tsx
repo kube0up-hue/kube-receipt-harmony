@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
-import { upsertEmployee } from "@/lib/auth.functions";
+import { listEmployeesAdmin, upsertEmployee } from "@/lib/auth.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { UserPlus } from "lucide-react";
@@ -15,18 +14,14 @@ export const Route = createFileRoute("/_authenticated/admin/employees")({
 function EmployeesPage() {
   const qc = useQueryClient();
   const upsert = useServerFn(upsertEmployee);
+  const listEmployees = useServerFn(listEmployeesAdmin);
   const [full_name, setFullName] = useState("");
   const [pin_code, setPin] = useState("");
   const [branch, setBranch] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["employees"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("employees")
-        .select("id,full_name,pin_code,branch,is_active").order("full_name");
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: async () => listEmployees(),
   });
 
   const mut = useMutation({
