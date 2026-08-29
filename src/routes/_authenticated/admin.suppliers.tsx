@@ -5,9 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
+import { PermissionGuard } from "@/components/permission-guard";
 
 export const Route = createFileRoute("/_authenticated/admin/suppliers")({
-  component: SuppliersPage,
+  component: () => (
+    <PermissionGuard anyOf={["suppliers_view"]}>
+      <SuppliersPage />
+    </PermissionGuard>
+  ),
 });
 
 function SuppliersPage() {

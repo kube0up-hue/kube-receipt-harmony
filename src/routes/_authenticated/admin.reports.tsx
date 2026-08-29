@@ -4,9 +4,14 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { riyadhDayEndExclusive, riyadhDayOffset, riyadhDayStart, riyadhToday } from "@/lib/riyadh-time";
+import { PermissionGuard } from "@/components/permission-guard";
 
 export const Route = createFileRoute("/_authenticated/admin/reports")({
-  component: ReportsPage,
+  component: () => (
+    <PermissionGuard anyOf={["reports_export", "reports_dues"]}>
+      <ReportsPage />
+    </PermissionGuard>
+  ),
 });
 
 function ReportsPage() {

@@ -3,12 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { FileText, Truck, ClipboardCheck, AlertTriangle, CheckCircle2, XCircle, Wallet } from "lucide-react";
+import { usePermissions } from "@/lib/use-permissions";
+import type { Permission } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_authenticated/accountant/")({
   component: AccountantHome,
 });
 
 function AccountantHome() {
+  const { canAny } = usePermissions();
   const stats = useQuery({
     queryKey: ["accountant-stats"],
     queryFn: async () => {
@@ -28,14 +31,15 @@ function AccountantHome() {
     { label: "جاهزة للتحويل", v: s?.ready, icon: CheckCircle2 },
     { label: "مسددة", v: s?.paid, icon: XCircle },
   ];
-  const links = [
-    { to: "/accountant/invoices/new", label: "فاتورة مورد جديدة", icon: FileText },
-    { to: "/accountant/invoices", label: "كل الفواتير", icon: FileText },
-    { to: "/accountant/suppliers", label: "الموردون", icon: Truck },
-    { to: "/accountant/dues", label: "المبالغ المستحقة للسداد", icon: Wallet },
-    { to: "/accountant/receipts", label: "الاستلامات", icon: ClipboardCheck },
-    { to: "/admin", label: "فحص سلامة البيانات (لوحة الإدارة)", icon: AlertTriangle },
+  const allLinks: { to: string; label: string; icon: typeof FileText; perms: Permission[] }[] = [
+    { to: "/accountant/invoices/new", label: "فاتورة مورد جديدة", icon: FileText, perms: ["invoices_create_match"] },
+    { to: "/accountant/invoices", label: "كل الفواتير", icon: FileText, perms: ["invoices_view"] },
+    { to: "/accountant/suppliers", label: "الموردون", icon: Truck, perms: ["suppliers_view"] },
+    { to: "/accountant/dues", label: "المبالغ المستحقة للسداد", icon: Wallet, perms: ["reports_dues"] },
+    { to: "/accountant/receipts", label: "الاستلامات", icon: ClipboardCheck, perms: ["orders_view"] },
+    { to: "/admin", label: "فحص سلامة البيانات (لوحة الإدارة)", icon: AlertTriangle, perms: ["reports_integrity"] },
   ];
+  const links = allLinks.filter((l) => canAny(l.perms));
   return (
     <AppShell title="واجهة المحاسب">
       <div className="grid grid-cols-2 gap-3 mb-6">

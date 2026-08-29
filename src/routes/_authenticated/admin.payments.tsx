@@ -3,9 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { format } from "date-fns";
+import { PermissionGuard } from "@/components/permission-guard";
 
 export const Route = createFileRoute("/_authenticated/admin/payments")({
-  component: PaymentsPage,
+  component: () => (
+    <PermissionGuard anyOf={["payments_view"]}>
+      <PaymentsPage />
+    </PermissionGuard>
+  ),
 });
 
 function PaymentsPage() {

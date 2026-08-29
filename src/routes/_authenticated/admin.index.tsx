@@ -255,6 +255,7 @@ function AdminHome() {
     { to: "/admin/payments", label: "السداد", icon: Wallet },
     { to: "/admin/dues", label: "المبالغ المستحقة للسداد", icon: Wallet },
     { to: "/admin/reports", label: "التقارير", icon: BarChart3 },
+    { to: "/admin/permissions", label: "صلاحيات المستخدمين", icon: ShieldCheck },
   ];
 
   const totalQty = (detail.data ?? []).reduce((a, r) => a + r.qty, 0);
