@@ -47,6 +47,11 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
 
   const loadMatch = async () => {
     if (!supplierId) { toast.error("اختر المورد"); return; }
+    if (!periodStart || !periodEnd || periodStart > periodEnd) {
+      toast.error("بداية الفترة يجب أن تكون قبل نهايتها");
+      return;
+    }
+    setAllowZeroPrice(false);
     // Get all products for supplier
     const { data: prods, error: pErr } = await supabase
       .from("products").select("id,name,unit,sort_order,unit_price")
@@ -58,8 +63,8 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
     const { data: recs, error: rErr } = await supabase
       .from("receipts").select("id")
       .eq("supplier_id", supplierId)
-      .gte("received_at", `${periodStart}T00:00:00`)
-      .lte("received_at", `${periodEnd}T23:59:59`);
+      .gte("received_at", riyadhDayStart(periodStart))
+      .lt("received_at", riyadhDayEndExclusive(periodEnd));
     if (rErr) { toast.error(rErr.message); return; }
 
     const recIds = (recs ?? []).map(r => r.id);
@@ -157,50 +162,64 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
 
 
 
+  /** أصناف لها كمية (مقبولة أو مفوترة) لكن سعرها صفر — سبب أساسي لمبالغ خاطئة */
+  const missingPriceRows = useMemo(
+    () => rows.filter((r) => {
+      const iq = round3(num(r.invoiced_qty));
+      const hasQty = r.accepted_qty > 0 || iq > 0;
+      return hasQty && round2(num(r.unit_price)) <= 0;
+    }),
+    [rows],
+  );
+
   const saveMut = useMutation({
     mutationFn: async () => {
-      if (!supplierId || !invoiceNumber || !invoiceDate) throw new Error("أكمل بيانات الفاتورة");
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("جلسة غير صالحة");
-
-      const totalAmt = totalAmount ? round2(num(totalAmount)) : totals.sum;
-
-      // Determine invoice status
-      const hasDiff = rows.some(r => round3(num(r.invoiced_qty)) !== r.accepted_qty);
-      const status = hasDiff ? "unmatched" : "matched_ready";
-
-      const { data: inv, error: invErr } = await supabase.from("invoices").insert({
-        supplier_id: supplierId,
-        invoice_number: invoiceNumber.trim(),
-        invoice_date: invoiceDate,
-        period_start: periodStart,
-        period_end: periodEnd,
-        total_amount: totalAmt,
-        status,
-        accountant_note: note || null,
-        created_by: user.id,
-      }).select("id").single();
-      if (invErr) throw invErr;
-
-      const itemsToInsert = rows
-        .filter(r => round3(num(r.invoiced_qty)) > 0)
-        .map(r => {
-          const iq = round3(num(r.invoiced_qty));
-          const up = round2(num(r.unit_price));
-          return {
-            invoice_id: inv.id, product_id: r.product_id,
-            invoiced_qty: iq, unit_price: up, line_total: lineAmount(iq, up),
-          };
-        });
-      if (itemsToInsert.length) {
-        const { error } = await supabase.from("invoice_items").insert(itemsToInsert);
-        if (error) throw error;
+      if (!supplierId || !invoiceNumber.trim() || !invoiceDate) throw new Error("أكمل بيانات الفاتورة");
+      if (!periodStart || !periodEnd || periodStart > periodEnd) {
+        throw new Error("بداية الفترة يجب أن تكون قبل نهايتها");
+      }
+      if (missingPriceRows.length > 0 && !allowZeroPrice) {
+        throw new Error(`${missingPriceRows.length} صنف بدون سعر — أدخل السعر أو أكّد أن السعر صفر فعلاً`);
       }
 
+      // فواتير سابقة لنفس المورد بفترة متقاطعة = خطر احتساب نفس الاستلامات مرتين
+      const { data: overlaps, error: oErr } = await supabase.rpc("find_overlapping_invoices", {
+        p_supplier_id: supplierId,
+        p_period_start: periodStart,
+        p_period_end: periodEnd,
+      });
+      if (oErr) throw oErr;
+      if ((overlaps ?? []).length > 0) {
+        const list = (overlaps as Array<{ invoice_number: string; period_start: string; period_end: string }>)
+          .slice(0, 5)
+          .map((o) => `• ${o.invoice_number} (${o.period_start} → ${o.period_end})`)
+          .join("\n");
+        const ok = window.confirm(
+          `تنبيه: توجد فاتورة/فواتير لنفس المورد بفترة متقاطعة مع هذه الفترة:\n${list}\n\nالمتابعة قد تعني احتساب نفس الاستلامات مرتين. هل تريد المتابعة؟`,
+        );
+        if (!ok) throw new Error("تم إلغاء الحفظ");
+      }
+
+      const totalAmt = totalAmount === "" ? totals.sum : round2(num(totalAmount));
+      if (totalAmount !== "" && totalAmt !== totals.sum) {
+        const ok = window.confirm(
+          `الإجمالي المُدخل (${formatMoney(totalAmt)}) يختلف عن مجموع البنود (${formatMoney(totals.sum)}). هل تريد الحفظ بهذا الاختلاف؟`,
+        );
+        if (!ok) throw new Error("تم إلغاء الحفظ");
+      }
+
+      const items = rows
+        .filter((r) => round3(num(r.invoiced_qty)) > 0)
+        .map((r) => {
+          const iq = round3(num(r.invoiced_qty));
+          const up = round2(num(r.unit_price));
+          return { product_id: r.product_id, invoiced_qty: iq, unit_price: up, line_total: lineAmount(iq, up) };
+        });
+
       type MStatus = "matched" | "invoice_higher" | "invoice_lower" | "in_invoice_not_received" | "received_not_in_invoice" | "has_damage_in_invoice" | "needs_review";
-      const matchesToInsert = rows
-        .filter(r => r.accepted_qty > 0 || round3(num(r.invoiced_qty)) > 0)
-        .map(r => {
+      const matches = rows
+        .filter((r) => r.accepted_qty > 0 || round3(num(r.invoiced_qty)) > 0)
+        .map((r) => {
           const iq = round3(num(r.invoiced_qty));
           const diff = round3(iq - r.accepted_qty);
           let mstatus: MStatus = "matched";
@@ -210,18 +229,34 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
           else if (diff < 0) mstatus = "invoice_lower";
           else if (r.damaged_qty > 0) mstatus = "has_damage_in_invoice";
           return {
-            invoice_id: inv.id, product_id: r.product_id,
+            product_id: r.product_id,
             total_ordered: r.ordered_qty, total_received: r.received_qty,
             total_damaged: r.damaged_qty, total_accepted: r.accepted_qty,
             total_invoiced: iq, invoice_diff: diff, status: mstatus,
           };
         });
 
-      if (matchesToInsert.length) {
-        const { error } = await supabase.from("invoice_matches").insert(matchesToInsert);
-        if (error) throw error;
+      // عملية واحدة ذرّية: الفاتورة + البنود + المطابقة
+      const { data: newId, error } = await supabase.rpc("submit_invoice_match", {
+        p_supplier_id: supplierId,
+        p_invoice_number: invoiceNumber.trim(),
+        p_invoice_date: invoiceDate,
+        p_period_start: periodStart,
+        p_period_end: periodEnd,
+        p_total_amount: totalAmt,
+        p_note: note || null,
+        p_items: items,
+        p_matches: matches,
+      });
+      if (error) {
+        const msg = error.message ?? "";
+        if (msg.includes("invoices_supplier_id_invoice_number_key") || msg.includes("duplicate key")) {
+          throw new Error("رقم الفاتورة مستخدم مسبقاً لهذا المورد");
+        }
+        throw new Error(msg || "فشل حفظ الفاتورة");
       }
-      return inv.id;
+      if (!newId) throw new Error("فشل حفظ الفاتورة");
+      return newId as unknown as string;
     },
     onSuccess: (id) => {
       toast.success("تم حفظ الفاتورة والمطابقة");
