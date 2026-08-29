@@ -295,6 +295,21 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
       {loaded && (
         <div className="kube-card">
           <h2 className="font-bold mb-3">٢. أدخل كميات فاتورة المورد</h2>
+          {missingPriceRows.length > 0 && (
+            <div className="mb-3 rounded-xl border-2 border-kube-red/60 bg-kube-red/5 p-3">
+              <div className="flex items-center gap-2 font-bold text-kube-red">
+                <AlertTriangle className="w-4 h-4" />
+                {missingPriceRows.length} صنف بكمية بدون سعر — المبالغ ستكون غير صحيحة
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                {missingPriceRows.map((r) => r.product_name).join("، ")}
+              </div>
+              <label className="mt-2 flex items-center gap-2 text-xs font-semibold">
+                <input type="checkbox" checked={allowZeroPrice} onChange={(e) => setAllowZeroPrice(e.target.checked)} />
+                أؤكد أن سعر هذه الأصناف صفر فعلاً
+              </label>
+            </div>
+          )}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -320,7 +335,7 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                   const invAmt = lineAmount(iq, up);
                   const amtDiff = round2(invAmt - due);
                   return (
-                    <tr key={r.product_id} className="border-b border-border/50">
+                    <tr key={r.product_id} className={`border-b border-border/50 ${(r.accepted_qty > 0 || iq > 0) && up <= 0 ? "bg-kube-red/5" : ""}`}>
                       <td className="py-2">
                         <div className="font-semibold">{r.product_name}</div>
                         <div className="text-xs text-muted-foreground">{r.unit}</div>
