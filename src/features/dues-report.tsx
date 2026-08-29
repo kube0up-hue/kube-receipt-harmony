@@ -120,6 +120,23 @@ export function DuesReport() {
     }));
   }, [rows]);
 
+  /** فواتير لنفس المورد بفترات متقاطعة = خطر احتساب نفس الاستلامات مرتين */
+  const overlapWarnings = useMemo(() => {
+    const out: string[] = [];
+    for (const g of groups) {
+      const withPeriod = g.rows.filter((r) => r.periodStart && r.periodEnd);
+      for (let i = 0; i < withPeriod.length; i++) {
+        for (let j = i + 1; j < withPeriod.length; j++) {
+          const a = withPeriod[i]!, b = withPeriod[j]!;
+          if (a.periodStart! <= b.periodEnd! && b.periodStart! <= a.periodEnd!) {
+            out.push(`${g.name}: ${a.invoiceNumber} (${a.periodStart} → ${a.periodEnd}) تتقاطع مع ${b.invoiceNumber} (${b.periodStart} → ${b.periodEnd})`);
+          }
+        }
+      }
+    }
+    return out;
+  }, [groups]);
+
   const grand = {
     total: sumMoney(groups.map((g) => g.total)),
     paid: sumMoney(groups.map((g) => g.paid)),
@@ -167,6 +184,14 @@ export function DuesReport() {
 
   return (
     <div className="space-y-4">
+      {overlapWarnings.length > 0 && (
+        <div className="kube-card border-2 border-kube-red/60 bg-kube-red/5">
+          <div className="font-bold text-kube-red">تنبيه: فواتير بفترات متقاطعة — احتمال سداد نفس الاستلامات مرتين</div>
+          <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
+            {overlapWarnings.map((w) => <li key={w}>{w}</li>)}
+          </ul>
+        </div>
+      )}
       <div className="kube-card grid sm:grid-cols-3 gap-3">
         <label className="block">
           <span className="text-xs text-muted-foreground">من تاريخ</span>
