@@ -13,6 +13,7 @@ import {
   type Permission,
 } from "@/lib/permissions";
 import { ShieldCheck, Save, RotateCcw, Check, User } from "lucide-react";
+import { usePermissions } from "@/lib/use-permissions";
 
 export const Route = createFileRoute("/_authenticated/admin/permissions")({
   head: () => ({
@@ -35,6 +36,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 function PermissionsPage() {
+  const { isAdmin, loading: permLoading } = usePermissions();
   const qc = useQueryClient();
   const loadUsers = useServerFn(listManagedUsers);
   const save = useServerFn(saveUserPermissions);
@@ -46,6 +48,7 @@ function PermissionsPage() {
     queryKey: ["managed-users"],
     queryFn: async () => loadUsers(),
     staleTime: 0,
+    enabled: isAdmin,
   });
 
   const current = useMemo(() => users?.find((u) => u.userId === selected) ?? null, [users, selected]);
@@ -96,6 +99,14 @@ function PermissionsPage() {
       else next.delete(p);
     }
     setDraft(next);
+  }
+
+  if (!permLoading && !isAdmin) {
+    return (
+      <AppShell title="صلاحيات المستخدمين" back={{ to: "/admin" }}>
+        <div className="kube-card text-center text-kube-red font-bold">هذه الصفحة للمدير فقط</div>
+      </AppShell>
+    );
   }
 
   return (
