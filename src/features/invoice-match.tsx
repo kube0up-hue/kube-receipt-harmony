@@ -3,9 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Search, Save, FileDown } from "lucide-react";
+import { Loader2, Search, Save, FileDown, AlertTriangle } from "lucide-react";
 import { formatMoney, formatQty, formatSigned, lineAmount, num, round2, round3, sumMoney } from "@/lib/money";
 import { downloadCsv } from "@/lib/csv";
+import { riyadhDayEndExclusive, riyadhDayStart, riyadhToday } from "@/lib/riyadh-time";
 
 
 
@@ -25,17 +26,15 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
   const nav = useNavigate();
   const qc = useQueryClient();
   const [supplierId, setSupplierId] = useState<string>("");
-  const [periodStart, setPeriodStart] = useState<string>(() => {
-    const d = new Date(); d.setDate(1);
-    return d.toISOString().slice(0, 10);
-  });
-  const [periodEnd, setPeriodEnd] = useState<string>(() => new Date().toISOString().slice(0, 10));
+  const [periodStart, setPeriodStart] = useState<string>(() => `${riyadhToday().slice(0, 8)}01`);
+  const [periodEnd, setPeriodEnd] = useState<string>(() => riyadhToday());
   const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [invoiceDate, setInvoiceDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [invoiceDate, setInvoiceDate] = useState(() => riyadhToday());
   const [totalAmount, setTotalAmount] = useState("");
   const [note, setNote] = useState("");
   const [rows, setRows] = useState<Row[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [allowZeroPrice, setAllowZeroPrice] = useState(false);
 
   const suppliers = useQuery({
     queryKey: ["suppliers-active"],
