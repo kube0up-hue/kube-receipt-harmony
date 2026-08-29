@@ -244,7 +244,7 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
         p_period_start: periodStart,
         p_period_end: periodEnd,
         p_total_amount: totalAmt,
-        p_note: note || null,
+        p_note: note || "",
         p_items: items,
         p_matches: matches,
       });
