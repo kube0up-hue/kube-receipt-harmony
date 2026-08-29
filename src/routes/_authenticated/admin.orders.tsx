@@ -9,6 +9,7 @@ import { resendReceiptTelegram } from "@/lib/telegram.functions";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { toast } from "sonner";
 import { Send, RotateCw, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
+import { riyadhDayEndExclusive, riyadhDayOffset, riyadhDayStart, riyadhToday } from "@/lib/riyadh-time";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
   component: OrdersPage,
@@ -16,11 +17,8 @@ export const Route = createFileRoute("/_authenticated/admin/orders")({
 
 type Tab = "receipts" | "orders";
 
-function todayISO() { return new Date().toISOString().slice(0, 10); }
-function daysAgoISO(n: number) {
-  const d = new Date(); d.setDate(d.getDate() - n);
-  return d.toISOString().slice(0, 10);
-}
+function todayISO() { return riyadhToday(); }
+function daysAgoISO(n: number) { return riyadhDayOffset(-n); }
 
 function OrdersPage() {
   const [tab, setTab] = useState<Tab>("receipts");
