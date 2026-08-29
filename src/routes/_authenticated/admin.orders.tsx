@@ -10,9 +10,14 @@ import { useCurrentUser } from "@/lib/use-current-user";
 import { toast } from "sonner";
 import { Send, RotateCw, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
 import { riyadhDayEndExclusive, riyadhDayOffset, riyadhDayStart, riyadhToday } from "@/lib/riyadh-time";
+import { PermissionGuard } from "@/components/permission-guard";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
-  component: OrdersPage,
+  component: () => (
+    <PermissionGuard anyOf={["orders_view"]}>
+      <OrdersPage />
+    </PermissionGuard>
+  ),
 });
 
 type Tab = "receipts" | "orders";

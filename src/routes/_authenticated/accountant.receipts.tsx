@@ -6,9 +6,14 @@ import { AppShell, StatusBadge } from "@/components/app-shell";
 import { ReceiptItemPhotos } from "@/features/receipt-photo-viewer";
 import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
 import { Search, ChevronDown, ChevronUp, Camera, AlertTriangle } from "lucide-react";
+import { PermissionGuard } from "@/components/permission-guard";
 
 export const Route = createFileRoute("/_authenticated/accountant/receipts")({
-  component: ReceiptsPage,
+  component: () => (
+    <PermissionGuard anyOf={["orders_view"]}>
+      <ReceiptsPage />
+    </PermissionGuard>
+  ),
 });
 
 interface Item {

@@ -6,12 +6,17 @@ import { AppShell } from "@/components/app-shell";
 import { toast } from "sonner";
 import { Plus, Save, Pencil, Trash2, X, Eye, EyeOff, Search, AlertTriangle } from "lucide-react";
 import { formatMoney, num, round2 } from "@/lib/money";
+import { PermissionGuard } from "@/components/permission-guard";
 
 const UNITS = ["حبة", "لتر", "كيلو", "كرتون", "صينية", "عبوة"] as const;
 type Unit = typeof UNITS[number];
 
 export const Route = createFileRoute("/_authenticated/admin/products")({
-  component: ProductsPage,
+  component: () => (
+    <PermissionGuard anyOf={["products_view"]}>
+      <ProductsPage />
+    </PermissionGuard>
+  ),
 });
 
 interface ProductRow {

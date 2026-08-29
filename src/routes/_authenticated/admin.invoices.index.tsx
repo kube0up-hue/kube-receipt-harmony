@@ -4,9 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
 import { FilePlus2 } from "lucide-react";
 import { format } from "date-fns";
+import { PermissionGuard } from "@/components/permission-guard";
 
 export const Route = createFileRoute("/_authenticated/admin/invoices/")({
-  component: () => <InvoicesList base="/admin" title="لوحة الإدارة" />,
+  component: () => (
+    <PermissionGuard anyOf={["invoices_view"]}>
+      <InvoicesList base="/admin" title="لوحة الإدارة" />
+    </PermissionGuard>
+  ),
 });
 
 export function InvoicesList({ base, title }: { base: "/admin" | "/accountant"; title: string }) {

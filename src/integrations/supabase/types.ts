@@ -707,6 +707,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_permissions: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          id: string
+          permission: Database["public"]["Enums"]["app_permission"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          permission: Database["public"]["Enums"]["app_permission"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          permission?: Database["public"]["Enums"]["app_permission"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -812,6 +836,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      set_user_permissions: {
+        Args: { p_actor: string; p_permissions: string[]; p_user_id: string }
+        Returns: number
+      }
       submit_invoice_match: {
         Args: {
           p_invoice_date: string
@@ -850,6 +878,27 @@ export type Database = {
       }
     }
     Enums: {
+      app_permission:
+        | "products_view"
+        | "products_write"
+        | "products_delete"
+        | "products_price_edit"
+        | "suppliers_view"
+        | "suppliers_write"
+        | "suppliers_delete"
+        | "invoices_view"
+        | "invoices_create_match"
+        | "invoices_update"
+        | "invoices_delete"
+        | "invoices_approve"
+        | "payments_view"
+        | "payments_create"
+        | "payments_manage"
+        | "orders_view"
+        | "receipt_photos_view"
+        | "reports_dues"
+        | "reports_export"
+        | "reports_integrity"
       app_role: "admin" | "accountant" | "branch_employee"
       billing_cycle: "weekly" | "biweekly" | "monthly" | "custom"
       invoice_match_status:
@@ -1008,6 +1057,28 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_permission: [
+        "products_view",
+        "products_write",
+        "products_delete",
+        "products_price_edit",
+        "suppliers_view",
+        "suppliers_write",
+        "suppliers_delete",
+        "invoices_view",
+        "invoices_create_match",
+        "invoices_update",
+        "invoices_delete",
+        "invoices_approve",
+        "payments_view",
+        "payments_create",
+        "payments_manage",
+        "orders_view",
+        "receipt_photos_view",
+        "reports_dues",
+        "reports_export",
+        "reports_integrity",
+      ],
       app_role: ["admin", "accountant", "branch_employee"],
       billing_cycle: ["weekly", "biweekly", "monthly", "custom"],
       invoice_match_status: [

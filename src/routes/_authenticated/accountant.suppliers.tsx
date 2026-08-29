@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
+import { PermissionGuard } from "@/components/permission-guard";
 
 export const Route = createFileRoute("/_authenticated/accountant/suppliers")({
   component: () => {
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/_authenticated/accountant/suppliers")({
       },
     });
     return (
+      <PermissionGuard anyOf={["suppliers_view"]}>
       <AppShell title="الموردون" back={{ to: "/accountant" }}>
         <div className="space-y-2">
           {data?.map(s => (
@@ -23,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/accountant/suppliers")({
           ))}
         </div>
       </AppShell>
+      </PermissionGuard>
     );
   },
 });
