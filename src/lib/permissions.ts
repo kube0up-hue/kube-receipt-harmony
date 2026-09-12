@@ -109,8 +109,15 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   { title: "الموردون", items: ["suppliers_view", "suppliers_write", "suppliers_delete"] },
   { title: "الفواتير والمطابقة", items: ["invoices_view", "invoices_create_match", "invoices_update", "invoices_approve", "invoices_delete"] },
   { title: "الدفعات", items: ["payments_view", "payments_create", "payments_manage"] },
-  { title: "الطلبات والاستلامات", items: ["orders_view", "receipt_photos_view"] },
-  { title: "التقارير", items: ["reports_dues", "reports_export", "reports_integrity"] },
+  { title: "الطلبات والاستلامات", items: ["orders_view", "orders_create", "orders_approve", "orders_receive", "tomorrow_orders_create", "tomorrow_orders_approve", "receipt_photos_view"] },
+  { title: "الفروع", items: ["branches_view_all", "branches_manage"] },
+  { title: "المخزون والتحويلات", items: ["inventory_view", "inventory_transfer", "inventory_receive_transfer", "inventory_adjust"] },
+  { title: "الجرد", items: ["count_perform", "count_review", "count_approve", "count_edit_approved"] },
+  { title: "الهدر", items: ["waste_record", "waste_view"] },
+  { title: "الجودة والمياه", items: ["quality_record", "quality_view"] },
+  { title: "المبيعات اليومية", items: ["sales_record", "sales_review", "sales_edit_approved"] },
+  { title: "الوصفات والدوامات والموظفون", items: ["recipes_manage", "schedules_manage", "employees_manage"] },
+  { title: "التقارير والتنبيهات", items: ["reports_dues", "reports_export", "reports_integrity", "alerts_view"] },
 ];
 
 /** حزمة جاهزة تُقترح للمحاسب. */
