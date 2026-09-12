@@ -349,8 +349,12 @@ export type Database = {
           branch_id: string
           created_at: string
           full_name: string
+          hire_date: string | null
           id: string
           is_active: boolean
+          job_title: string | null
+          note: string | null
+          phone: string | null
           pin_code: string
           updated_at: string
           user_id: string | null
@@ -360,8 +364,12 @@ export type Database = {
           branch_id: string
           created_at?: string
           full_name: string
+          hire_date?: string | null
           id?: string
           is_active?: boolean
+          job_title?: string | null
+          note?: string | null
+          phone?: string | null
           pin_code: string
           updated_at?: string
           user_id?: string | null
@@ -371,8 +379,12 @@ export type Database = {
           branch_id?: string
           created_at?: string
           full_name?: string
+          hire_date?: string | null
           id?: string
           is_active?: boolean
+          job_title?: string | null
+          note?: string | null
+          phone?: string | null
           pin_code?: string
           updated_at?: string
           user_id?: string | null
@@ -1099,6 +1111,134 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipe_versions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          items: Json
+          note: string | null
+          recipe_id: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          items?: Json
+          note?: string | null
+          recipe_id: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          items?: Json
+          note?: string | null
+          recipe_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_versions_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipes: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          yield_qty: number
+          yield_unit: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          yield_qty?: number
+          yield_unit?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          yield_qty?: number
+          yield_unit?: string
+        }
+        Relationships: []
+      }
+      shifts: {
+        Row: {
+          branch_id: string
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          end_time: string
+          id: string
+          note: string | null
+          shift_date: string
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          created_by?: string | null
+          employee_id: string
+          end_time: string
+          id?: string
+          note?: string | null
+          shift_date: string
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string
+          end_time?: string
+          id?: string
+          note?: string | null
+          shift_date?: string
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shifts_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
