@@ -467,33 +467,48 @@ export type Database = {
       }
       products: {
         Row: {
+          category: string | null
           created_at: string
+          foodics_stock: number | null
           id: string
+          is_counted: boolean
           is_hidden: boolean
+          min_qty: number
           name: string
           sort_order: number
+          storage_location: string | null
           supplier_id: string
           unit: Database["public"]["Enums"]["unit_type"]
           unit_price: number
           updated_at: string
         }
         Insert: {
+          category?: string | null
           created_at?: string
+          foodics_stock?: number | null
           id?: string
+          is_counted?: boolean
           is_hidden?: boolean
+          min_qty?: number
           name: string
           sort_order?: number
+          storage_location?: string | null
           supplier_id: string
           unit: Database["public"]["Enums"]["unit_type"]
           unit_price?: number
           updated_at?: string
         }
         Update: {
+          category?: string | null
           created_at?: string
+          foodics_stock?: number | null
           id?: string
+          is_counted?: boolean
           is_hidden?: boolean
+          min_qty?: number
           name?: string
           sort_order?: number
+          storage_location?: string | null
           supplier_id?: string
           unit?: Database["public"]["Enums"]["unit_type"]
           unit_price?: number
@@ -749,6 +764,210 @@ export type Database = {
           },
         ]
       }
+      stock_ledger: {
+        Row: {
+          actor_user: string | null
+          balance_after: number
+          branch_id: string
+          created_at: string
+          id: string
+          note: string | null
+          product_id: string
+          qty_delta: number
+          reason: Database["public"]["Enums"]["stock_reason"]
+          ref_id: string | null
+          ref_table: string | null
+        }
+        Insert: {
+          actor_user?: string | null
+          balance_after: number
+          branch_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id: string
+          qty_delta: number
+          reason: Database["public"]["Enums"]["stock_reason"]
+          ref_id?: string | null
+          ref_table?: string | null
+        }
+        Update: {
+          actor_user?: string | null
+          balance_after?: number
+          branch_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id?: string
+          qty_delta?: number
+          reason?: Database["public"]["Enums"]["stock_reason"]
+          ref_id?: string | null
+          ref_table?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_ledger_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_ledger_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_levels: {
+        Row: {
+          branch_id: string
+          created_at: string
+          id: string
+          product_id: string
+          qty: number
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          id?: string
+          product_id: string
+          qty?: number
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          id?: string
+          product_id?: string
+          qty?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_levels_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_levels_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_transfer_items: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          product_id: string
+          qty_received: number | null
+          qty_sent: number
+          transfer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id: string
+          qty_received?: number | null
+          qty_sent: number
+          transfer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id?: string
+          qty_received?: number | null
+          qty_sent?: number
+          transfer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_transfer_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfer_items_transfer_id_fkey"
+            columns: ["transfer_id"]
+            isOneToOne: false
+            referencedRelation: "stock_transfers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_transfers: {
+        Row: {
+          created_at: string
+          from_branch_id: string
+          id: string
+          note: string | null
+          received_at: string | null
+          received_by: string | null
+          sent_at: string | null
+          sent_by: string | null
+          status: Database["public"]["Enums"]["transfer_status"]
+          to_branch_id: string
+          transfer_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          from_branch_id: string
+          id?: string
+          note?: string | null
+          received_at?: string | null
+          received_by?: string | null
+          sent_at?: string | null
+          sent_by?: string | null
+          status?: Database["public"]["Enums"]["transfer_status"]
+          to_branch_id: string
+          transfer_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          from_branch_id?: string
+          id?: string
+          note?: string | null
+          received_at?: string | null
+          received_by?: string | null
+          sent_at?: string | null
+          sent_by?: string | null
+          status?: Database["public"]["Enums"]["transfer_status"]
+          to_branch_id?: string
+          transfer_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_transfers_from_branch_id_fkey"
+            columns: ["from_branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfers_to_branch_id_fkey"
+            columns: ["to_branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
           billing_cycle: Database["public"]["Enums"]["billing_cycle"]
@@ -963,6 +1182,29 @@ export type Database = {
         Args: { p_actor: string; p_permissions: string[]; p_user_id: string }
         Returns: number
       }
+      stock_adjust: {
+        Args: {
+          p_branch_id: string
+          p_delta: number
+          p_note: string
+          p_product_id: string
+          p_reason: string
+        }
+        Returns: number
+      }
+      stock_transfer_receive: {
+        Args: { p_items: Json; p_note: string; p_transfer_id: string }
+        Returns: string
+      }
+      stock_transfer_send: {
+        Args: {
+          p_from_branch_id: string
+          p_items: Json
+          p_note: string
+          p_to_branch_id: string
+        }
+        Returns: string
+      }
       submit_invoice_match: {
         Args: {
           p_invoice_date: string
@@ -1084,6 +1326,17 @@ export type Database = {
         | "approved"
         | "returned_for_review"
         | "no_delivery"
+      stock_reason:
+        | "purchase"
+        | "receipt"
+        | "transfer_out"
+        | "transfer_in"
+        | "count_adjust"
+        | "waste"
+        | "manual_adjust"
+        | "return"
+        | "correction"
+      transfer_status: "draft" | "sent" | "received" | "cancelled"
       unit_type: "حبة" | "لتر" | "كيلو" | "كرتون" | "صينية" | "عبوة"
     }
     CompositeTypes: {
@@ -1301,6 +1554,18 @@ export const Constants = {
         "returned_for_review",
         "no_delivery",
       ],
+      stock_reason: [
+        "purchase",
+        "receipt",
+        "transfer_out",
+        "transfer_in",
+        "count_adjust",
+        "waste",
+        "manual_adjust",
+        "return",
+        "correction",
+      ],
+      transfer_status: ["draft", "sent", "received", "cancelled"],
       unit_type: ["حبة", "لتر", "كيلو", "كرتون", "صينية", "عبوة"],
     },
   },
