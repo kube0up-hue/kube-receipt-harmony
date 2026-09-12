@@ -869,10 +869,10 @@ export type Database = {
     Views: {
       v_orders_effective: {
         Row: {
+          branch_id: string | null
           created_at: string | null
           created_by_user: string | null
           effective_status: Database["public"]["Enums"]["order_status"] | null
-          employee_id: string | null
           expected_delivery_date: string | null
           id: string | null
           note: string | null
@@ -882,10 +882,10 @@ export type Database = {
           supplier_id: string | null
         }
         Insert: {
+          branch_id?: string | null
           created_at?: string | null
           created_by_user?: string | null
           effective_status?: never
-          employee_id?: string | null
           expected_delivery_date?: string | null
           id?: string | null
           note?: string | null
@@ -895,10 +895,10 @@ export type Database = {
           supplier_id?: string | null
         }
         Update: {
+          branch_id?: string | null
           created_at?: string | null
           created_by_user?: string | null
           effective_status?: never
-          employee_id?: string | null
           expected_delivery_date?: string | null
           id?: string | null
           note?: string | null
@@ -909,10 +909,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "orders_employee_id_fkey"
-            columns: ["employee_id"]
+            foreignKeyName: "orders_branch_id_fkey"
+            columns: ["branch_id"]
             isOneToOne: false
-            referencedRelation: "employees"
+            referencedRelation: "branches"
             referencedColumns: ["id"]
           },
           {
