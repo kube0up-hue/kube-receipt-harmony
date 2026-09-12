@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Search, Save, RefreshCw, Send, CheckCircle2, Undo2, X, Pencil, AlertTriangle } from "lucide-react";
 import { num, round3, formatQty, formatSigned, formatMoneySar, round2 } from "@/lib/money";
 import { formatDateTimeAr } from "@/lib/format-date";
-import { COUNT_KIND_LABEL, COUNT_STATUS } from "./admin.counts";
+import { COUNT_KIND_LABEL, COUNT_STATUS } from "@/lib/count-status";
 
 export const Route = createFileRoute("/_authenticated/admin/counts/$sessionId")({
   head: () => ({
