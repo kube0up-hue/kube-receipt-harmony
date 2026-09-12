@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useCurrentUser, signOutAndGo } from "@/lib/use-current-user";
+import { BranchSwitcher } from "@/components/branch-switcher";
 import { LogOut } from "lucide-react";
 
 export function AppShell({
@@ -28,8 +29,9 @@ export function AppShell({
             )}
             <h1 className="font-bold truncate">{title}</h1>
           </div>
-          <div className="flex items-center gap-3 text-sm">
-            {cu?.fullName && <span className="text-muted-foreground hidden sm:inline truncate max-w-[10rem]">{cu.fullName}</span>}
+          <div className="flex items-center gap-2 text-sm shrink-0">
+            <BranchSwitcher />
+            {cu?.fullName && <span className="text-muted-foreground hidden md:inline truncate max-w-[8rem]">{cu.fullName}</span>}
             <button
               onClick={() => signOutAndGo(navigate)}
               className="text-muted-foreground hover:text-foreground p-2 -m-2"
