@@ -873,6 +873,7 @@ export type Database = {
           created_at: string | null
           created_by_user: string | null
           effective_status: Database["public"]["Enums"]["order_status"] | null
+          employee_id: string | null
           expected_delivery_date: string | null
           id: string | null
           note: string | null
@@ -886,6 +887,7 @@ export type Database = {
           created_at?: string | null
           created_by_user?: string | null
           effective_status?: never
+          employee_id?: string | null
           expected_delivery_date?: string | null
           id?: string | null
           note?: string | null
@@ -899,6 +901,7 @@ export type Database = {
           created_at?: string | null
           created_by_user?: string | null
           effective_status?: never
+          employee_id?: string | null
           expected_delivery_date?: string | null
           id?: string | null
           note?: string | null
@@ -913,6 +916,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
