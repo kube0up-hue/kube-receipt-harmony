@@ -138,17 +138,17 @@ function CountSheetPage() {
         })
         .sort((a, b) => a.name.localeCompare(b.name, "ar"));
       return {
-        id: data.id,
-        branchId: data.branch_id,
-        branchName: (data.branch as { name: string } | null)?.name ?? "—",
-        countDate: data.count_date,
-        kind: data.kind as string,
-        status: data.status as string,
-        note: data.note,
-        reviewNote: data.review_note,
-        submittedAt: data.submitted_at,
-        reviewedAt: data.reviewed_at,
-        approvedAt: data.approved_at,
+        id: row.id as string,
+        branchId: row.branch_id as string,
+        branchName: (row.branch as { name: string } | null)?.name ?? "—",
+        countDate: row.count_date as string,
+        kind: row.kind as string,
+        status: row.status as string,
+        note: (row.note as string | null) ?? null,
+        reviewNote: (row.review_note as string | null) ?? null,
+        submittedAt: (row.submitted_at as string | null) ?? null,
+        reviewedAt: (row.reviewed_at as string | null) ?? null,
+        approvedAt: (row.approved_at as string | null) ?? null,
         lines,
       };
     },
