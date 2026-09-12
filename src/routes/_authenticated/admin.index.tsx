@@ -195,13 +195,13 @@ function AdminHome() {
 
   const detail = useQuery({
     enabled: openDetail !== null,
-    queryKey: ["admin-stats-detail", openDetail],
+    queryKey: ["admin-stats-detail", openDetail, branchId],
     queryFn: async () => {
       const weekAgo = new Date(Date.now() - 14 * 86400000).toISOString();
-      const { data: receipts } = await supabase
+      const { data: receipts } = await onBranch(supabase
         .from("receipts")
         .select("id, received_at, order_id, orders(order_number, suppliers(name)), receipt_items(ordered_qty, received_qty, accepted_qty, damaged_qty, diff, note, products(id, name, unit)), receipt_photos(storage_path, product_id)")
-        .gte("received_at", weekAgo)
+        .gte("received_at", weekAgo))
         .order("received_at", { ascending: false });
       const rows: DetailRow[] = [];
       (receipts ?? []).forEach((r: any) => {
