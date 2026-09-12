@@ -1007,6 +1007,101 @@ export type Database = {
         }
         Relationships: []
       }
+      tomorrow_order_items: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          product_id: string
+          qty: number
+          tomorrow_order_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id: string
+          qty: number
+          tomorrow_order_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id?: string
+          qty?: number
+          tomorrow_order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tomorrow_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tomorrow_order_items_tomorrow_order_id_fkey"
+            columns: ["tomorrow_order_id"]
+            isOneToOne: false
+            referencedRelation: "tomorrow_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tomorrow_orders: {
+        Row: {
+          branch_id: string
+          created_at: string
+          created_by: string | null
+          for_date: string
+          id: string
+          note: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          created_by?: string | null
+          for_date: string
+          id?: string
+          note?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          created_by?: string | null
+          for_date?: string
+          id?: string
+          note?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tomorrow_orders_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_branches: {
         Row: {
           branch_id: string
@@ -1178,6 +1273,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      review_tomorrow_order: {
+        Args: { p_approve: boolean; p_id: string; p_note: string }
+        Returns: undefined
+      }
       set_user_permissions: {
         Args: { p_actor: string; p_permissions: string[]; p_user_id: string }
         Returns: number
@@ -1238,6 +1337,15 @@ export type Database = {
           p_order_id: string
           p_photos?: Json
           p_receipt_id: string
+        }
+        Returns: string
+      }
+      submit_tomorrow_order: {
+        Args: {
+          p_branch_id: string
+          p_for_date: string
+          p_items: Json
+          p_note: string
         }
         Returns: string
       }
