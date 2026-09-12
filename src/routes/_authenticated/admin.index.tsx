@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
 import { ReceiptItemPhotos } from "@/features/receipt-photo-viewer";
+import { useBranchFilter } from "@/lib/use-branches";
 
 
 export const Route = createFileRoute("/_authenticated/admin/")({
