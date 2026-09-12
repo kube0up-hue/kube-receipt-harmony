@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ShieldCheck, AlertTriangle, CheckCircle2, Building2, Boxes, ArrowLeftRight, CalendarClock } from "lucide-react";
+import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ShieldCheck, AlertTriangle, CheckCircle2, Building2, Boxes, ArrowLeftRight } from "lucide-react";
 import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
 import { ReceiptItemPhotos } from "@/features/receipt-photo-viewer";
 import { useBranchFilter } from "@/lib/use-branches";
@@ -258,7 +258,7 @@ function AdminHome() {
     { to: "/admin/inventory", label: "المخزون", icon: Boxes },
     { to: "/admin/transfers", label: "تحويلات المخزون", icon: ArrowLeftRight },
     { to: "/admin/orders", label: "الطلبات والاستلامات", icon: ClipboardList },
-    { to: "/admin/tomorrow-orders", label: "طلبات الغد", icon: CalendarClock },
+    
     { to: "/admin/invoices", label: "الفواتير", icon: FileText },
     { to: "/admin/payments", label: "السداد", icon: Wallet },
     { to: "/admin/dues", label: "المبالغ المستحقة للسداد", icon: Wallet },
