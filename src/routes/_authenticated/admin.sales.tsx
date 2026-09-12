@@ -117,7 +117,7 @@ function SalesAdmin() {
           <div className="space-y-2">
             {list.map((r) => {
               const st = SALES_STATUS[r.status] ?? SALES_STATUS.draft!;
-              const isEditing = edit?.id === r.id;
+              const ed = edit && edit.id === r.id ? edit : null;
               return (
                 <div key={r.id} className="kube-card space-y-2">
                   <div className="flex items-start justify-between gap-2">
@@ -158,24 +158,24 @@ function SalesAdmin() {
 
                   {r.status === "approved" && (
                     <Can anyOf={["sales_edit_approved"]}>
-                      {isEditing ? (
+                      {ed ? (
                         <div className="space-y-2 border-t pt-2">
                           <div className="grid grid-cols-2 gap-2">
                             <input type="number" step="any" min="0" className="kube-input" placeholder="الإجمالي"
-                              value={edit.total} onChange={(e) => setEdit({ ...edit, total: e.target.value })} />
+                              value={ed.total} onChange={(e) => setEdit({ ...ed, total: e.target.value })} />
                             <input type="number" min="0" className="kube-input" placeholder="عدد الطلبات"
-                              value={edit.orders} onChange={(e) => setEdit({ ...edit, orders: e.target.value })} />
+                              value={ed.orders} onChange={(e) => setEdit({ ...ed, orders: e.target.value })} />
                             <input type="number" step="any" min="0" className="kube-input" placeholder="نقد"
-                              value={edit.cash} onChange={(e) => setEdit({ ...edit, cash: e.target.value })} />
+                              value={ed.cash} onChange={(e) => setEdit({ ...ed, cash: e.target.value })} />
                             <input type="number" step="any" min="0" className="kube-input" placeholder="شبكة"
-                              value={edit.card} onChange={(e) => setEdit({ ...edit, card: e.target.value })} />
+                              value={ed.card} onChange={(e) => setEdit({ ...ed, card: e.target.value })} />
                             <input type="number" step="any" min="0" className="kube-input" placeholder="أخرى"
-                              value={edit.other} onChange={(e) => setEdit({ ...edit, other: e.target.value })} />
+                              value={ed.other} onChange={(e) => setEdit({ ...ed, other: e.target.value })} />
                           </div>
                           <input className="kube-input" placeholder="سبب التعديل (إلزامي)"
-                            value={edit.reason} onChange={(e) => setEdit({ ...edit, reason: e.target.value })} />
+                            value={ed.reason} onChange={(e) => setEdit({ ...ed, reason: e.target.value })} />
                           <div className="flex gap-2">
-                            <button onClick={() => saveEdit.mutate(edit)} disabled={edit.reason.trim().length < 3 || saveEdit.isPending}
+                            <button onClick={() => saveEdit.mutate(ed)} disabled={ed.reason.trim().length < 3 || saveEdit.isPending}
                               className="kube-btn flex-1 text-sm disabled:opacity-50">حفظ التعديل</button>
                             <button onClick={() => setEdit(null)} className="kube-btn-outline text-sm">إلغاء</button>
                           </div>
