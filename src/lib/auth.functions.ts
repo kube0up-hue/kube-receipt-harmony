@@ -163,6 +163,15 @@ export const upsertEmployee = createServerFn({ method: "POST" })
       .maybeSingle();
     if (dup && dup.id !== data.id) throw new Error("رقم PIN مستخدم لموظف آخر");
 
+    // الفرع إلزامي — يُستكمل من فرع نخلة عند عدم التحديد
+    let branchId = data.branch_id ?? null;
+    if (!branchId) {
+      const { data: def } = await supabaseAdmin
+        .from("branches").select("id").eq("code", "nakhla").maybeSingle();
+      branchId = def?.id ?? null;
+    }
+    if (!branchId) throw new Error("لا يوجد فرع افتراضي — أضف الفروع أولاً");
+
     if (data.id) {
       // If PIN changed and user_id exists, update password
       const { data: existing } = await supabaseAdmin
