@@ -76,7 +76,7 @@ function SalesPage() {
         p_card: Number(card || 0),
         p_other: Number(other || 0),
         p_orders_count: Number(orders || 0),
-        p_note: note.trim() || null,
+        p_note: note.trim() || undefined,
       });
       if (error) throw error;
     },

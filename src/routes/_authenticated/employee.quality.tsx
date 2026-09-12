@@ -66,7 +66,7 @@ function QualityPage() {
         p_branch_id: branchId!,
         p_metric_id: metricId,
         p_value: Number(values[metricId]),
-        p_note: notes[metricId]?.trim() || null,
+        p_note: notes[metricId]?.trim() || undefined,
         p_photo_paths: [],
       });
       if (error) throw error;

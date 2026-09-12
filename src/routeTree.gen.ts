@@ -15,7 +15,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedEmployeeIndexRouteImport } from './routes/_authenticated/employee.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAccountantIndexRouteImport } from './routes/_authenticated/accountant.index'
+import { Route as AuthenticatedEmployeeWasteRouteImport } from './routes/_authenticated/employee.waste'
 import { Route as AuthenticatedEmployeeTodayRouteImport } from './routes/_authenticated/employee.today'
+import { Route as AuthenticatedEmployeeSalesRouteImport } from './routes/_authenticated/employee.sales'
+import { Route as AuthenticatedEmployeeQualityRouteImport } from './routes/_authenticated/employee.quality'
 import { Route as AuthenticatedEmployeePendingRouteImport } from './routes/_authenticated/employee.pending'
 import { Route as AuthenticatedEmployeeNoDeliveryRouteImport } from './routes/_authenticated/employee.no-delivery'
 import { Route as AuthenticatedEmployeeNewOrderRouteImport } from './routes/_authenticated/employee.new-order'
@@ -75,10 +78,28 @@ const AuthenticatedAccountantIndexRoute =
     path: '/accountant/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedEmployeeWasteRoute =
+  AuthenticatedEmployeeWasteRouteImport.update({
+    id: '/employee/waste',
+    path: '/employee/waste',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEmployeeTodayRoute =
   AuthenticatedEmployeeTodayRouteImport.update({
     id: '/employee/today',
     path: '/employee/today',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEmployeeSalesRoute =
+  AuthenticatedEmployeeSalesRouteImport.update({
+    id: '/employee/sales',
+    path: '/employee/sales',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEmployeeQualityRoute =
+  AuthenticatedEmployeeQualityRouteImport.update({
+    id: '/employee/quality',
+    path: '/employee/quality',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedEmployeePendingRoute =
@@ -264,7 +285,10 @@ export interface FileRoutesByFullPath {
   '/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
   '/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
   '/employee/pending': typeof AuthenticatedEmployeePendingRoute
+  '/employee/quality': typeof AuthenticatedEmployeeQualityRoute
+  '/employee/sales': typeof AuthenticatedEmployeeSalesRoute
   '/employee/today': typeof AuthenticatedEmployeeTodayRoute
+  '/employee/waste': typeof AuthenticatedEmployeeWasteRoute
   '/accountant/': typeof AuthenticatedAccountantIndexRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/employee/': typeof AuthenticatedEmployeeIndexRoute
@@ -299,7 +323,10 @@ export interface FileRoutesByTo {
   '/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
   '/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
   '/employee/pending': typeof AuthenticatedEmployeePendingRoute
+  '/employee/quality': typeof AuthenticatedEmployeeQualityRoute
+  '/employee/sales': typeof AuthenticatedEmployeeSalesRoute
   '/employee/today': typeof AuthenticatedEmployeeTodayRoute
+  '/employee/waste': typeof AuthenticatedEmployeeWasteRoute
   '/accountant': typeof AuthenticatedAccountantIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/employee': typeof AuthenticatedEmployeeIndexRoute
@@ -336,7 +363,10 @@ export interface FileRoutesById {
   '/_authenticated/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
   '/_authenticated/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
   '/_authenticated/employee/pending': typeof AuthenticatedEmployeePendingRoute
+  '/_authenticated/employee/quality': typeof AuthenticatedEmployeeQualityRoute
+  '/_authenticated/employee/sales': typeof AuthenticatedEmployeeSalesRoute
   '/_authenticated/employee/today': typeof AuthenticatedEmployeeTodayRoute
+  '/_authenticated/employee/waste': typeof AuthenticatedEmployeeWasteRoute
   '/_authenticated/accountant/': typeof AuthenticatedAccountantIndexRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/employee/': typeof AuthenticatedEmployeeIndexRoute
@@ -373,7 +403,10 @@ export interface FileRouteTypes {
     | '/employee/new-order'
     | '/employee/no-delivery'
     | '/employee/pending'
+    | '/employee/quality'
+    | '/employee/sales'
     | '/employee/today'
+    | '/employee/waste'
     | '/accountant/'
     | '/admin/'
     | '/employee/'
@@ -408,7 +441,10 @@ export interface FileRouteTypes {
     | '/employee/new-order'
     | '/employee/no-delivery'
     | '/employee/pending'
+    | '/employee/quality'
+    | '/employee/sales'
     | '/employee/today'
+    | '/employee/waste'
     | '/accountant'
     | '/admin'
     | '/employee'
@@ -444,7 +480,10 @@ export interface FileRouteTypes {
     | '/_authenticated/employee/new-order'
     | '/_authenticated/employee/no-delivery'
     | '/_authenticated/employee/pending'
+    | '/_authenticated/employee/quality'
+    | '/_authenticated/employee/sales'
     | '/_authenticated/employee/today'
+    | '/_authenticated/employee/waste'
     | '/_authenticated/accountant/'
     | '/_authenticated/admin/'
     | '/_authenticated/employee/'
@@ -509,11 +548,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountantIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/employee/waste': {
+      id: '/_authenticated/employee/waste'
+      path: '/employee/waste'
+      fullPath: '/employee/waste'
+      preLoaderRoute: typeof AuthenticatedEmployeeWasteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/employee/today': {
       id: '/_authenticated/employee/today'
       path: '/employee/today'
       fullPath: '/employee/today'
       preLoaderRoute: typeof AuthenticatedEmployeeTodayRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/employee/sales': {
+      id: '/_authenticated/employee/sales'
+      path: '/employee/sales'
+      fullPath: '/employee/sales'
+      preLoaderRoute: typeof AuthenticatedEmployeeSalesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/employee/quality': {
+      id: '/_authenticated/employee/quality'
+      path: '/employee/quality'
+      fullPath: '/employee/quality'
+      preLoaderRoute: typeof AuthenticatedEmployeeQualityRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/employee/pending': {
@@ -727,7 +787,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEmployeeNewOrderRoute: typeof AuthenticatedEmployeeNewOrderRoute
   AuthenticatedEmployeeNoDeliveryRoute: typeof AuthenticatedEmployeeNoDeliveryRoute
   AuthenticatedEmployeePendingRoute: typeof AuthenticatedEmployeePendingRoute
+  AuthenticatedEmployeeQualityRoute: typeof AuthenticatedEmployeeQualityRoute
+  AuthenticatedEmployeeSalesRoute: typeof AuthenticatedEmployeeSalesRoute
   AuthenticatedEmployeeTodayRoute: typeof AuthenticatedEmployeeTodayRoute
+  AuthenticatedEmployeeWasteRoute: typeof AuthenticatedEmployeeWasteRoute
   AuthenticatedAccountantIndexRoute: typeof AuthenticatedAccountantIndexRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedEmployeeIndexRoute: typeof AuthenticatedEmployeeIndexRoute
@@ -761,7 +824,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEmployeeNewOrderRoute: AuthenticatedEmployeeNewOrderRoute,
   AuthenticatedEmployeeNoDeliveryRoute: AuthenticatedEmployeeNoDeliveryRoute,
   AuthenticatedEmployeePendingRoute: AuthenticatedEmployeePendingRoute,
+  AuthenticatedEmployeeQualityRoute: AuthenticatedEmployeeQualityRoute,
+  AuthenticatedEmployeeSalesRoute: AuthenticatedEmployeeSalesRoute,
   AuthenticatedEmployeeTodayRoute: AuthenticatedEmployeeTodayRoute,
+  AuthenticatedEmployeeWasteRoute: AuthenticatedEmployeeWasteRoute,
   AuthenticatedAccountantIndexRoute: AuthenticatedAccountantIndexRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedEmployeeIndexRoute: AuthenticatedEmployeeIndexRoute,

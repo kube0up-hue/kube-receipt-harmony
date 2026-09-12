@@ -88,9 +88,9 @@ function WastePage() {
         p_qty: Number(qty),
         p_reason_code: reasonCode,
         p_reason: reason.trim(),
-        p_note: null,
+        p_note: undefined,
         p_photo_paths: paths,
-        p_waste_date: null,
+        p_waste_date: undefined,
       });
       if (error) throw error;
     },
