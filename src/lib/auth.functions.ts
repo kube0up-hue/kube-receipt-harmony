@@ -138,6 +138,7 @@ export const upsertEmployee = createServerFn({ method: "POST" })
       full_name: z.string().trim().min(2).max(80),
       pin_code: z.string().trim().regex(/^\d{4,8}$/, "PIN يجب أن يكون أرقاماً 4-8 خانات"),
       branch: z.string().trim().max(80).optional().nullable(),
+      branch_id: z.string().uuid().optional().nullable(),
       is_active: z.boolean().default(true),
     }).parse(input),
   )

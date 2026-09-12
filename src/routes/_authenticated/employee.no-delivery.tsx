@@ -31,11 +31,12 @@ function NoDeliveryPage() {
     try {
       const { data: userRes } = await supabase.auth.getUser();
       if (!userRes.user) throw new Error("جلسة منتهية");
-      const { data: emp } = await supabase.from("employees").select("id").eq("user_id", userRes.user.id).single();
+      const { data: emp } = await supabase.from("employees").select("id, branch_id").eq("user_id", userRes.user.id).single();
       if (!emp) throw new Error("الموظف غير موجود");
       const { data: r, error } = await supabase.from("receipts").insert({
         supplier_id: supplierId,
         employee_id: emp.id,
+        branch_id: emp.branch_id,
         received_by_user: userRes.user.id,
         status: "no_delivery",
         note: note || null,
