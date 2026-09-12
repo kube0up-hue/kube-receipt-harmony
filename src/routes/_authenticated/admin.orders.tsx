@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Send, RotateCw, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
 import { riyadhDayEndExclusive, riyadhDayOffset, riyadhDayStart, riyadhToday } from "@/lib/riyadh-time";
 import { PermissionGuard } from "@/components/permission-guard";
+import { useBranchFilter } from "@/lib/use-branches";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
   component: () => (
