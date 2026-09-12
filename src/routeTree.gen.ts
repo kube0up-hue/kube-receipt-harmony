@@ -29,6 +29,7 @@ import { Route as AuthenticatedAdminSuppliersRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminShiftsRouteImport } from './routes/_authenticated/admin.shifts'
 import { Route as AuthenticatedAdminSalesRouteImport } from './routes/_authenticated/admin.sales'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
+import { Route as AuthenticatedAdminRecipesRouteImport } from './routes/_authenticated/admin.recipes'
 import { Route as AuthenticatedAdminQualityRouteImport } from './routes/_authenticated/admin.quality'
 import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authenticated/admin.products'
 import { Route as AuthenticatedAdminPermissionsRouteImport } from './routes/_authenticated/admin.permissions'
@@ -163,6 +164,12 @@ const AuthenticatedAdminReportsRoute =
   AuthenticatedAdminReportsRouteImport.update({
     id: '/admin/reports',
     path: '/admin/reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminRecipesRoute =
+  AuthenticatedAdminRecipesRouteImport.update({
+    id: '/admin/recipes',
+    path: '/admin/recipes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminQualityRoute =
@@ -313,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/admin/products': typeof AuthenticatedAdminProductsRoute
   '/admin/quality': typeof AuthenticatedAdminQualityRoute
+  '/admin/recipes': typeof AuthenticatedAdminRecipesRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/admin/shifts': typeof AuthenticatedAdminShiftsRoute
@@ -356,6 +364,7 @@ export interface FileRoutesByTo {
   '/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/admin/products': typeof AuthenticatedAdminProductsRoute
   '/admin/quality': typeof AuthenticatedAdminQualityRoute
+  '/admin/recipes': typeof AuthenticatedAdminRecipesRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/admin/shifts': typeof AuthenticatedAdminShiftsRoute
@@ -401,6 +410,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/_authenticated/admin/products': typeof AuthenticatedAdminProductsRoute
   '/_authenticated/admin/quality': typeof AuthenticatedAdminQualityRoute
+  '/_authenticated/admin/recipes': typeof AuthenticatedAdminRecipesRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/sales': typeof AuthenticatedAdminSalesRoute
   '/_authenticated/admin/shifts': typeof AuthenticatedAdminShiftsRoute
@@ -446,6 +456,7 @@ export interface FileRouteTypes {
     | '/admin/permissions'
     | '/admin/products'
     | '/admin/quality'
+    | '/admin/recipes'
     | '/admin/reports'
     | '/admin/sales'
     | '/admin/shifts'
@@ -489,6 +500,7 @@ export interface FileRouteTypes {
     | '/admin/permissions'
     | '/admin/products'
     | '/admin/quality'
+    | '/admin/recipes'
     | '/admin/reports'
     | '/admin/sales'
     | '/admin/shifts'
@@ -533,6 +545,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/permissions'
     | '/_authenticated/admin/products'
     | '/_authenticated/admin/quality'
+    | '/_authenticated/admin/recipes'
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/sales'
     | '/_authenticated/admin/shifts'
@@ -709,6 +722,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/recipes': {
+      id: '/_authenticated/admin/recipes'
+      path: '/admin/recipes'
+      fullPath: '/admin/recipes'
+      preLoaderRoute: typeof AuthenticatedAdminRecipesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/quality': {
       id: '/_authenticated/admin/quality'
       path: '/admin/quality'
@@ -880,6 +900,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminPermissionsRoute: typeof AuthenticatedAdminPermissionsRoute
   AuthenticatedAdminProductsRoute: typeof AuthenticatedAdminProductsRoute
   AuthenticatedAdminQualityRoute: typeof AuthenticatedAdminQualityRoute
+  AuthenticatedAdminRecipesRoute: typeof AuthenticatedAdminRecipesRoute
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminSalesRoute: typeof AuthenticatedAdminSalesRoute
   AuthenticatedAdminShiftsRoute: typeof AuthenticatedAdminShiftsRoute
@@ -922,6 +943,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminPermissionsRoute: AuthenticatedAdminPermissionsRoute,
   AuthenticatedAdminProductsRoute: AuthenticatedAdminProductsRoute,
   AuthenticatedAdminQualityRoute: AuthenticatedAdminQualityRoute,
+  AuthenticatedAdminRecipesRoute: AuthenticatedAdminRecipesRoute,
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminSalesRoute: AuthenticatedAdminSalesRoute,
   AuthenticatedAdminShiftsRoute: AuthenticatedAdminShiftsRoute,
