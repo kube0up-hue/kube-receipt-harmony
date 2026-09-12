@@ -14,6 +14,45 @@ async function fetchMyPermissions(userId: string): Promise<Permission[]> {
 }
 
 /**
+ * اشتراك Realtime واحد مشترك لكل مستخدم مهما تعدد المكوّنات التي تستخدم الصلاحيات،
+ * لأن إضافة مستمع لقناة سبق اشتراكها يرفع خطأً في Supabase.
+ */
+type PermissionListener = () => void;
+const permissionSubs = new Map<
+  string,
+  { channel: ReturnType<typeof supabase.channel>; listeners: Set<PermissionListener> }
+>();
+
+function subscribeToPermissionChanges(userId: string, listener: PermissionListener) {
+  let entry = permissionSubs.get(userId);
+  if (!entry) {
+    const listeners = new Set<PermissionListener>();
+    const channel = supabase
+      .channel(`user-permissions-${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "user_permissions", filter: `user_id=eq.${userId}` },
+        () => {
+          for (const l of listeners) l();
+        },
+      )
+      .subscribe();
+    entry = { channel, listeners };
+    permissionSubs.set(userId, entry);
+  }
+  entry.listeners.add(listener);
+  return () => {
+    const current = permissionSubs.get(userId);
+    if (!current) return;
+    current.listeners.delete(listener);
+    if (current.listeners.size === 0) {
+      permissionSubs.delete(userId);
+      void supabase.removeChannel(current.channel);
+    }
+  };
+}
+
+/**
  * صلاحيات المستخدم الحالي، مع تحديث لحظي عبر Realtime.
  * المدير يملك كل الصلاحيات دائماً.
  */
@@ -35,19 +74,10 @@ export function usePermissions() {
 
   useEffect(() => {
     if (!userId) return;
-    const channel = supabase
-      .channel(`user-permissions-${userId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "user_permissions", filter: `user_id=eq.${userId}` },
-        () => {
-          qc.invalidateQueries({ queryKey: ["my-permissions", userId] });
-        },
-      )
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(channel);
-    };
+    const release = subscribeToPermissionChanges(userId, () => {
+      qc.invalidateQueries({ queryKey: ["my-permissions", userId] });
+    });
+    return release;
   }, [userId, qc]);
 
   const list: Permission[] = data ?? [];
