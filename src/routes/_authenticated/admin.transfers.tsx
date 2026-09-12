@@ -101,7 +101,7 @@ function TransfersPage() {
       const { error } = await supabase.rpc("stock_transfer_receive", {
         p_transfer_id: input.transferId,
         p_items: input.items,
-        p_note: input.note || null,
+        p_note: input.note,
       });
       if (error) throw error;
     },
@@ -264,7 +264,7 @@ function CreateTransfer({
       const { error } = await supabase.rpc("stock_transfer_send", {
         p_from_branch_id: fromBranchId,
         p_to_branch_id: toBranchId,
-        p_note: note || null,
+        p_note: note,
         p_items: items,
       });
       if (error) throw error;
