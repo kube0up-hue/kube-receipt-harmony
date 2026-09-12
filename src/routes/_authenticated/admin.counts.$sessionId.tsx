@@ -108,7 +108,8 @@ function CountSheetPage() {
         .maybeSingle();
       if (error) throw error;
       if (!data) throw new Error("الجرد غير موجود");
-      const raw = (data.count_lines ?? []) as Record<string, unknown>[];
+      const row = data as unknown as Record<string, unknown>;
+      const raw = (row.count_lines ?? []) as Record<string, unknown>[];
       const lines: Line[] = raw
         .map((l) => {
           const p = l.product as { name: string; unit: string; category: string | null } | null;
