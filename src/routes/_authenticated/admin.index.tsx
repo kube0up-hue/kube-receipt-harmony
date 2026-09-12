@@ -255,6 +255,8 @@ function AdminHome() {
     { to: "/admin/employees", label: "الموظفون", icon: Users },
     { to: "/admin/suppliers", label: "الموردون", icon: Truck },
     { to: "/admin/products", label: "المنتجات", icon: Package },
+    { to: "/admin/inventory", label: "المخزون", icon: Boxes },
+    { to: "/admin/transfers", label: "تحويلات المخزون", icon: ArrowLeftRight },
     { to: "/admin/orders", label: "الطلبات والاستلامات", icon: ClipboardList },
     { to: "/admin/invoices", label: "الفواتير", icon: FileText },
     { to: "/admin/payments", label: "السداد", icon: Wallet },
