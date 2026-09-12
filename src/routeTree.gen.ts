@@ -30,6 +30,7 @@ import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminInventoryRouteImport } from './routes/_authenticated/admin.inventory'
 import { Route as AuthenticatedAdminEmployeesRouteImport } from './routes/_authenticated/admin.employees'
 import { Route as AuthenticatedAdminDuesRouteImport } from './routes/_authenticated/admin.dues'
+import { Route as AuthenticatedAdminCountsRouteImport } from './routes/_authenticated/admin.counts'
 import { Route as AuthenticatedAdminBranchesRouteImport } from './routes/_authenticated/admin.branches'
 import { Route as AuthenticatedAccountantSuppliersRouteImport } from './routes/_authenticated/accountant.suppliers'
 import { Route as AuthenticatedAccountantReceiptsRouteImport } from './routes/_authenticated/accountant.receipts'
@@ -162,6 +163,12 @@ const AuthenticatedAdminDuesRoute = AuthenticatedAdminDuesRouteImport.update({
   path: '/admin/dues',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminCountsRoute =
+  AuthenticatedAdminCountsRouteImport.update({
+    id: '/admin/counts',
+    path: '/admin/counts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminBranchesRoute =
   AuthenticatedAdminBranchesRouteImport.update({
     id: '/admin/branches',
@@ -236,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/accountant/receipts': typeof AuthenticatedAccountantReceiptsRoute
   '/accountant/suppliers': typeof AuthenticatedAccountantSuppliersRoute
   '/admin/branches': typeof AuthenticatedAdminBranchesRoute
+  '/admin/counts': typeof AuthenticatedAdminCountsRoute
   '/admin/dues': typeof AuthenticatedAdminDuesRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/inventory': typeof AuthenticatedAdminInventoryRoute
@@ -269,6 +277,7 @@ export interface FileRoutesByTo {
   '/accountant/receipts': typeof AuthenticatedAccountantReceiptsRoute
   '/accountant/suppliers': typeof AuthenticatedAccountantSuppliersRoute
   '/admin/branches': typeof AuthenticatedAdminBranchesRoute
+  '/admin/counts': typeof AuthenticatedAdminCountsRoute
   '/admin/dues': typeof AuthenticatedAdminDuesRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/inventory': typeof AuthenticatedAdminInventoryRoute
@@ -304,6 +313,7 @@ export interface FileRoutesById {
   '/_authenticated/accountant/receipts': typeof AuthenticatedAccountantReceiptsRoute
   '/_authenticated/accountant/suppliers': typeof AuthenticatedAccountantSuppliersRoute
   '/_authenticated/admin/branches': typeof AuthenticatedAdminBranchesRoute
+  '/_authenticated/admin/counts': typeof AuthenticatedAdminCountsRoute
   '/_authenticated/admin/dues': typeof AuthenticatedAdminDuesRoute
   '/_authenticated/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/_authenticated/admin/inventory': typeof AuthenticatedAdminInventoryRoute
@@ -339,6 +349,7 @@ export interface FileRouteTypes {
     | '/accountant/receipts'
     | '/accountant/suppliers'
     | '/admin/branches'
+    | '/admin/counts'
     | '/admin/dues'
     | '/admin/employees'
     | '/admin/inventory'
@@ -372,6 +383,7 @@ export interface FileRouteTypes {
     | '/accountant/receipts'
     | '/accountant/suppliers'
     | '/admin/branches'
+    | '/admin/counts'
     | '/admin/dues'
     | '/admin/employees'
     | '/admin/inventory'
@@ -406,6 +418,7 @@ export interface FileRouteTypes {
     | '/_authenticated/accountant/receipts'
     | '/_authenticated/accountant/suppliers'
     | '/_authenticated/admin/branches'
+    | '/_authenticated/admin/counts'
     | '/_authenticated/admin/dues'
     | '/_authenticated/admin/employees'
     | '/_authenticated/admin/inventory'
@@ -588,6 +601,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDuesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/counts': {
+      id: '/_authenticated/admin/counts'
+      path: '/admin/counts'
+      fullPath: '/admin/counts'
+      preLoaderRoute: typeof AuthenticatedAdminCountsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/branches': {
       id: '/_authenticated/admin/branches'
       path: '/admin/branches'
@@ -673,6 +693,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountantReceiptsRoute: typeof AuthenticatedAccountantReceiptsRoute
   AuthenticatedAccountantSuppliersRoute: typeof AuthenticatedAccountantSuppliersRoute
   AuthenticatedAdminBranchesRoute: typeof AuthenticatedAdminBranchesRoute
+  AuthenticatedAdminCountsRoute: typeof AuthenticatedAdminCountsRoute
   AuthenticatedAdminDuesRoute: typeof AuthenticatedAdminDuesRoute
   AuthenticatedAdminEmployeesRoute: typeof AuthenticatedAdminEmployeesRoute
   AuthenticatedAdminInventoryRoute: typeof AuthenticatedAdminInventoryRoute
@@ -705,6 +726,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountantReceiptsRoute: AuthenticatedAccountantReceiptsRoute,
   AuthenticatedAccountantSuppliersRoute: AuthenticatedAccountantSuppliersRoute,
   AuthenticatedAdminBranchesRoute: AuthenticatedAdminBranchesRoute,
+  AuthenticatedAdminCountsRoute: AuthenticatedAdminCountsRoute,
   AuthenticatedAdminDuesRoute: AuthenticatedAdminDuesRoute,
   AuthenticatedAdminEmployeesRoute: AuthenticatedAdminEmployeesRoute,
   AuthenticatedAdminInventoryRoute: AuthenticatedAdminInventoryRoute,
