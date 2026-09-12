@@ -116,6 +116,36 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   { title: "التقارير والتنبيهات", items: ["reports_dues", "reports_export", "reports_integrity", "alerts_view"] },
 ];
 
+/** الصلاحيات التي تُسند لموظفي الفروع من صفحة «مهام الموظفين». */
+export const EMPLOYEE_ASSIGNABLE = [
+  "orders_create",
+  "orders_receive",
+  "orders_view",
+  "inventory_view",
+  "inventory_transfer",
+  "inventory_receive_transfer",
+  "inventory_adjust",
+  "count_perform",
+  "count_review",
+  "waste_record",
+  "waste_view",
+  "quality_record",
+  "quality_view",
+  "sales_record",
+  "sales_review",
+  "alerts_view",
+] as const satisfies readonly Permission[];
+
+export const EMPLOYEE_ASSIGNABLE_GROUPS: PermissionGroup[] = [
+  { title: "الطلبات والاستلام", items: ["orders_create", "orders_receive", "orders_view"] },
+  { title: "المخزون والتحويلات", items: ["inventory_view", "inventory_transfer", "inventory_receive_transfer", "inventory_adjust"] },
+  { title: "الجرد", items: ["count_perform", "count_review"] },
+  { title: "الهدر", items: ["waste_record", "waste_view"] },
+  { title: "الجودة والمياه", items: ["quality_record", "quality_view"] },
+  { title: "المبيعات اليومية", items: ["sales_record", "sales_review"] },
+  { title: "التنبيهات", items: ["alerts_view"] },
+];
+
 /** حزمة جاهزة تُقترح للمحاسب. */
 export const ACCOUNTANT_PRESET: Permission[] = [
   "products_view",

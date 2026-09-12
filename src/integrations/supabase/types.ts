@@ -272,6 +272,77 @@ export type Database = {
           },
         ]
       }
+      daily_sales: {
+        Row: {
+          branch_id: string
+          card_amount: number
+          cash_amount: number
+          created_at: string
+          id: string
+          note: string | null
+          orders_count: number
+          other_amount: number
+          recorded_by: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sales_date: string
+          status: Database["public"]["Enums"]["sales_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          total_sales: number
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          card_amount?: number
+          cash_amount?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          orders_count?: number
+          other_amount?: number
+          recorded_by?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sales_date: string
+          status?: Database["public"]["Enums"]["sales_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          total_sales?: number
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          card_amount?: number
+          cash_amount?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          orders_count?: number
+          other_amount?: number
+          recorded_by?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sales_date?: string
+          status?: Database["public"]["Enums"]["sales_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          total_sales?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_sales_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           branch: string | null
@@ -725,6 +796,99 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      quality_metrics: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          max_ok: number | null
+          min_ok: number | null
+          sort_order: number
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          max_ok?: number | null
+          min_ok?: number | null
+          sort_order?: number
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          max_ok?: number | null
+          min_ok?: number | null
+          sort_order?: number
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      quality_readings: {
+        Row: {
+          branch_id: string
+          created_at: string
+          id: string
+          metric_id: string
+          note: string | null
+          photo_paths: string[]
+          reading_at: string
+          recorded_by: string | null
+          status: Database["public"]["Enums"]["quality_status"]
+          value: number
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          id?: string
+          metric_id: string
+          note?: string | null
+          photo_paths?: string[]
+          reading_at?: string
+          recorded_by?: string | null
+          status?: Database["public"]["Enums"]["quality_status"]
+          value: number
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          id?: string
+          metric_id?: string
+          note?: string | null
+          photo_paths?: string[]
+          reading_at?: string
+          recorded_by?: string | null
+          status?: Database["public"]["Enums"]["quality_status"]
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_readings_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_readings_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "quality_metrics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       receipt_items: {
         Row: {
@@ -1259,6 +1423,69 @@ export type Database = {
         }
         Relationships: []
       }
+      waste_entries: {
+        Row: {
+          branch_id: string
+          created_at: string
+          id: string
+          note: string | null
+          photo_paths: string[]
+          product_id: string
+          qty: number
+          reason: string
+          reason_code: Database["public"]["Enums"]["waste_reason"]
+          recorded_by: string | null
+          unit_price: number
+          waste_date: string
+          waste_value: number
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          photo_paths?: string[]
+          product_id: string
+          qty: number
+          reason: string
+          reason_code: Database["public"]["Enums"]["waste_reason"]
+          recorded_by?: string | null
+          unit_price?: number
+          waste_date?: string
+          waste_value?: number
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          photo_paths?: string[]
+          product_id?: string
+          qty?: number
+          reason?: string
+          reason_code?: Database["public"]["Enums"]["waste_reason"]
+          recorded_by?: string | null
+          unit_price?: number
+          waste_date?: string
+          waste_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waste_entries_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waste_entries_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       v_orders_effective: {
@@ -1342,6 +1569,18 @@ export type Database = {
         Args: { p_counted_qty: number; p_line_id: string; p_reason: string }
         Returns: undefined
       }
+      edit_approved_daily_sales: {
+        Args: {
+          p_card: number
+          p_cash: number
+          p_id: string
+          p_orders_count: number
+          p_other: number
+          p_reason: string
+          p_total: number
+        }
+        Returns: undefined
+      }
       find_overlapping_invoices: {
         Args: {
           p_period_end: string
@@ -1374,6 +1613,29 @@ export type Database = {
         }
         Returns: string
       }
+      record_quality_reading: {
+        Args: {
+          p_branch_id: string
+          p_metric_id: string
+          p_note?: string
+          p_photo_paths?: string[]
+          p_value: number
+        }
+        Returns: string
+      }
+      record_waste: {
+        Args: {
+          p_branch_id: string
+          p_note?: string
+          p_photo_paths?: string[]
+          p_product_id: string
+          p_qty: number
+          p_reason: string
+          p_reason_code: string
+          p_waste_date?: string
+        }
+        Returns: string
+      }
       refresh_count_session: {
         Args: { p_session_id: string }
         Returns: undefined
@@ -1382,9 +1644,26 @@ export type Database = {
         Args: { p_accept: boolean; p_note: string; p_session_id: string }
         Returns: undefined
       }
+      review_daily_sales: {
+        Args: { p_accept: boolean; p_id: string; p_note?: string }
+        Returns: undefined
+      }
       save_count_lines: {
         Args: { p_lines: Json; p_session_id: string }
         Returns: undefined
+      }
+      save_daily_sales: {
+        Args: {
+          p_branch_id: string
+          p_card?: number
+          p_cash?: number
+          p_note?: string
+          p_orders_count?: number
+          p_other?: number
+          p_sales_date: string
+          p_total: number
+        }
+        Returns: string
       }
       set_user_permissions: {
         Args: { p_actor: string; p_permissions: string[]; p_user_id: string }
@@ -1417,6 +1696,7 @@ export type Database = {
         Args: { p_note: string; p_session_id: string }
         Returns: undefined
       }
+      submit_daily_sales: { Args: { p_id: string }; Returns: undefined }
       submit_invoice_match: {
         Args: {
           p_invoice_date: string
@@ -1535,6 +1815,7 @@ export type Database = {
         | "paid"
       order_status: "pending_receipt" | "received" | "cancelled"
       payment_method: "bank_transfer" | "cash" | "cheque" | "other"
+      quality_status: "ok" | "warn" | "out_of_range"
       receipt_item_status:
         | "matched"
         | "short"
@@ -1547,6 +1828,7 @@ export type Database = {
         | "approved"
         | "returned_for_review"
         | "no_delivery"
+      sales_status: "draft" | "submitted" | "approved"
       stock_reason:
         | "purchase"
         | "receipt"
@@ -1559,6 +1841,14 @@ export type Database = {
         | "correction"
       transfer_status: "draft" | "sent" | "received" | "cancelled"
       unit_type: "حبة" | "لتر" | "كيلو" | "كرتون" | "صينية" | "عبوة"
+      waste_reason:
+        | "expired"
+        | "damaged"
+        | "spillage"
+        | "prep_error"
+        | "quality"
+        | "customer_return"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1771,6 +2061,7 @@ export const Constants = {
       ],
       order_status: ["pending_receipt", "received", "cancelled"],
       payment_method: ["bank_transfer", "cash", "cheque", "other"],
+      quality_status: ["ok", "warn", "out_of_range"],
       receipt_item_status: [
         "matched",
         "short",
@@ -1785,6 +2076,7 @@ export const Constants = {
         "returned_for_review",
         "no_delivery",
       ],
+      sales_status: ["draft", "submitted", "approved"],
       stock_reason: [
         "purchase",
         "receipt",
@@ -1798,6 +2090,15 @@ export const Constants = {
       ],
       transfer_status: ["draft", "sent", "received", "cancelled"],
       unit_type: ["حبة", "لتر", "كيلو", "كرتون", "صينية", "عبوة"],
+      waste_reason: [
+        "expired",
+        "damaged",
+        "spillage",
+        "prep_error",
+        "quality",
+        "customer_return",
+        "other",
+      ],
     },
   },
 } as const
