@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
-import { PlusCircle, PackageCheck, Clock, History, CalendarX, CalendarClock } from "lucide-react";
+import { PlusCircle, PackageCheck, Clock, History, CalendarX } from "lucide-react";
 import { formatDateAr } from "@/lib/format-date";
 import { riyadhToday, riyadhDayStart } from "@/lib/riyadh-time";
 import { usePendingOrders } from "@/lib/use-pending-orders";
