@@ -36,8 +36,12 @@ interface DetailRow {
 
 
 function AdminHome() {
+  const { branchId, label: branchLabel } = useBranchFilter();
+  const onBranch = <T extends { eq: (c: string, v: string) => T }>(q: T): T =>
+    branchId ? q.eq("branch_id", branchId) : q;
+
   const stats = useQuery({
-    queryKey: ["admin-stats"],
+    queryKey: ["admin-stats", branchId],
     queryFn: async () => {
       // بداية اليوم بتوقيت الرياض (UTC+3) كلحظة UTC
       const riyadhParts = new Intl.DateTimeFormat("en-CA", {
