@@ -97,6 +97,181 @@ export type Database = {
         }
         Relationships: []
       }
+      count_lines: {
+        Row: {
+          adjust_qty: number
+          counted_at: string | null
+          counted_by: string | null
+          counted_qty: number | null
+          created_at: string
+          expected_qty: number
+          foodics_diff: number | null
+          foodics_qty: number | null
+          id: string
+          match_status: Database["public"]["Enums"]["count_match_status"] | null
+          note: string | null
+          prev_count_qty: number
+          product_id: string
+          purchases_qty: number
+          session_id: string
+          transfer_in_qty: number
+          transfer_out_qty: number
+          unit_price: number
+          updated_at: string
+          variance_qty: number
+          variance_value: number
+          waste_qty: number
+        }
+        Insert: {
+          adjust_qty?: number
+          counted_at?: string | null
+          counted_by?: string | null
+          counted_qty?: number | null
+          created_at?: string
+          expected_qty?: number
+          foodics_diff?: number | null
+          foodics_qty?: number | null
+          id?: string
+          match_status?:
+            | Database["public"]["Enums"]["count_match_status"]
+            | null
+          note?: string | null
+          prev_count_qty?: number
+          product_id: string
+          purchases_qty?: number
+          session_id: string
+          transfer_in_qty?: number
+          transfer_out_qty?: number
+          unit_price?: number
+          updated_at?: string
+          variance_qty?: number
+          variance_value?: number
+          waste_qty?: number
+        }
+        Update: {
+          adjust_qty?: number
+          counted_at?: string | null
+          counted_by?: string | null
+          counted_qty?: number | null
+          created_at?: string
+          expected_qty?: number
+          foodics_diff?: number | null
+          foodics_qty?: number | null
+          id?: string
+          match_status?:
+            | Database["public"]["Enums"]["count_match_status"]
+            | null
+          note?: string | null
+          prev_count_qty?: number
+          product_id?: string
+          purchases_qty?: number
+          session_id?: string
+          transfer_in_qty?: number
+          transfer_out_qty?: number
+          unit_price?: number
+          updated_at?: string
+          variance_qty?: number
+          variance_value?: number
+          waste_qty?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "count_lines_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "count_lines_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "count_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      count_sessions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          baseline_at: string
+          branch_id: string
+          cancel_reason: string | null
+          count_date: string
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: Database["public"]["Enums"]["count_kind"]
+          note: string | null
+          prev_session_id: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["count_session_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          baseline_at?: string
+          branch_id: string
+          cancel_reason?: string | null
+          count_date?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["count_kind"]
+          note?: string | null
+          prev_session_id?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["count_session_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          baseline_at?: string
+          branch_id?: string
+          cancel_reason?: string | null
+          count_date?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["count_kind"]
+          note?: string | null
+          prev_session_id?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["count_session_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "count_sessions_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "count_sessions_prev_session_id_fkey"
+            columns: ["prev_session_id"]
+            isOneToOne: false
+            referencedRelation: "count_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           branch: string | null
@@ -1155,6 +1330,18 @@ export type Database = {
       }
     }
     Functions: {
+      approve_count_session: {
+        Args: { p_session_id: string }
+        Returns: undefined
+      }
+      cancel_count_session: {
+        Args: { p_reason: string; p_session_id: string }
+        Returns: undefined
+      }
+      edit_approved_count_line: {
+        Args: { p_counted_qty: number; p_line_id: string; p_reason: string }
+        Returns: undefined
+      }
       find_overlapping_invoices: {
         Args: {
           p_period_end: string
@@ -1176,6 +1363,27 @@ export type Database = {
           p_receipt_id: string
           p_status: string
         }
+        Returns: undefined
+      }
+      open_count_session: {
+        Args: {
+          p_branch_id: string
+          p_count_date: string
+          p_kind: string
+          p_note: string
+        }
+        Returns: string
+      }
+      refresh_count_session: {
+        Args: { p_session_id: string }
+        Returns: undefined
+      }
+      review_count_session: {
+        Args: { p_accept: boolean; p_note: string; p_session_id: string }
+        Returns: undefined
+      }
+      save_count_lines: {
+        Args: { p_lines: Json; p_session_id: string }
         Returns: undefined
       }
       set_user_permissions: {
@@ -1204,6 +1412,10 @@ export type Database = {
           p_to_branch_id: string
         }
         Returns: string
+      }
+      submit_count_session: {
+        Args: { p_note: string; p_session_id: string }
+        Returns: undefined
       }
       submit_invoice_match: {
         Args: {
@@ -1298,6 +1510,15 @@ export type Database = {
         | "branch_manager"
         | "operations"
       billing_cycle: "weekly" | "biweekly" | "monthly" | "custom"
+      count_kind: "cycle_1" | "cycle_15" | "extra"
+      count_match_status: "matched" | "minor_diff" | "mismatch"
+      count_session_status:
+        | "open"
+        | "in_progress"
+        | "submitted"
+        | "reviewed"
+        | "approved"
+        | "cancelled"
       invoice_match_status:
         | "matched"
         | "invoice_higher"
@@ -1522,6 +1743,16 @@ export const Constants = {
         "operations",
       ],
       billing_cycle: ["weekly", "biweekly", "monthly", "custom"],
+      count_kind: ["cycle_1", "cycle_15", "extra"],
+      count_match_status: ["matched", "minor_diff", "mismatch"],
+      count_session_status: [
+        "open",
+        "in_progress",
+        "submitted",
+        "reviewed",
+        "approved",
+        "cancelled",
+      ],
       invoice_match_status: [
         "matched",
         "invoice_higher",
