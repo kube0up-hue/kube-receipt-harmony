@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
-import { PlusCircle, PackageCheck, Clock, History, CalendarX } from "lucide-react";
+import { PlusCircle, PackageCheck, Clock, History, CalendarX, Trash2, Droplets, BadgeDollarSign, ClipboardCheck, Boxes } from "lucide-react";
+import { Can } from "@/components/permission-guard";
 import { formatDateAr } from "@/lib/format-date";
 import { riyadhToday, riyadhDayStart } from "@/lib/riyadh-time";
 import { usePendingOrders } from "@/lib/use-pending-orders";
@@ -51,6 +52,36 @@ function EmployeeHome() {
           <History className="w-8 h-8" />
           <span className="font-bold text-center">سجل آخر 7 أيام</span>
         </Link>
+        <Can anyOf={["waste_record"]}>
+          <Link to="/employee/waste" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <Trash2 className="w-8 h-8" />
+            <span className="font-bold text-center">تسجيل الهدر</span>
+          </Link>
+        </Can>
+        <Can anyOf={["quality_record"]}>
+          <Link to="/employee/quality" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <Droplets className="w-8 h-8" />
+            <span className="font-bold text-center">قياسات المياه والجودة</span>
+          </Link>
+        </Can>
+        <Can anyOf={["sales_record"]}>
+          <Link to="/employee/sales" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <BadgeDollarSign className="w-8 h-8" />
+            <span className="font-bold text-center">المبيعات اليومية</span>
+          </Link>
+        </Can>
+        <Can anyOf={["count_perform"]}>
+          <Link to="/admin/counts" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <ClipboardCheck className="w-8 h-8" />
+            <span className="font-bold text-center">الجرد</span>
+          </Link>
+        </Can>
+        <Can anyOf={["inventory_view"]}>
+          <Link to="/admin/inventory" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <Boxes className="w-8 h-8" />
+            <span className="font-bold text-center">المخزون</span>
+          </Link>
+        </Can>
       </div>
 
       <section>

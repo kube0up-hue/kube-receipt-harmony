@@ -253,6 +253,10 @@ function AdminHome() {
 
   const links: { to: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { to: "/admin/employees", label: "الموظفون", icon: Users },
+    { to: "/admin/employee-access", label: "مهام الموظفين وصلاحياتهم", icon: UserCog },
+    { to: "/admin/waste", label: "الهدر", icon: Trash2 },
+    { to: "/admin/quality", label: "الجودة والمياه", icon: Droplets },
+    { to: "/admin/sales", label: "المبيعات اليومية", icon: BadgeDollarSign },
     { to: "/admin/suppliers", label: "الموردون", icon: Truck },
     { to: "/admin/products", label: "المنتجات", icon: Package },
     { to: "/admin/inventory", label: "المخزون", icon: Boxes },
