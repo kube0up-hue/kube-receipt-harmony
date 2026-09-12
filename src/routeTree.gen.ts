@@ -26,6 +26,7 @@ import { Route as AuthenticatedEmployeeHistoryRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminWasteRouteImport } from './routes/_authenticated/admin.waste'
 import { Route as AuthenticatedAdminTransfersRouteImport } from './routes/_authenticated/admin.transfers'
 import { Route as AuthenticatedAdminSuppliersRouteImport } from './routes/_authenticated/admin.suppliers'
+import { Route as AuthenticatedAdminShiftsRouteImport } from './routes/_authenticated/admin.shifts'
 import { Route as AuthenticatedAdminSalesRouteImport } from './routes/_authenticated/admin.sales'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
 import { Route as AuthenticatedAdminQualityRouteImport } from './routes/_authenticated/admin.quality'
@@ -145,6 +146,12 @@ const AuthenticatedAdminSuppliersRoute =
   AuthenticatedAdminSuppliersRouteImport.update({
     id: '/admin/suppliers',
     path: '/admin/suppliers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminShiftsRoute =
+  AuthenticatedAdminShiftsRouteImport.update({
+    id: '/admin/shifts',
+    path: '/admin/shifts',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminSalesRoute = AuthenticatedAdminSalesRouteImport.update({
@@ -308,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/admin/quality': typeof AuthenticatedAdminQualityRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
+  '/admin/shifts': typeof AuthenticatedAdminShiftsRoute
   '/admin/suppliers': typeof AuthenticatedAdminSuppliersRoute
   '/admin/transfers': typeof AuthenticatedAdminTransfersRoute
   '/admin/waste': typeof AuthenticatedAdminWasteRoute
@@ -350,6 +358,7 @@ export interface FileRoutesByTo {
   '/admin/quality': typeof AuthenticatedAdminQualityRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/sales': typeof AuthenticatedAdminSalesRoute
+  '/admin/shifts': typeof AuthenticatedAdminShiftsRoute
   '/admin/suppliers': typeof AuthenticatedAdminSuppliersRoute
   '/admin/transfers': typeof AuthenticatedAdminTransfersRoute
   '/admin/waste': typeof AuthenticatedAdminWasteRoute
@@ -394,6 +403,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/quality': typeof AuthenticatedAdminQualityRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/sales': typeof AuthenticatedAdminSalesRoute
+  '/_authenticated/admin/shifts': typeof AuthenticatedAdminShiftsRoute
   '/_authenticated/admin/suppliers': typeof AuthenticatedAdminSuppliersRoute
   '/_authenticated/admin/transfers': typeof AuthenticatedAdminTransfersRoute
   '/_authenticated/admin/waste': typeof AuthenticatedAdminWasteRoute
@@ -438,6 +448,7 @@ export interface FileRouteTypes {
     | '/admin/quality'
     | '/admin/reports'
     | '/admin/sales'
+    | '/admin/shifts'
     | '/admin/suppliers'
     | '/admin/transfers'
     | '/admin/waste'
@@ -480,6 +491,7 @@ export interface FileRouteTypes {
     | '/admin/quality'
     | '/admin/reports'
     | '/admin/sales'
+    | '/admin/shifts'
     | '/admin/suppliers'
     | '/admin/transfers'
     | '/admin/waste'
@@ -523,6 +535,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/quality'
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/sales'
+    | '/_authenticated/admin/shifts'
     | '/_authenticated/admin/suppliers'
     | '/_authenticated/admin/transfers'
     | '/_authenticated/admin/waste'
@@ -673,6 +686,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/suppliers'
       fullPath: '/admin/suppliers'
       preLoaderRoute: typeof AuthenticatedAdminSuppliersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/shifts': {
+      id: '/_authenticated/admin/shifts'
+      path: '/admin/shifts'
+      fullPath: '/admin/shifts'
+      preLoaderRoute: typeof AuthenticatedAdminShiftsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/sales': {
@@ -862,6 +882,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminQualityRoute: typeof AuthenticatedAdminQualityRoute
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminSalesRoute: typeof AuthenticatedAdminSalesRoute
+  AuthenticatedAdminShiftsRoute: typeof AuthenticatedAdminShiftsRoute
   AuthenticatedAdminSuppliersRoute: typeof AuthenticatedAdminSuppliersRoute
   AuthenticatedAdminTransfersRoute: typeof AuthenticatedAdminTransfersRoute
   AuthenticatedAdminWasteRoute: typeof AuthenticatedAdminWasteRoute
@@ -903,6 +924,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminQualityRoute: AuthenticatedAdminQualityRoute,
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminSalesRoute: AuthenticatedAdminSalesRoute,
+  AuthenticatedAdminShiftsRoute: AuthenticatedAdminShiftsRoute,
   AuthenticatedAdminSuppliersRoute: AuthenticatedAdminSuppliersRoute,
   AuthenticatedAdminTransfersRoute: AuthenticatedAdminTransfersRoute,
   AuthenticatedAdminWasteRoute: AuthenticatedAdminWasteRoute,

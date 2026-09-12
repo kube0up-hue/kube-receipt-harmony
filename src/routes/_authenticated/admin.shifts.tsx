@@ -104,7 +104,7 @@ function ShiftsPage() {
 
   return (
     <AppShell title={`الدوامات — ${label}`} back={{ to: "/admin" }}>
-      <Can perm="schedules_manage">
+      <Can anyOf={["schedules_manage"]}>
         <div className="kube-card mb-4 space-y-3">
           <h2 className="font-bold">إضافة دوام</h2>
           <div className="grid sm:grid-cols-2 gap-3">
@@ -142,7 +142,7 @@ function ShiftsPage() {
                 </div>
                 {s.note && <div className="text-xs mt-1">{s.note}</div>}
               </div>
-              <Can perm="schedules_manage">
+              <Can anyOf={["schedules_manage"]}>
                 <button className="kube-btn-ghost text-kube-red" onClick={() => remove.mutate(s.id)} aria-label="حذف الدوام">
                   <Trash2 className="w-4 h-4" />
                 </button>
