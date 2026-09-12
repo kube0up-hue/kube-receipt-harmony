@@ -78,6 +78,7 @@ function OrdersPage() {
         .order("received_at", { ascending: false })
         .limit(1000);
       if (supplierId) q = q.eq("supplier_id", supplierId);
+      if (branchId) q = q.eq("branch_id", branchId);
       const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
@@ -85,13 +86,14 @@ function OrdersPage() {
   });
 
   const orders = useQuery({
-    queryKey: ["admin-orders", from, to, supplierId],
+    queryKey: ["admin-orders", from, to, supplierId, branchId],
     queryFn: async () => {
       let q = supabase.from("orders")
         .select("id,order_number,order_date,status,supplier:suppliers(name),employee:employees(full_name)")
         .gte("order_date", from).lte("order_date", to)
         .order("order_date", { ascending: false }).limit(1000);
       if (supplierId) q = q.eq("supplier_id", supplierId);
+      if (branchId) q = q.eq("branch_id", branchId);
       const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
