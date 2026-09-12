@@ -35,19 +35,10 @@ export function usePermissions() {
 
   useEffect(() => {
     if (!userId) return;
-    const channel = supabase
-      .channel(`user-permissions-${userId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "user_permissions", filter: `user_id=eq.${userId}` },
-        () => {
-          qc.invalidateQueries({ queryKey: ["my-permissions", userId] });
-        },
-      )
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(channel);
-    };
+    const release = subscribeToPermissionChanges(userId, () => {
+      qc.invalidateQueries({ queryKey: ["my-permissions", userId] });
+    });
+    return release;
   }, [userId, qc]);
 
   const list: Permission[] = data ?? [];
