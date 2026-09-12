@@ -15,12 +15,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedEmployeeIndexRouteImport } from './routes/_authenticated/employee.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAccountantIndexRouteImport } from './routes/_authenticated/accountant.index'
+import { Route as AuthenticatedEmployeeTomorrowRouteImport } from './routes/_authenticated/employee.tomorrow'
 import { Route as AuthenticatedEmployeeTodayRouteImport } from './routes/_authenticated/employee.today'
 import { Route as AuthenticatedEmployeePendingRouteImport } from './routes/_authenticated/employee.pending'
 import { Route as AuthenticatedEmployeeNoDeliveryRouteImport } from './routes/_authenticated/employee.no-delivery'
 import { Route as AuthenticatedEmployeeNewOrderRouteImport } from './routes/_authenticated/employee.new-order'
 import { Route as AuthenticatedEmployeeHistoryRouteImport } from './routes/_authenticated/employee.history'
 import { Route as AuthenticatedAdminTransfersRouteImport } from './routes/_authenticated/admin.transfers'
+import { Route as AuthenticatedAdminTomorrowOrdersRouteImport } from './routes/_authenticated/admin.tomorrow-orders'
 import { Route as AuthenticatedAdminSuppliersRouteImport } from './routes/_authenticated/admin.suppliers'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
 import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authenticated/admin.products'
@@ -73,6 +75,12 @@ const AuthenticatedAccountantIndexRoute =
     path: '/accountant/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedEmployeeTomorrowRoute =
+  AuthenticatedEmployeeTomorrowRouteImport.update({
+    id: '/employee/tomorrow',
+    path: '/employee/tomorrow',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEmployeeTodayRoute =
   AuthenticatedEmployeeTodayRouteImport.update({
     id: '/employee/today',
@@ -107,6 +115,12 @@ const AuthenticatedAdminTransfersRoute =
   AuthenticatedAdminTransfersRouteImport.update({
     id: '/admin/transfers',
     path: '/admin/transfers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminTomorrowOrdersRoute =
+  AuthenticatedAdminTomorrowOrdersRouteImport.update({
+    id: '/admin/tomorrow-orders',
+    path: '/admin/tomorrow-orders',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminSuppliersRoute =
@@ -245,12 +259,14 @@ export interface FileRoutesByFullPath {
   '/admin/products': typeof AuthenticatedAdminProductsRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/suppliers': typeof AuthenticatedAdminSuppliersRoute
+  '/admin/tomorrow-orders': typeof AuthenticatedAdminTomorrowOrdersRoute
   '/admin/transfers': typeof AuthenticatedAdminTransfersRoute
   '/employee/history': typeof AuthenticatedEmployeeHistoryRoute
   '/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
   '/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
   '/employee/pending': typeof AuthenticatedEmployeePendingRoute
   '/employee/today': typeof AuthenticatedEmployeeTodayRoute
+  '/employee/tomorrow': typeof AuthenticatedEmployeeTomorrowRoute
   '/accountant/': typeof AuthenticatedAccountantIndexRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/employee/': typeof AuthenticatedEmployeeIndexRoute
@@ -278,12 +294,14 @@ export interface FileRoutesByTo {
   '/admin/products': typeof AuthenticatedAdminProductsRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/suppliers': typeof AuthenticatedAdminSuppliersRoute
+  '/admin/tomorrow-orders': typeof AuthenticatedAdminTomorrowOrdersRoute
   '/admin/transfers': typeof AuthenticatedAdminTransfersRoute
   '/employee/history': typeof AuthenticatedEmployeeHistoryRoute
   '/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
   '/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
   '/employee/pending': typeof AuthenticatedEmployeePendingRoute
   '/employee/today': typeof AuthenticatedEmployeeTodayRoute
+  '/employee/tomorrow': typeof AuthenticatedEmployeeTomorrowRoute
   '/accountant': typeof AuthenticatedAccountantIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/employee': typeof AuthenticatedEmployeeIndexRoute
@@ -313,12 +331,14 @@ export interface FileRoutesById {
   '/_authenticated/admin/products': typeof AuthenticatedAdminProductsRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/suppliers': typeof AuthenticatedAdminSuppliersRoute
+  '/_authenticated/admin/tomorrow-orders': typeof AuthenticatedAdminTomorrowOrdersRoute
   '/_authenticated/admin/transfers': typeof AuthenticatedAdminTransfersRoute
   '/_authenticated/employee/history': typeof AuthenticatedEmployeeHistoryRoute
   '/_authenticated/employee/new-order': typeof AuthenticatedEmployeeNewOrderRoute
   '/_authenticated/employee/no-delivery': typeof AuthenticatedEmployeeNoDeliveryRoute
   '/_authenticated/employee/pending': typeof AuthenticatedEmployeePendingRoute
   '/_authenticated/employee/today': typeof AuthenticatedEmployeeTodayRoute
+  '/_authenticated/employee/tomorrow': typeof AuthenticatedEmployeeTomorrowRoute
   '/_authenticated/accountant/': typeof AuthenticatedAccountantIndexRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/employee/': typeof AuthenticatedEmployeeIndexRoute
@@ -348,12 +368,14 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/reports'
     | '/admin/suppliers'
+    | '/admin/tomorrow-orders'
     | '/admin/transfers'
     | '/employee/history'
     | '/employee/new-order'
     | '/employee/no-delivery'
     | '/employee/pending'
     | '/employee/today'
+    | '/employee/tomorrow'
     | '/accountant/'
     | '/admin/'
     | '/employee/'
@@ -381,12 +403,14 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/reports'
     | '/admin/suppliers'
+    | '/admin/tomorrow-orders'
     | '/admin/transfers'
     | '/employee/history'
     | '/employee/new-order'
     | '/employee/no-delivery'
     | '/employee/pending'
     | '/employee/today'
+    | '/employee/tomorrow'
     | '/accountant'
     | '/admin'
     | '/employee'
@@ -415,12 +439,14 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/products'
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/suppliers'
+    | '/_authenticated/admin/tomorrow-orders'
     | '/_authenticated/admin/transfers'
     | '/_authenticated/employee/history'
     | '/_authenticated/employee/new-order'
     | '/_authenticated/employee/no-delivery'
     | '/_authenticated/employee/pending'
     | '/_authenticated/employee/today'
+    | '/_authenticated/employee/tomorrow'
     | '/_authenticated/accountant/'
     | '/_authenticated/admin/'
     | '/_authenticated/employee/'
@@ -483,6 +509,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountantIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/employee/tomorrow': {
+      id: '/_authenticated/employee/tomorrow'
+      path: '/employee/tomorrow'
+      fullPath: '/employee/tomorrow'
+      preLoaderRoute: typeof AuthenticatedEmployeeTomorrowRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/employee/today': {
       id: '/_authenticated/employee/today'
       path: '/employee/today'
@@ -523,6 +556,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/transfers'
       fullPath: '/admin/transfers'
       preLoaderRoute: typeof AuthenticatedAdminTransfersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/tomorrow-orders': {
+      id: '/_authenticated/admin/tomorrow-orders'
+      path: '/admin/tomorrow-orders'
+      fullPath: '/admin/tomorrow-orders'
+      preLoaderRoute: typeof AuthenticatedAdminTomorrowOrdersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/suppliers': {
@@ -682,12 +722,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminProductsRoute: typeof AuthenticatedAdminProductsRoute
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminSuppliersRoute: typeof AuthenticatedAdminSuppliersRoute
+  AuthenticatedAdminTomorrowOrdersRoute: typeof AuthenticatedAdminTomorrowOrdersRoute
   AuthenticatedAdminTransfersRoute: typeof AuthenticatedAdminTransfersRoute
   AuthenticatedEmployeeHistoryRoute: typeof AuthenticatedEmployeeHistoryRoute
   AuthenticatedEmployeeNewOrderRoute: typeof AuthenticatedEmployeeNewOrderRoute
   AuthenticatedEmployeeNoDeliveryRoute: typeof AuthenticatedEmployeeNoDeliveryRoute
   AuthenticatedEmployeePendingRoute: typeof AuthenticatedEmployeePendingRoute
   AuthenticatedEmployeeTodayRoute: typeof AuthenticatedEmployeeTodayRoute
+  AuthenticatedEmployeeTomorrowRoute: typeof AuthenticatedEmployeeTomorrowRoute
   AuthenticatedAccountantIndexRoute: typeof AuthenticatedAccountantIndexRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedEmployeeIndexRoute: typeof AuthenticatedEmployeeIndexRoute
@@ -714,12 +756,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminProductsRoute: AuthenticatedAdminProductsRoute,
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminSuppliersRoute: AuthenticatedAdminSuppliersRoute,
+  AuthenticatedAdminTomorrowOrdersRoute: AuthenticatedAdminTomorrowOrdersRoute,
   AuthenticatedAdminTransfersRoute: AuthenticatedAdminTransfersRoute,
   AuthenticatedEmployeeHistoryRoute: AuthenticatedEmployeeHistoryRoute,
   AuthenticatedEmployeeNewOrderRoute: AuthenticatedEmployeeNewOrderRoute,
   AuthenticatedEmployeeNoDeliveryRoute: AuthenticatedEmployeeNoDeliveryRoute,
   AuthenticatedEmployeePendingRoute: AuthenticatedEmployeePendingRoute,
   AuthenticatedEmployeeTodayRoute: AuthenticatedEmployeeTodayRoute,
+  AuthenticatedEmployeeTomorrowRoute: AuthenticatedEmployeeTomorrowRoute,
   AuthenticatedAccountantIndexRoute: AuthenticatedAccountantIndexRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedEmployeeIndexRoute: AuthenticatedEmployeeIndexRoute,
