@@ -67,7 +67,7 @@ function OrdersPage() {
   });
 
   const receipts = useQuery({
-    queryKey: ["admin-receipts", from, to, supplierId],
+    queryKey: ["admin-receipts", from, to, supplierId, branchId],
     queryFn: async () => {
       let q = supabase.from("receipts")
         .select("id,received_at,status,total_ordered,total_received,total_accepted,total_damaged,total_short,total_over,telegram_notification_status,telegram_sent_at,telegram_message_id,telegram_error,supplier:suppliers(name),employee:employees(full_name),order:orders(order_number)")
