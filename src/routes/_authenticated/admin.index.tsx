@@ -52,18 +52,18 @@ function AdminHome() {
       const startOfTodayUTC = new Date(`${todayRiyadh}T00:00:00+03:00`).toISOString();
       const weekAgo = new Date(Date.now() - 14 * 86400000).toISOString();
       const [pending, todayR, unappr, invMatch, invUnmatch, invReady, weekReceipts] = await Promise.all([
-        supabase.from("v_orders_effective").select("id", { count: "exact", head: true }).eq("effective_status", "pending_receipt"),
-        supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", startOfTodayUTC),
-        supabase.from("receipts").select("id", { count: "exact", head: true }).eq("status", "submitted"),
+        onBranch(supabase.from("v_orders_effective").select("id", { count: "exact", head: true }).eq("effective_status", "pending_receipt")),
+        onBranch(supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", startOfTodayUTC)),
+        onBranch(supabase.from("receipts").select("id", { count: "exact", head: true }).eq("status", "submitted")),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "pending_match"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "unmatched"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "matched_ready"),
-        supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", weekAgo),
+        onBranch(supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", weekAgo)),
       ]);
-      const damagedSum = await supabase
-        .from("receipts").select("total_damaged").gte("received_at", weekAgo);
-      const shortSum = await supabase
-        .from("receipts").select("total_short").gte("received_at", weekAgo);
+      const damagedSum = await onBranch(
+        supabase.from("receipts").select("total_damaged").gte("received_at", weekAgo));
+      const shortSum = await onBranch(
+        supabase.from("receipts").select("total_short").gte("received_at", weekAgo));
       const sum = (rows: { total_damaged?: number; total_short?: number }[] | null, k: "total_damaged" | "total_short") =>
         (rows ?? []).reduce((a, r) => a + Number(r[k] ?? 0), 0);
       return {
