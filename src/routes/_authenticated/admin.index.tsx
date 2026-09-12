@@ -342,6 +342,10 @@ function AdminHome() {
 
   return (
     <AppShell title="لوحة الإدارة">
+      <div className="mb-3 text-sm text-muted-foreground flex items-center gap-2">
+        <Building2 className="w-4 h-4 text-primary" />
+        <span>المؤشرات المعروضة لـ: <span className="font-bold text-foreground">{branchLabel}</span></span>
+      </div>
       <div className="grid grid-cols-2 gap-3 mb-6">
         {cards.map((c) => {
           const clickable = !!c.onClick;
