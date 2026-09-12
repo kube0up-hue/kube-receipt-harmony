@@ -185,6 +185,7 @@ export const upsertEmployee = createServerFn({ method: "POST" })
           full_name: data.full_name,
           pin_code: data.pin_code,
           branch: data.branch ?? null,
+          branch_id: branchId,
           is_active: data.is_active,
         })
         .eq("id", data.id);
@@ -202,6 +203,7 @@ export const upsertEmployee = createServerFn({ method: "POST" })
         full_name: data.full_name,
         pin_code: data.pin_code,
         branch: data.branch ?? null,
+        branch_id: branchId,
         is_active: data.is_active,
       })
       .select("id")
