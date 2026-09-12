@@ -138,6 +138,7 @@ export const upsertEmployee = createServerFn({ method: "POST" })
       full_name: z.string().trim().min(2).max(80),
       pin_code: z.string().trim().regex(/^\d{4,8}$/, "PIN يجب أن يكون أرقاماً 4-8 خانات"),
       branch: z.string().trim().max(80).optional().nullable(),
+      branch_id: z.string().uuid().optional().nullable(),
       is_active: z.boolean().default(true),
     }).parse(input),
   )
@@ -162,6 +163,15 @@ export const upsertEmployee = createServerFn({ method: "POST" })
       .maybeSingle();
     if (dup && dup.id !== data.id) throw new Error("رقم PIN مستخدم لموظف آخر");
 
+    // الفرع إلزامي — يُستكمل من فرع نخلة عند عدم التحديد
+    let branchId = data.branch_id ?? null;
+    if (!branchId) {
+      const { data: def } = await supabaseAdmin
+        .from("branches").select("id").eq("code", "nakhla").maybeSingle();
+      branchId = def?.id ?? null;
+    }
+    if (!branchId) throw new Error("لا يوجد فرع افتراضي — أضف الفروع أولاً");
+
     if (data.id) {
       // If PIN changed and user_id exists, update password
       const { data: existing } = await supabaseAdmin
@@ -175,6 +185,7 @@ export const upsertEmployee = createServerFn({ method: "POST" })
           full_name: data.full_name,
           pin_code: data.pin_code,
           branch: data.branch ?? null,
+          branch_id: branchId,
           is_active: data.is_active,
         })
         .eq("id", data.id);
@@ -192,6 +203,7 @@ export const upsertEmployee = createServerFn({ method: "POST" })
         full_name: data.full_name,
         pin_code: data.pin_code,
         branch: data.branch ?? null,
+        branch_id: branchId,
         is_active: data.is_active,
       })
       .select("id")
@@ -221,7 +233,7 @@ export const listEmployeesAdmin = createServerFn({ method: "GET" })
 
     const { data, error } = await supabaseAdmin
       .from("employees")
-      .select("id, full_name, pin_code, branch, is_active")
+      .select("id, full_name, pin_code, branch, is_active, branch_id, branches(name)")
       .order("full_name");
     if (error) throw new Error(error.message);
     return data ?? [];

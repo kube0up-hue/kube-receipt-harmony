@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Send, RotateCw, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
 import { riyadhDayEndExclusive, riyadhDayOffset, riyadhDayStart, riyadhToday } from "@/lib/riyadh-time";
 import { PermissionGuard } from "@/components/permission-guard";
+import { useBranchFilter } from "@/lib/use-branches";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
   component: () => (
@@ -35,6 +36,7 @@ function OrdersPage() {
   const resendFn = useServerFn(resendReceiptTelegram);
   const { data: cu } = useCurrentUser();
   const isAdmin = !!cu?.roles?.includes("admin");
+  const { branchId } = useBranchFilter();
 
   async function handleResend(receiptId: string, currentStatus: string) {
     if (!isAdmin) { toast.error("صلاحية المدير مطلوبة"); return; }
@@ -67,7 +69,7 @@ function OrdersPage() {
   });
 
   const receipts = useQuery({
-    queryKey: ["admin-receipts", from, to, supplierId],
+    queryKey: ["admin-receipts", from, to, supplierId, branchId],
     queryFn: async () => {
       let q = supabase.from("receipts")
         .select("id,received_at,status,total_ordered,total_received,total_accepted,total_damaged,total_short,total_over,telegram_notification_status,telegram_sent_at,telegram_message_id,telegram_error,supplier:suppliers(name),employee:employees(full_name),order:orders(order_number)")
@@ -76,6 +78,7 @@ function OrdersPage() {
         .order("received_at", { ascending: false })
         .limit(1000);
       if (supplierId) q = q.eq("supplier_id", supplierId);
+      if (branchId) q = q.eq("branch_id", branchId);
       const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
@@ -83,13 +86,14 @@ function OrdersPage() {
   });
 
   const orders = useQuery({
-    queryKey: ["admin-orders", from, to, supplierId],
+    queryKey: ["admin-orders", from, to, supplierId, branchId],
     queryFn: async () => {
       let q = supabase.from("orders")
         .select("id,order_number,order_date,status,supplier:suppliers(name),employee:employees(full_name)")
         .gte("order_date", from).lte("order_date", to)
         .order("order_date", { ascending: false }).limit(1000);
       if (supplierId) q = q.eq("supplier_id", supplierId);
+      if (branchId) q = q.eq("branch_id", branchId);
       const { data, error } = await q;
       if (error) throw error;
       return data ?? [];

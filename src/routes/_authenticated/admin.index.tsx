@@ -4,9 +4,10 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ShieldCheck, AlertTriangle, CheckCircle2, Building2 } from "lucide-react";
 import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
 import { ReceiptItemPhotos } from "@/features/receipt-photo-viewer";
+import { useBranchFilter } from "@/lib/use-branches";
 
 
 export const Route = createFileRoute("/_authenticated/admin/")({
@@ -35,8 +36,12 @@ interface DetailRow {
 
 
 function AdminHome() {
+  const { branchId, label: branchLabel } = useBranchFilter();
+  const onBranch = <T extends { eq: (c: string, v: string) => T }>(q: T): T =>
+    branchId ? q.eq("branch_id", branchId) : q;
+
   const stats = useQuery({
-    queryKey: ["admin-stats"],
+    queryKey: ["admin-stats", branchId],
     queryFn: async () => {
       // بداية اليوم بتوقيت الرياض (UTC+3) كلحظة UTC
       const riyadhParts = new Intl.DateTimeFormat("en-CA", {
@@ -47,18 +52,18 @@ function AdminHome() {
       const startOfTodayUTC = new Date(`${todayRiyadh}T00:00:00+03:00`).toISOString();
       const weekAgo = new Date(Date.now() - 14 * 86400000).toISOString();
       const [pending, todayR, unappr, invMatch, invUnmatch, invReady, weekReceipts] = await Promise.all([
-        supabase.from("v_orders_effective").select("id", { count: "exact", head: true }).eq("effective_status", "pending_receipt"),
-        supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", startOfTodayUTC),
-        supabase.from("receipts").select("id", { count: "exact", head: true }).eq("status", "submitted"),
+        onBranch(supabase.from("v_orders_effective").select("id", { count: "exact", head: true }).eq("effective_status", "pending_receipt")),
+        onBranch(supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", startOfTodayUTC)),
+        onBranch(supabase.from("receipts").select("id", { count: "exact", head: true }).eq("status", "submitted")),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "pending_match"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "unmatched"),
         supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "matched_ready"),
-        supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", weekAgo),
+        onBranch(supabase.from("receipts").select("id", { count: "exact", head: true }).gte("received_at", weekAgo)),
       ]);
-      const damagedSum = await supabase
-        .from("receipts").select("total_damaged").gte("received_at", weekAgo);
-      const shortSum = await supabase
-        .from("receipts").select("total_short").gte("received_at", weekAgo);
+      const damagedSum = await onBranch(
+        supabase.from("receipts").select("total_damaged").gte("received_at", weekAgo));
+      const shortSum = await onBranch(
+        supabase.from("receipts").select("total_short").gte("received_at", weekAgo));
       const sum = (rows: { total_damaged?: number; total_short?: number }[] | null, k: "total_damaged" | "total_short") =>
         (rows ?? []).reduce((a, r) => a + Number(r[k] ?? 0), 0);
       return {
@@ -190,13 +195,13 @@ function AdminHome() {
 
   const detail = useQuery({
     enabled: openDetail !== null,
-    queryKey: ["admin-stats-detail", openDetail],
+    queryKey: ["admin-stats-detail", openDetail, branchId],
     queryFn: async () => {
       const weekAgo = new Date(Date.now() - 14 * 86400000).toISOString();
-      const { data: receipts } = await supabase
+      const { data: receipts } = await onBranch(supabase
         .from("receipts")
         .select("id, received_at, order_id, orders(order_number, suppliers(name)), receipt_items(ordered_qty, received_qty, accepted_qty, damaged_qty, diff, note, products(id, name, unit)), receipt_photos(storage_path, product_id)")
-        .gte("received_at", weekAgo)
+        .gte("received_at", weekAgo))
         .order("received_at", { ascending: false });
       const rows: DetailRow[] = [];
       (receipts ?? []).forEach((r: any) => {
@@ -256,6 +261,7 @@ function AdminHome() {
     { to: "/admin/dues", label: "المبالغ المستحقة للسداد", icon: Wallet },
     { to: "/admin/reports", label: "التقارير", icon: BarChart3 },
     { to: "/admin/permissions", label: "صلاحيات المستخدمين", icon: ShieldCheck },
+    { to: "/admin/branches", label: "الفروع ووصول المستخدمين", icon: Building2 },
   ];
 
   const totalQty = (detail.data ?? []).reduce((a, r) => a + r.qty, 0);
@@ -336,6 +342,10 @@ function AdminHome() {
 
   return (
     <AppShell title="لوحة الإدارة">
+      <div className="mb-3 text-sm text-muted-foreground flex items-center gap-2">
+        <Building2 className="w-4 h-4 text-primary" />
+        <span>المؤشرات المعروضة لـ: <span className="font-bold text-foreground">{branchLabel}</span></span>
+      </div>
       <div className="grid grid-cols-2 gap-3 mb-6">
         {cards.map((c) => {
           const clickable = !!c.onClick;
