@@ -35,6 +35,7 @@ function OrdersPage() {
   const resendFn = useServerFn(resendReceiptTelegram);
   const { data: cu } = useCurrentUser();
   const isAdmin = !!cu?.roles?.includes("admin");
+  const { branchId } = useBranchFilter();
 
   async function handleResend(receiptId: string, currentStatus: string) {
     if (!isAdmin) { toast.error("صلاحية المدير مطلوبة"); return; }
