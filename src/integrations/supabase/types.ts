@@ -19,37 +19,88 @@ export type Database = {
           action: string
           actor_name: string | null
           actor_user: string | null
+          branch_id: string | null
           created_at: string
           details: Json | null
           entity: string
           entity_id: string | null
           id: string
+          new_value: Json | null
+          old_value: Json | null
         }
         Insert: {
           action: string
           actor_name?: string | null
           actor_user?: string | null
+          branch_id?: string | null
           created_at?: string
           details?: Json | null
           entity: string
           entity_id?: string | null
           id?: string
+          new_value?: Json | null
+          old_value?: Json | null
         }
         Update: {
           action?: string
           actor_name?: string | null
           actor_user?: string | null
+          branch_id?: string | null
           created_at?: string
           details?: Json | null
           entity?: string
           entity_id?: string | null
           id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      branches: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          kind: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
       employees: {
         Row: {
           branch: string | null
+          branch_id: string
           created_at: string
           full_name: string
           id: string
@@ -60,6 +111,7 @@ export type Database = {
         }
         Insert: {
           branch?: string | null
+          branch_id: string
           created_at?: string
           full_name: string
           id?: string
@@ -70,6 +122,7 @@ export type Database = {
         }
         Update: {
           branch?: string | null
+          branch_id?: string
           created_at?: string
           full_name?: string
           id?: string
@@ -78,7 +131,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "employees_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoice_items: {
         Row: {
@@ -292,6 +353,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          branch_id: string
           created_at: string
           created_by_user: string | null
           employee_id: string
@@ -305,6 +367,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          branch_id: string
           created_at?: string
           created_by_user?: string | null
           employee_id: string
@@ -318,6 +381,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          branch_id?: string
           created_at?: string
           created_by_user?: string | null
           employee_id?: string
@@ -331,6 +395,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_employee_id_fkey"
             columns: ["employee_id"]
@@ -568,6 +639,7 @@ export type Database = {
         Row: {
           approved_at: string | null
           approved_by: string | null
+          branch_id: string
           created_at: string
           employee_id: string
           id: string
@@ -592,6 +664,7 @@ export type Database = {
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
+          branch_id: string
           created_at?: string
           employee_id: string
           id?: string
@@ -616,6 +689,7 @@ export type Database = {
         Update: {
           approved_at?: string | null
           approved_by?: string | null
+          branch_id?: string
           created_at?: string
           employee_id?: string
           id?: string
@@ -638,6 +712,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "receipts_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "receipts_employee_id_fkey"
             columns: ["employee_id"]
@@ -706,6 +787,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      user_branches: {
+        Row: {
+          branch_id: string
+          created_at: string
+          granted_by: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_branches_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_permissions: {
         Row: {
@@ -899,7 +1012,39 @@ export type Database = {
         | "reports_dues"
         | "reports_export"
         | "reports_integrity"
-      app_role: "admin" | "accountant" | "branch_employee"
+        | "branches_manage"
+        | "branches_view_all"
+        | "inventory_view"
+        | "inventory_transfer"
+        | "inventory_receive_transfer"
+        | "inventory_adjust"
+        | "count_perform"
+        | "count_review"
+        | "count_approve"
+        | "count_edit_approved"
+        | "waste_record"
+        | "waste_view"
+        | "quality_record"
+        | "quality_view"
+        | "sales_record"
+        | "sales_review"
+        | "sales_edit_approved"
+        | "recipes_manage"
+        | "schedules_manage"
+        | "employees_manage"
+        | "orders_create"
+        | "orders_approve"
+        | "orders_receive"
+        | "tomorrow_orders_create"
+        | "tomorrow_orders_approve"
+        | "alerts_view"
+      app_role:
+        | "admin"
+        | "accountant"
+        | "branch_employee"
+        | "owner"
+        | "branch_manager"
+        | "operations"
       billing_cycle: "weekly" | "biweekly" | "monthly" | "custom"
       invoice_match_status:
         | "matched"
@@ -1078,8 +1223,41 @@ export const Constants = {
         "reports_dues",
         "reports_export",
         "reports_integrity",
+        "branches_manage",
+        "branches_view_all",
+        "inventory_view",
+        "inventory_transfer",
+        "inventory_receive_transfer",
+        "inventory_adjust",
+        "count_perform",
+        "count_review",
+        "count_approve",
+        "count_edit_approved",
+        "waste_record",
+        "waste_view",
+        "quality_record",
+        "quality_view",
+        "sales_record",
+        "sales_review",
+        "sales_edit_approved",
+        "recipes_manage",
+        "schedules_manage",
+        "employees_manage",
+        "orders_create",
+        "orders_approve",
+        "orders_receive",
+        "tomorrow_orders_create",
+        "tomorrow_orders_approve",
+        "alerts_view",
       ],
-      app_role: ["admin", "accountant", "branch_employee"],
+      app_role: [
+        "admin",
+        "accountant",
+        "branch_employee",
+        "owner",
+        "branch_manager",
+        "operations",
+      ],
       billing_cycle: ["weekly", "biweekly", "monthly", "custom"],
       invoice_match_status: [
         "matched",
