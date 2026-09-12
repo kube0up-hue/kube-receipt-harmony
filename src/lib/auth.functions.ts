@@ -233,7 +233,7 @@ export const listEmployeesAdmin = createServerFn({ method: "GET" })
 
     const { data, error } = await supabaseAdmin
       .from("employees")
-      .select("id, full_name, pin_code, branch, is_active")
+      .select("id, full_name, pin_code, branch, is_active, branch_id, branches(name)")
       .order("full_name");
     if (error) throw new Error(error.message);
     return data ?? [];
