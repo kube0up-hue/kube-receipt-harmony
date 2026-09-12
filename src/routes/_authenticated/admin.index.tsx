@@ -258,7 +258,7 @@ function AdminHome() {
     { to: "/admin/inventory", label: "المخزون", icon: Boxes },
     { to: "/admin/transfers", label: "تحويلات المخزون", icon: ArrowLeftRight },
     { to: "/admin/orders", label: "الطلبات والاستلامات", icon: ClipboardList },
-    { to: "/admin/tomorrow-orders", label: "طلبات الغد", icon: CalendarClock },
+    
     { to: "/admin/invoices", label: "الفواتير", icon: FileText },
     { to: "/admin/payments", label: "السداد", icon: Wallet },
     { to: "/admin/dues", label: "المبالغ المستحقة للسداد", icon: Wallet },

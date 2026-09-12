@@ -43,8 +43,6 @@ export const PERMISSIONS = [
   "orders_create",
   "orders_approve",
   "orders_receive",
-  "tomorrow_orders_create",
-  "tomorrow_orders_approve",
   "alerts_view",
 ] as const;
 
@@ -94,8 +92,6 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   orders_create: "إنشاء طلب",
   orders_approve: "اعتماد الطلبات",
   orders_receive: "استلام الطلبات",
-  tomorrow_orders_create: "تسجيل طلبات الغد",
-  tomorrow_orders_approve: "اعتماد طلبات الغد",
   alerts_view: "عرض التنبيهات",
 };
 
@@ -109,7 +105,7 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   { title: "الموردون", items: ["suppliers_view", "suppliers_write", "suppliers_delete"] },
   { title: "الفواتير والمطابقة", items: ["invoices_view", "invoices_create_match", "invoices_update", "invoices_approve", "invoices_delete"] },
   { title: "الدفعات", items: ["payments_view", "payments_create", "payments_manage"] },
-  { title: "الطلبات والاستلامات", items: ["orders_view", "orders_create", "orders_approve", "orders_receive", "tomorrow_orders_create", "tomorrow_orders_approve", "receipt_photos_view"] },
+  { title: "الطلبات والاستلامات", items: ["orders_view", "orders_create", "orders_approve", "orders_receive", "receipt_photos_view"] },
   { title: "الفروع", items: ["branches_view_all", "branches_manage"] },
   { title: "المخزون والتحويلات", items: ["inventory_view", "inventory_transfer", "inventory_receive_transfer", "inventory_adjust"] },
   { title: "الجرد", items: ["count_perform", "count_review", "count_approve", "count_edit_approved"] },
