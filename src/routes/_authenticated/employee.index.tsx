@@ -51,10 +51,6 @@ function EmployeeHome() {
           <History className="w-8 h-8" />
           <span className="font-bold text-center">سجل آخر 7 أيام</span>
         </Link>
-        <Link to="/employee/tomorrow" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition col-span-2">
-          <CalendarClock className="w-8 h-8" />
-          <span className="font-bold text-center">طلب الغد (النواقص)</span>
-        </Link>
       </div>
 
       <section>
