@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { listEmployeesAdmin, upsertEmployee } from "@/lib/auth.functions";
 import { useServerFn } from "@tanstack/react-start";
@@ -20,6 +21,7 @@ function EmployeesPage() {
   const [full_name, setFullName] = useState("");
   const [pin_code, setPin] = useState("");
   const [branchId, setBranchId] = useState("");
+  const [openId, setOpenId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!branchId && branches && branches.length > 0) setBranchId(branches[0]!.id);
