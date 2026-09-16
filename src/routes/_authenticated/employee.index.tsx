@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
-import { PlusCircle, PackageCheck, Clock, History, CalendarX, Trash2, Droplets, BadgeDollarSign, ClipboardCheck, Boxes } from "lucide-react";
+import { PlusCircle, PackageCheck, Clock, History, CalendarX, Trash2, Droplets, BadgeDollarSign, ClipboardCheck, Boxes, ArrowLeftRight, CalendarClock, BookOpen } from "lucide-react";
 import { Can } from "@/components/permission-guard";
 import { formatDateAr } from "@/lib/format-date";
 import { riyadhToday, riyadhDayStart } from "@/lib/riyadh-time";
@@ -88,7 +88,7 @@ function EmployeeHome() {
             <span className="font-bold text-center">المبيعات اليومية</span>
           </Link>
         </Can>
-        <Can anyOf={["count_perform"]}>
+        <Can anyOf={["count_perform", "count_review", "count_approve"]}>
           <Link to="/admin/counts" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
             <ClipboardCheck className="w-8 h-8" />
             <span className="font-bold text-center">الجرد</span>
@@ -98,6 +98,42 @@ function EmployeeHome() {
           <Link to="/admin/inventory" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
             <Boxes className="w-8 h-8" />
             <span className="font-bold text-center">المخزون</span>
+          </Link>
+        </Can>
+        <Can anyOf={["inventory_transfer", "inventory_receive_transfer"]}>
+          <Link to="/admin/transfers" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <ArrowLeftRight className="w-8 h-8" />
+            <span className="font-bold text-center">تحويلات المخزون</span>
+          </Link>
+        </Can>
+        <Can anyOf={["waste_view"]}>
+          <Link to="/admin/waste" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <Trash2 className="w-8 h-8" />
+            <span className="font-bold text-center">تقارير الهدر</span>
+          </Link>
+        </Can>
+        <Can anyOf={["quality_view"]}>
+          <Link to="/admin/quality" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <Droplets className="w-8 h-8" />
+            <span className="font-bold text-center">تقارير الجودة والمياه</span>
+          </Link>
+        </Can>
+        <Can anyOf={["sales_review", "sales_edit_approved"]}>
+          <Link to="/admin/sales" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <BadgeDollarSign className="w-8 h-8" />
+            <span className="font-bold text-center">مراجعة المبيعات</span>
+          </Link>
+        </Can>
+        <Can anyOf={["schedules_manage"]}>
+          <Link to="/admin/shifts" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <CalendarClock className="w-8 h-8" />
+            <span className="font-bold text-center">الدوامات</span>
+          </Link>
+        </Can>
+        <Can anyOf={["recipes_manage"]}>
+          <Link to="/admin/recipes" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <BookOpen className="w-8 h-8" />
+            <span className="font-bold text-center">الوصفات</span>
           </Link>
         </Can>
       </div>
