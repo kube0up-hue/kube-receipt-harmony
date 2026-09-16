@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
-import { listEmployeesAdmin, upsertEmployee } from "@/lib/auth.functions";
+import { listEmployeesAdmin, upsertEmployee, updateEmployeeProfile, setEmployeeActive } from "@/lib/auth.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { useAccessibleBranches } from "@/lib/use-branches";
 import { toast } from "sonner";
@@ -97,30 +96,27 @@ function EmployeeProfile({ emp, onSaved }: { emp: any; onSaved: () => void }) {
   const [hireDate, setHireDate] = useState(emp.hire_date ?? "");
   const [pin, setPin] = useState(emp.pin_code ?? "");
   const [note, setNote] = useState(emp.note ?? "");
+  const updateProfile = useServerFn(updateEmployeeProfile);
+  const setActive = useServerFn(setEmployeeActive);
 
   const save = useMutation({
-    mutationFn: async () => {
-      const { error } = await supabase
-        .from("employees")
-        .update({
+    mutationFn: async () =>
+      updateProfile({
+        data: {
+          id: emp.id,
           phone: phone.trim() || null,
           job_title: jobTitle.trim() || null,
           hire_date: hireDate || null,
           pin_code: pin.trim(),
           note: note.trim() || null,
-        })
-        .eq("id", emp.id);
-      if (error) throw error;
-    },
+        },
+      }),
     onSuccess: () => { toast.success("تم حفظ بيانات الموظف"); onSaved(); },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const toggle = useMutation({
-    mutationFn: async () => {
-      const { error } = await supabase.from("employees").update({ is_active: !emp.is_active }).eq("id", emp.id);
-      if (error) throw error;
-    },
+    mutationFn: async () => setActive({ data: { id: emp.id, is_active: !emp.is_active } }),
     onSuccess: () => { toast.success("تم التحديث"); onSaved(); },
     onError: (e: Error) => toast.error(e.message),
   });

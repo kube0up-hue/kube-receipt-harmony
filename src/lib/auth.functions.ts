@@ -233,8 +233,95 @@ export const listEmployeesAdmin = createServerFn({ method: "GET" })
 
     const { data, error } = await supabaseAdmin
       .from("employees")
-      .select("id, full_name, pin_code, branch, is_active, branch_id, branches(name)")
+      .select(
+        "id, full_name, pin_code, branch, is_active, branch_id, phone, job_title, hire_date, note, branches(name)",
+      )
       .order("full_name");
     if (error) throw new Error(error.message);
     return data ?? [];
+  });
+
+/** Admin edits an employee profile (phone, job title, hire date, PIN, note). */
+export const updateEmployeeProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        phone: z.string().trim().max(30).optional().nullable(),
+        job_title: z.string().trim().max(80).optional().nullable(),
+        hire_date: z.string().trim().optional().nullable(),
+        pin_code: z.string().trim().regex(/^\d{4,8}$/, "PIN يجب أن يكون أرقاماً 4-8 خانات"),
+        note: z.string().trim().max(500).optional().nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: adminRow, error: roleErr } = await context.supabase
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (roleErr) throw new Error(roleErr.message);
+    if (!adminRow) throw new Error("غير مصرح: هذه العملية للمدير فقط");
+
+    const { data: dup } = await supabaseAdmin
+      .from("employees")
+      .select("id")
+      .eq("pin_code", data.pin_code)
+      .neq("id", data.id)
+      .maybeSingle();
+    if (dup) throw new Error("رقم PIN مستخدم لموظف آخر");
+
+    const { data: existing } = await supabaseAdmin
+      .from("employees")
+      .select("user_id, pin_code")
+      .eq("id", data.id)
+      .maybeSingle();
+
+    const { error } = await supabaseAdmin
+      .from("employees")
+      .update({
+        phone: data.phone || null,
+        job_title: data.job_title || null,
+        hire_date: data.hire_date || null,
+        pin_code: data.pin_code,
+        note: data.note || null,
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    if (existing?.user_id && existing.pin_code !== data.pin_code) {
+      await supabaseAdmin.auth.admin.updateUserById(existing.user_id, {
+        password: pinToPassword(data.pin_code),
+      });
+    }
+    return { ok: true };
+  });
+
+/** Admin activates/deactivates an employee. */
+export const setEmployeeActive = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ id: z.string().uuid(), is_active: z.boolean() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: adminRow, error: roleErr } = await context.supabase
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (roleErr) throw new Error(roleErr.message);
+    if (!adminRow) throw new Error("غير مصرح: هذه العملية للمدير فقط");
+
+    const { error } = await supabaseAdmin
+      .from("employees")
+      .update({ is_active: data.is_active })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
