@@ -38,10 +38,12 @@ function OverviewPage() {
         bq<any>(supabase.from("stock_levels").select("qty, products(name, min_qty), branches(name)")),
         bq<any>(supabase.from("count_sessions").select("id, status, count_date, branches(name)").in("status", ["open", "in_progress", "submitted", "reviewed"])),
         bq<any>(supabase.from("quality_readings").select("id, status, value, reading_at, quality_metrics(label), branches(name)").neq("status", "ok").gte("reading_at", daysAgo(7))),
-        bq<any>(supabase.from("daily_sales").select("id, sales_date, total_amount, status, branches(name)").gte("sales_date", daysAgo(7).slice(0, 10))),
-        bq<any>(supabase.from("waste_entries").select("qty, value_amount, created_at").gte("created_at", daysAgo(7))),
+        bq<any>(supabase.from("daily_sales").select("id, sales_date, total_sales, status, branches(name)").gte("sales_date", daysAgo(7).slice(0, 10))),
+        bq<any>(supabase.from("waste_entries").select("qty, waste_value, created_at").gte("created_at", daysAgo(7))),
         supabase.from("invoices").select("id, invoice_number, status, total_amount").in("status", ["pending_match", "unmatched", "approved_for_payment"]),
-        bq<any>(supabase.from("stock_transfers").select("id, status").eq("status", "sent")),
+        (branchId
+          ? supabase.from("stock_transfers").select("id, status").eq("status", "sent").or(`from_branch_id.eq.${branchId},to_branch_id.eq.${branchId}`)
+          : supabase.from("stock_transfers").select("id, status").eq("status", "sent")) as any,
       ]);
 
       const lowStock = ((low.data ?? []) as any[]).filter(
