@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { RoleGuard } from "@/components/permission-guard";
 import { useBranchFilter } from "@/lib/use-branches";
+import { formatMoneySar } from "@/lib/money";
 import { AlertTriangle, ChevronLeft } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/overview")({
@@ -79,7 +80,7 @@ function OverviewPage() {
     if (d.invoices.length) alerts.push({ text: `${d.invoices.length} فاتورة معلّقة`, to: "/admin/invoices" });
   }
 
-  const money = (n: number) => `${n.toLocaleString("ar-SA", { maximumFractionDigits: 2 })} ر.س`;
+  const money = (n: number) => formatMoneySar(n);
 
   const cards = [
     { label: "مبيعات معتمدة (7 أيام)", v: d ? money(d.salesTotal) : "—" },
