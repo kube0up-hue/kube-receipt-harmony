@@ -64,6 +64,60 @@ export type Database = {
           },
         ]
       }
+      ai_kubeup_generations: {
+        Row: {
+          aspect_ratio: string
+          brand_mode: boolean
+          created_at: string
+          created_by: string | null
+          error_message: string | null
+          final_prompt: string
+          generated_image_path: string | null
+          generated_image_url: string | null
+          id: string
+          model_name: string
+          prompt: string
+          reference_images: Json
+          resolution: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          aspect_ratio?: string
+          brand_mode?: boolean
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          final_prompt: string
+          generated_image_path?: string | null
+          generated_image_url?: string | null
+          id?: string
+          model_name?: string
+          prompt: string
+          reference_images?: Json
+          resolution?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          aspect_ratio?: string
+          brand_mode?: boolean
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          final_prompt?: string
+          generated_image_path?: string | null
+          generated_image_url?: string | null
+          id?: string
+          model_name?: string
+          prompt?: string
+          reference_images?: Json
+          resolution?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       branches: {
         Row: {
           code: string
