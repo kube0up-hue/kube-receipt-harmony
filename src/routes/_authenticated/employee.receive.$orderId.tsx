@@ -11,8 +11,24 @@ import { useServerFn } from "@tanstack/react-start";
 import { notifyReceiptApproved } from "@/lib/telegram.functions";
 import { removePendingOrderFromCache, refreshOrderQueries } from "@/lib/use-pending-orders";
 
+import { PermissionGuard } from "@/components/permission-guard";
+
 export const Route = createFileRoute("/_authenticated/employee/receive/$orderId")({
-  component: ReceivePage,
+  head: () => ({
+    meta: [
+      { title: "استلام طلب — KUBE Kitchen" },
+      { name: "description", content: "استلام أصناف طلب مورد في فرع KUBE بالكميات المستلمة والتالفة وصور الإثبات." },
+      { property: "og:title", content: "استلام طلب — KUBE Kitchen" },
+      { property: "og:description", content: "تسجيل الاستلام بالصور وتحديث المخزون." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <PermissionGuard anyOf={["orders_receive"]}>
+      <ReceivePage />
+    </PermissionGuard>
+  ),
 });
 
 interface Line {

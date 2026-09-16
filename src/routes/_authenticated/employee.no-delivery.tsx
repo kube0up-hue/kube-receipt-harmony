@@ -5,8 +5,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { toast } from "sonner";
 
+import { PermissionGuard } from "@/components/permission-guard";
+
 export const Route = createFileRoute("/_authenticated/employee/no-delivery")({
-  component: NoDeliveryPage,
+  head: () => ({
+    meta: [
+      { title: "تسجيل عدم توريد — KUBE Kitchen" },
+      { name: "description", content: "تسجيل عدم وصول توريد من مورد لفرع KUBE مع سبب التوثيق." },
+      { property: "og:title", content: "تسجيل عدم توريد — KUBE Kitchen" },
+      { property: "og:description", content: "توثيق أيام عدم التوريد لكل مورد." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <PermissionGuard anyOf={["orders_receive", "orders_create"]}>
+      <NoDeliveryPage />
+    </PermissionGuard>
+  ),
 });
 
 function NoDeliveryPage() {

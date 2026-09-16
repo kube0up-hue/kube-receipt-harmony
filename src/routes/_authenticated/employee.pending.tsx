@@ -4,8 +4,24 @@ import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
 import { usePendingOrders } from "@/lib/use-pending-orders";
 import { RefreshCw } from "lucide-react";
 
+import { PermissionGuard } from "@/components/permission-guard";
+
 export const Route = createFileRoute("/_authenticated/employee/pending")({
-  component: PendingPage,
+  head: () => ({
+    meta: [
+      { title: "طلبات بانتظار الاستلام — KUBE Kitchen" },
+      { name: "description", content: "الطلبات المرسلة للموردين والتي لم تُستلم بعد في فرع KUBE." },
+      { property: "og:title", content: "طلبات بانتظار الاستلام — KUBE Kitchen" },
+      { property: "og:description", content: "متابعة الطلبات المعلّقة قبل الاستلام." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <PermissionGuard anyOf={["orders_view", "orders_create", "orders_receive"]}>
+      <PendingPage />
+    </PermissionGuard>
+  ),
 });
 
 function PendingPage() {
