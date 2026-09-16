@@ -8,8 +8,24 @@ import { Trash2 } from "lucide-react";
 import { refreshOrderQueries } from "@/lib/use-pending-orders";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { PermissionGuard } from "@/components/permission-guard";
+
 export const Route = createFileRoute("/_authenticated/employee/new-order")({
-  component: NewOrderPage,
+  head: () => ({
+    meta: [
+      { title: "تسجيل طلب جديد — KUBE Kitchen" },
+      { name: "description", content: "تسجيل طلب أصناف من مورد لفرع KUBE مع الكميات وتاريخ التسليم المتوقع." },
+      { property: "og:title", content: "تسجيل طلب جديد — KUBE Kitchen" },
+      { property: "og:description", content: "طلب أصناف من الموردين بخطوة واحدة." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <PermissionGuard anyOf={["orders_create"]}>
+      <NewOrderPage />
+    </PermissionGuard>
+  ),
 });
 
 interface Line { productId: string; qty: string }

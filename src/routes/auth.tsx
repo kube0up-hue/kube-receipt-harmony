@@ -27,8 +27,10 @@ function AuthPage() {
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => { checkAdmin().then((r) => setHasAdmin(r.exists)).catch(() => setHasAdmin(true)); }, [checkAdmin]);
 
-  // First paint must match the server output exactly (this route is client-rendered).
-  if (!mounted || hasAdmin === null) {
+  // هذا المسار ssr:false — الخادم لا يرسم شيئاً، فأول رسمة في المتصفح يجب أن تكون فارغة أيضاً.
+  if (!mounted) return null;
+
+  if (hasAdmin === null) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
         <img src={"/kube-logo.png"} alt="KUBE" className="h-32 sm:h-40 w-auto opacity-70" />

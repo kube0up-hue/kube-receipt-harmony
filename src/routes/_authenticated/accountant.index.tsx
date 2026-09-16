@@ -6,8 +6,24 @@ import { FileText, Truck, ClipboardCheck, AlertTriangle, CheckCircle2, XCircle, 
 import { usePermissions } from "@/lib/use-permissions";
 import type { Permission } from "@/lib/permissions";
 
+import { PermissionGuard } from "@/components/permission-guard";
+
 export const Route = createFileRoute("/_authenticated/accountant/")({
-  component: AccountantHome,
+  head: () => ({
+    meta: [
+      { title: "لوحة المحاسب — KUBE Kitchen" },
+      { name: "description", content: "فواتير موردي KUBE ومطابقتها والدفعات والمبالغ المستحقة للسداد." },
+      { property: "og:title", content: "لوحة المحاسب — KUBE Kitchen" },
+      { property: "og:description", content: "إدارة الفواتير والمستحقات." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <PermissionGuard anyOf={["invoices_view", "suppliers_view", "reports_dues", "payments_view"]}>
+      <AccountantHome />
+    </PermissionGuard>
+  ),
 });
 
 function AccountantHome() {

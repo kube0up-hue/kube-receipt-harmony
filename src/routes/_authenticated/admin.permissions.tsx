@@ -14,6 +14,7 @@ import {
 } from "@/lib/permissions";
 import { ShieldCheck, Save, RotateCcw, Check, User } from "lucide-react";
 import { usePermissions } from "@/lib/use-permissions";
+import { RoleGuard } from "@/components/permission-guard";
 
 export const Route = createFileRoute("/_authenticated/admin/permissions")({
   head: () => ({
@@ -26,7 +27,11 @@ export const Route = createFileRoute("/_authenticated/admin/permissions")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: PermissionsPage,
+  component: () => (
+    <RoleGuard>
+      <PermissionsPage />
+    </RoleGuard>
+  ),
 });
 
 const ROLE_LABELS: Record<string, string> = {

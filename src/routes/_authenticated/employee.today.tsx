@@ -5,8 +5,24 @@ import { AppShell, StatusBadge } from "@/components/app-shell";
 import { formatDateTimeAr } from "@/lib/format-date";
 import { riyadhToday, riyadhDayStart } from "@/lib/riyadh-time";
 
+import { PermissionGuard } from "@/components/permission-guard";
+
 export const Route = createFileRoute("/_authenticated/employee/today")({
-  component: TodayPage,
+  head: () => ({
+    meta: [
+      { title: "استلامات اليوم — KUBE Kitchen" },
+      { name: "description", content: "استلامات فرع KUBE لهذا اليوم بالكميات المستلمة والتالفة." },
+      { property: "og:title", content: "استلامات اليوم — KUBE Kitchen" },
+      { property: "og:description", content: "ملخص استلامات اليوم في الفرع." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <PermissionGuard anyOf={["orders_view", "orders_create", "orders_receive"]}>
+      <TodayPage />
+    </PermissionGuard>
+  ),
 });
 
 function TodayPage() {

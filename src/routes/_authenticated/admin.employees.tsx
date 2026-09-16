@@ -7,9 +7,24 @@ import { useServerFn } from "@tanstack/react-start";
 import { useAccessibleBranches } from "@/lib/use-branches";
 import { toast } from "sonner";
 import { UserPlus } from "lucide-react";
+import { RoleGuard } from "@/components/permission-guard";
 
 export const Route = createFileRoute("/_authenticated/admin/employees")({
-  component: EmployeesPage,
+  head: () => ({
+    meta: [
+      { title: "الموظفون — KUBE Kitchen" },
+      { name: "description", content: "إضافة موظفي فروع KUBE وتعديل ملفاتهم ورقم الدخول السري وحالة التفعيل." },
+      { property: "og:title", content: "الموظفون — KUBE Kitchen" },
+      { property: "og:description", content: "إدارة ملفات موظفي الفروع." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <RoleGuard>
+      <EmployeesPage />
+    </RoleGuard>
+  ),
 });
 
 function EmployeesPage() {

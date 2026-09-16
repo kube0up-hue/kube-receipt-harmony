@@ -11,9 +11,9 @@ type AuthedSupabase = { from: (table: string) => any };
 
 async function assertAdmin(supabase: AuthedSupabase, userId: string) {
   const { data, error } = await supabase
-    .from("user_roles").select("id").eq("user_id", userId).eq("role", "admin").maybeSingle();
+    .from("user_roles").select("role").eq("user_id", userId).in("role", ["admin", "owner"]);
   if (error) throw new Error(error.message);
-  if (!data) throw new Error("غير مصرح: إسناد الصلاحيات للمدير فقط");
+  if (!data || data.length === 0) throw new Error("غير مصرح: إسناد الصلاحيات للمالك أو المدير فقط");
 }
 
 export interface EmployeeAccessRow {
