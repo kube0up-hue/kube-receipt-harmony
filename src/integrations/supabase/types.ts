@@ -1922,6 +1922,7 @@ export type Database = {
         | "tomorrow_orders_create"
         | "tomorrow_orders_approve"
         | "alerts_view"
+        | "ai_studio_use"
       app_role:
         | "admin"
         | "accountant"
@@ -2163,6 +2164,7 @@ export const Constants = {
         "tomorrow_orders_create",
         "tomorrow_orders_approve",
         "alerts_view",
+        "ai_studio_use",
       ],
       app_role: [
         "admin",

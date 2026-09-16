@@ -1,0 +1,1 @@
+ALTER TYPE public.app_permission ADD VALUE IF NOT EXISTS 'ai_studio_use';
