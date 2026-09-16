@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedAiKubeupStudioRouteImport } from './routes/_authenticated/ai-kubeup-studio'
 import { Route as AuthenticatedEmployeeIndexRouteImport } from './routes/_authenticated/employee.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAccountantIndexRouteImport } from './routes/_authenticated/accountant.index'
@@ -68,6 +69,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAiKubeupStudioRoute =
+  AuthenticatedAiKubeupStudioRouteImport.update({
+    id: '/ai-kubeup-studio',
+    path: '/ai-kubeup-studio',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEmployeeIndexRoute =
   AuthenticatedEmployeeIndexRouteImport.update({
     id: '/employee/',
@@ -314,6 +321,7 @@ const AuthenticatedAccountantInvoicesInvoiceIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/ai-kubeup-studio': typeof AuthenticatedAiKubeupStudioRoute
   '/accountant/dues': typeof AuthenticatedAccountantDuesRoute
   '/accountant/receipts': typeof AuthenticatedAccountantReceiptsRoute
   '/accountant/suppliers': typeof AuthenticatedAccountantSuppliersRoute
@@ -359,6 +367,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/ai-kubeup-studio': typeof AuthenticatedAiKubeupStudioRoute
   '/accountant/dues': typeof AuthenticatedAccountantDuesRoute
   '/accountant/receipts': typeof AuthenticatedAccountantReceiptsRoute
   '/accountant/suppliers': typeof AuthenticatedAccountantSuppliersRoute
@@ -406,6 +415,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/ai-kubeup-studio': typeof AuthenticatedAiKubeupStudioRoute
   '/_authenticated/accountant/dues': typeof AuthenticatedAccountantDuesRoute
   '/_authenticated/accountant/receipts': typeof AuthenticatedAccountantReceiptsRoute
   '/_authenticated/accountant/suppliers': typeof AuthenticatedAccountantSuppliersRoute
@@ -453,6 +463,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/ai-kubeup-studio'
     | '/accountant/dues'
     | '/accountant/receipts'
     | '/accountant/suppliers'
@@ -498,6 +509,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/ai-kubeup-studio'
     | '/accountant/dues'
     | '/accountant/receipts'
     | '/accountant/suppliers'
@@ -544,6 +556,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/ai-kubeup-studio'
     | '/_authenticated/accountant/dues'
     | '/_authenticated/accountant/receipts'
     | '/_authenticated/accountant/suppliers'
@@ -615,6 +628,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/ai-kubeup-studio': {
+      id: '/_authenticated/ai-kubeup-studio'
+      path: '/ai-kubeup-studio'
+      fullPath: '/ai-kubeup-studio'
+      preLoaderRoute: typeof AuthenticatedAiKubeupStudioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/employee/': {
       id: '/_authenticated/employee/'
@@ -907,6 +927,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAiKubeupStudioRoute: typeof AuthenticatedAiKubeupStudioRoute
   AuthenticatedAccountantDuesRoute: typeof AuthenticatedAccountantDuesRoute
   AuthenticatedAccountantReceiptsRoute: typeof AuthenticatedAccountantReceiptsRoute
   AuthenticatedAccountantSuppliersRoute: typeof AuthenticatedAccountantSuppliersRoute
@@ -951,6 +972,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAiKubeupStudioRoute: AuthenticatedAiKubeupStudioRoute,
   AuthenticatedAccountantDuesRoute: AuthenticatedAccountantDuesRoute,
   AuthenticatedAccountantReceiptsRoute: AuthenticatedAccountantReceiptsRoute,
   AuthenticatedAccountantSuppliersRoute: AuthenticatedAccountantSuppliersRoute,

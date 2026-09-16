@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ShieldCheck, AlertTriangle, CheckCircle2, Building2, Boxes, ArrowLeftRight, ClipboardCheck, UserCog, Trash2, Droplets, BadgeDollarSign, CalendarClock, BookOpen } from "lucide-react";
+import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Download, Printer, ShieldCheck, AlertTriangle, CheckCircle2, Building2, Boxes, ArrowLeftRight, ClipboardCheck, UserCog, Trash2, Droplets, BadgeDollarSign, CalendarClock, BookOpen, Sparkles } from "lucide-react";
 import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
 import { ReceiptItemPhotos } from "@/features/receipt-photo-viewer";
 import { useBranchFilter } from "@/lib/use-branches";
@@ -288,6 +288,7 @@ function AdminHome() {
     { to: "/admin/reports", label: "التقارير", icon: BarChart3 },
     { to: "/admin/permissions", label: "صلاحيات المستخدمين", icon: ShieldCheck },
     { to: "/admin/branches", label: "الفروع ووصول المستخدمين", icon: Building2 },
+    { to: "/ai-kubeup-studio", label: "AI KUBEUP Studio", icon: Sparkles },
   ];
 
   const totalQty = (detail.data ?? []).reduce((a, r) => a + r.qty, 0);

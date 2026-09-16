@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, StatusBadge } from "@/components/app-shell";
-import { PlusCircle, PackageCheck, Clock, History, CalendarX, Trash2, Droplets, BadgeDollarSign, ClipboardCheck, Boxes, ArrowLeftRight, CalendarClock, BookOpen } from "lucide-react";
+import { PlusCircle, PackageCheck, Clock, History, CalendarX, Trash2, Droplets, BadgeDollarSign, ClipboardCheck, Boxes, ArrowLeftRight, CalendarClock, BookOpen, Sparkles } from "lucide-react";
 import { Can } from "@/components/permission-guard";
 import { formatDateAr } from "@/lib/format-date";
 import { riyadhToday, riyadhDayStart } from "@/lib/riyadh-time";
@@ -136,7 +136,14 @@ function EmployeeHome() {
             <span className="font-bold text-center">الوصفات</span>
           </Link>
         </Can>
+        <Can anyOf={["ai_studio_use"]}>
+          <Link to="/ai-kubeup-studio" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
+            <Sparkles className="w-8 h-8" />
+            <span className="font-bold text-center">AI KUBEUP Studio</span>
+          </Link>
+        </Can>
       </div>
+
 
       <Can anyOf={["orders_receive", "orders_view", "orders_create"]}>
         <section>
