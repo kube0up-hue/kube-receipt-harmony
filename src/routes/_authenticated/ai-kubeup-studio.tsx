@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Sparkles, Cpu, ScanLine } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { PermissionGuard } from "@/components/permission-guard";
 import { supabase } from "@/integrations/supabase/client";
@@ -105,24 +105,28 @@ function StudioPage() {
   }
 
   return (
-    <AppShell title="AI KUBEUP Studio">
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-extrabold">AI KUBEUP Studio</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+    <AppShell title="AI KUBEUP Studio" variant="studio">
+      <div className="font-studio-body">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-md bg-studio-accent text-studio-accent-foreground shadow-lg"><Sparkles className="h-5 w-5" /></span>
+          <div>
+          <h1 className="font-studio-display text-2xl font-extrabold tracking-normal">AI KUBEUP Studio</h1>
+          <p className="text-sm text-studio-muted mt-1">
             توليد صور KUBEUP الاحترافية من وصف نصي وصور مرجعية.
           </p>
+          </div>
         </div>
-        <StudioStatusBadge configured={configured} loading={status.isLoading} />
+        <div className="flex items-center gap-2"><span className="hidden items-center gap-1.5 rounded-md border border-studio-border bg-studio-panel px-3 py-1.5 text-xs text-studio-muted sm:flex"><Cpu className="h-3.5 w-3.5" /> Gemini Pro Image</span><span className="hidden items-center gap-1.5 rounded-md border border-studio-border bg-studio-panel px-3 py-1.5 text-xs text-studio-muted sm:flex"><ScanLine className="h-3.5 w-3.5" /> 4K</span><StudioStatusBadge configured={configured} loading={status.isLoading} /></div>
       </div>
 
       {!status.isLoading && !configured && (
-        <div className="kube-card mb-5 border-kube-red/30 bg-kube-red/5">
+        <div className="studio-panel mb-5 border-studio-accent/40 bg-studio-accent/10 p-4">
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-5 h-5 text-kube-red shrink-0 mt-0.5" />
             <div className="text-sm leading-relaxed">
               <div className="font-bold text-kube-red">مفتاح Gemini غير مُهيأ بعد</div>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-studio-muted mt-1">
                 الاستوديو جاهز بالكامل. أضف مفتاح Gemini في إعدادات الأسرار باسم <code>GEMINI_API_KEY</code>،
                 وسيبدأ التوليد بالعمل تلقائياً دون أي تغيير آخر.
               </p>
@@ -131,9 +135,16 @@ function StudioPage() {
         </div>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <ReferenceUploadPanel items={references} onChange={setReferences} disabled={generating} />
-        <PromptPanel
+      <div className="grid items-stretch gap-4 xl:grid-cols-[minmax(250px,0.8fr)_minmax(420px,1.6fr)_minmax(300px,1fr)]">
+        <div className="order-2 xl:order-1"><ReferenceUploadPanel items={references} onChange={setReferences} disabled={generating} /></div>
+        <div className="order-3 xl:order-2"><ResultPreviewPanel
+          path={resultPath}
+          prompt={prompt}
+          generating={generating}
+          error={error}
+          onRegenerate={() => void runGeneration()}
+        /></div>
+        <div className="order-1 xl:order-3"><PromptPanel
           prompt={prompt}
           onPromptChange={setPrompt}
           brandMode={brandMode}
@@ -150,14 +161,7 @@ function StudioPage() {
           generating={generating}
           disabled={!configured}
           model={AI_STUDIO_MODEL}
-        />
-        <ResultPreviewPanel
-          path={resultPath}
-          prompt={prompt}
-          generating={generating}
-          error={error}
-          onRegenerate={() => void runGeneration()}
-        />
+        /></div>
       </div>
 
       <div className="mt-4">
@@ -181,6 +185,7 @@ function StudioPage() {
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         />
+      </div>
       </div>
     </AppShell>
   );
