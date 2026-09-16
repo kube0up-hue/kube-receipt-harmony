@@ -1,5 +1,6 @@
 import { Sparkles, Eraser, Loader2 } from "lucide-react";
 import { ASPECT_RATIOS, type AspectRatio, AI_STUDIO_RESOLUTION } from "@/lib/ai-studio.functions";
+import { Button } from "@/components/ui/button";
 
 export const QUICK_PROMPTS: { label: string; text: string }[] = [
   { label: "Product Shot", text: "Studio product shot of the KUBEUP cup on a clean surface, soft directional light, crisp shadows, premium minimal styling." },
@@ -36,92 +37,92 @@ export function PromptPanel({
   model: string;
 }) {
   return (
-    <section className="kube-card space-y-3">
-      <h2 className="font-bold">الوصف</h2>
+    <section className="studio-panel flex h-full flex-col gap-4 p-4 lg:p-5">
+      <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-studio-accent" /><h2 className="text-sm font-bold">الوصف والإعدادات</h2></div>
 
       <textarea
         value={prompt}
         onChange={(e) => onPromptChange(e.target.value)}
-        rows={7}
-        className="kube-input !h-auto leading-relaxed"
+        rows={8}
+        className="studio-control min-h-52 w-full resize-none rounded-md p-4 text-sm leading-7 outline-none transition focus:border-studio-accent focus:ring-1 focus:ring-studio-accent"
         dir="auto"
         placeholder="Create a premium KUBEUP campaign image using the uploaded references. Preserve the mood and lighting of the reference image, naturally integrate the KUBEUP cup, keep the style minimal, cinematic, and premium, and generate a polished commercial result."
       />
 
       <div className="flex flex-wrap gap-2">
         {QUICK_PROMPTS.map((q) => (
-          <button
+          <Button
             key={q.label}
             type="button"
             onClick={() => onPromptChange(prompt.trim() ? `${prompt.trim()}\n${q.text}` : q.text)}
-            className="rounded-full border border-border px-3 py-1 text-xs font-bold hover:border-primary hover:bg-primary/5 transition"
+            variant="outline" size="sm" className="h-7 rounded-md border-studio-border bg-studio-bg/40 px-2 text-[11px] text-studio-muted hover:bg-studio-panel-raised hover:text-studio-foreground"
           >
             {q.label}
-          </button>
+          </Button>
         ))}
       </div>
 
-      <label className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+      <label className="flex items-center justify-between gap-3 rounded-md border border-studio-border bg-studio-bg/45 p-3">
         <span className="min-w-0">
           <span className="block font-bold text-sm">KUBEUP Brand Mode</span>
-          <span className="block text-xs text-muted-foreground">يضيف تعليمات هوية KUBEUP تلقائياً قبل التوليد</span>
+          <span className="block text-xs text-studio-muted">يضيف تعليمات هوية KUBEUP تلقائياً قبل التوليد</span>
         </span>
         <input
           type="checkbox"
           checked={brandMode}
           onChange={(e) => onBrandModeChange(e.target.checked)}
-          className="h-5 w-5 accent-[hsl(var(--primary))] shrink-0"
+          className="h-5 w-5 shrink-0 accent-studio-accent"
         />
       </label>
 
       <div>
-        <div className="text-xs text-muted-foreground mb-1.5">نسبة الصورة</div>
+        <div className="text-xs text-studio-muted mb-2">نسبة الصورة</div>
         <div className="grid grid-cols-5 gap-2">
           {ASPECT_RATIOS.map((r) => (
-            <button
+            <Button
               key={r}
               type="button"
               onClick={() => onAspectRatioChange(r)}
-              className={`rounded-lg border py-2 text-xs font-bold transition ${
-                aspectRatio === r ? "border-primary bg-primary/10" : "border-border hover:border-primary/60"
+              variant="outline" size="sm" className={`h-10 rounded-md text-xs font-bold transition ${
+                aspectRatio === r ? "border-studio-accent bg-studio-accent/10 text-studio-foreground" : "border-studio-border bg-studio-bg/40 text-studio-muted hover:bg-studio-panel-raised"
               }`}
             >
               {r}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-lg border border-border p-2">
-          <div className="text-muted-foreground">الدقة</div>
+        <div className="rounded-md border border-studio-border bg-studio-bg/40 p-3">
+          <div className="text-studio-muted">الدقة</div>
           <div className="font-bold">{AI_STUDIO_RESOLUTION}</div>
         </div>
-        <div className="rounded-lg border border-border p-2">
-          <div className="text-muted-foreground">المودل</div>
+        <div className="rounded-md border border-studio-border bg-studio-bg/40 p-3">
+          <div className="text-studio-muted">المودل</div>
           <div className="font-bold">Gemini Pro Image</div>
-          <div className="text-[10px] text-muted-foreground truncate">{model}</div>
+          <div className="text-[10px] text-studio-muted truncate">{model}</div>
         </div>
       </div>
 
-      <div className="grid grid-cols-[1fr_auto] gap-2">
-        <button
+      <div className="mt-auto grid grid-cols-[1fr_auto] gap-2 pt-2">
+        <Button
           type="button"
           onClick={onGenerate}
           disabled={generating || disabled || prompt.trim().length < 3}
-          className="kube-btn-primary inline-flex items-center justify-center gap-2 disabled:opacity-50"
+          className="h-12 bg-studio-accent font-bold text-studio-accent-foreground shadow-[0_10px_30px_color-mix(in_oklab,var(--studio-accent)_22%,transparent)] hover:bg-studio-accent/90"
         >
           {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           {generating ? "جارٍ التوليد…" : "توليد"}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
           onClick={onClear}
           disabled={generating}
-          className="kube-btn-outline inline-flex items-center gap-2 disabled:opacity-50"
+          variant="outline" className="h-12 border-studio-border bg-studio-bg/40 text-studio-foreground hover:bg-studio-panel-raised"
         >
           <Eraser className="w-4 h-4" /> تفريغ
-        </button>
+        </Button>
       </div>
     </section>
   );

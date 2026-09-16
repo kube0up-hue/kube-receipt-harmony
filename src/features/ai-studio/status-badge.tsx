@@ -4,7 +4,7 @@ import { CheckCircle2, PlugZap, Loader2 } from "lucide-react";
 export function StudioStatusBadge({ configured, loading }: { configured: boolean; loading?: boolean }) {
   if (loading) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-studio-border bg-studio-panel-raised px-3 py-1 text-xs font-bold text-studio-muted">
         <Loader2 className="w-3.5 h-3.5 animate-spin" /> جارٍ التحقق
       </span>
     );

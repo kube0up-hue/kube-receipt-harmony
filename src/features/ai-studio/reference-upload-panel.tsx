@@ -3,6 +3,7 @@ import { ImagePlus, X, Loader2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { MAX_REFERENCES } from "@/lib/ai-studio.functions";
 import { uploadReferenceImage, ALLOWED_REFERENCE_TYPES } from "@/lib/ai-studio-storage";
+import { Button } from "@/components/ui/button";
 
 export interface ReferenceItem {
   path: string;
@@ -47,10 +48,10 @@ export function ReferenceUploadPanel({
   }
 
   return (
-    <section className="kube-card space-y-3">
+    <section className="studio-panel flex h-full flex-col gap-4 p-4 lg:p-5">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="font-bold">الصور المرجعية</h2>
-        <span className="text-xs text-muted-foreground">{items.length} / {MAX_REFERENCES}</span>
+        <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-studio-accent" /><h2 className="text-sm font-bold">الصور المرجعية</h2></div>
+        <span className="rounded-md border border-studio-border bg-studio-panel-raised px-2 py-1 text-[11px] text-studio-muted">{items.length} / {MAX_REFERENCES}</span>
       </div>
 
       <div
@@ -63,17 +64,17 @@ export function ReferenceUploadPanel({
           void addFiles(Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/")));
         }}
         onClick={() => !disabled && inputRef.current?.click()}
-        className={`rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition ${
-          dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/60"
+        className={`studio-motion min-h-40 rounded-md border border-dashed p-5 text-center cursor-pointer transition ${
+          dragOver ? "border-studio-accent bg-studio-accent/10" : "border-studio-border bg-studio-bg/50 hover:border-studio-muted"
         } ${disabled ? "opacity-50 pointer-events-none" : ""}`}
       >
         {busy ? (
-          <Loader2 className="w-7 h-7 mx-auto text-primary animate-spin" />
+          <Loader2 className="w-7 h-7 mx-auto text-studio-accent animate-spin" />
         ) : (
-          <ImagePlus className="w-7 h-7 mx-auto text-primary" />
+          <ImagePlus className="w-7 h-7 mx-auto text-studio-muted" />
         )}
         <div className="mt-2 text-sm font-bold">اسحب الصور هنا أو اضغط للاختيار</div>
-        <div className="text-xs text-muted-foreground mt-1">JPG أو PNG أو WebP — حتى {MAX_REFERENCES} صور</div>
+        <div className="text-xs text-studio-muted mt-1">JPG أو PNG أو WebP — حتى {MAX_REFERENCES} صور</div>
         <input
           ref={inputRef}
           type="file"
@@ -90,36 +91,36 @@ export function ReferenceUploadPanel({
       {items.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {items.map((it) => (
-            <div key={it.path} className="relative rounded-lg overflow-hidden border border-border group">
+            <div key={it.path} className="relative rounded-md overflow-hidden border border-studio-border group">
               <img src={it.previewUrl} alt={it.name} className="w-full h-24 object-cover" />
-              <button
+              <Button
                 type="button"
                 onClick={() => setZoom(it.previewUrl)}
-                className="absolute bottom-1 right-1 rounded-md bg-background/85 p-1"
+                variant="secondary" size="icon" className="absolute bottom-1 right-1 h-7 w-7 bg-studio-panel/90 text-studio-foreground"
                 aria-label="معاينة"
               >
                 <Eye className="w-3.5 h-3.5" />
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => onChange(items.filter((x) => x.path !== it.path))}
-                className="absolute top-1 left-1 rounded-md bg-background/85 p-1 text-kube-red"
+                variant="secondary" size="icon" className="absolute top-1 left-1 h-7 w-7 bg-studio-panel/90 text-studio-accent"
                 aria-label="حذف"
               >
                 <X className="w-3.5 h-3.5" />
-              </button>
+              </Button>
             </div>
           ))}
         </div>
       )}
 
-      <p className="text-xs text-muted-foreground leading-relaxed">
+      <p className="text-xs text-studio-muted leading-relaxed">
         ارفع صور المنتج أو التغليف أو الشعار أو لوحات الإلهام أو مراجع التكوين.
       </p>
 
       {zoom && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-studio-bg/95 flex items-center justify-center p-4"
           onClick={() => setZoom(null)}
         >
           <img src={zoom} alt="معاينة" className="max-h-full max-w-full rounded-lg" />

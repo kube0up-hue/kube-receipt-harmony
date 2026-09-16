@@ -8,24 +8,26 @@ export function AppShell({
   title,
   back,
   children,
+  variant = "default",
 }: {
   title: string;
   back?: { to: string; label?: string };
   children: ReactNode;
+  variant?: "default" | "studio";
 }) {
   const { data: cu } = useCurrentUser();
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+    <div className={variant === "studio" ? "min-h-screen bg-studio-bg text-studio-foreground" : "min-h-screen bg-background"}>
+      <header className={variant === "studio" ? "sticky top-0 z-30 border-b border-studio-border bg-studio-bg/95 backdrop-blur" : "sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border"}>
+        <div className={`${variant === "studio" ? "max-w-[1600px]" : "max-w-3xl"} mx-auto px-4 h-14 flex items-center justify-between`}>
           <div className="flex items-center gap-3 min-w-0">
             {back ? (
               <Link to={back.to} className="text-sm text-muted-foreground font-semibold shrink-0">
                 ← {back.label ?? "رجوع"}
               </Link>
             ) : (
-              <img src={"/kube-logo.png"} alt="KUBE" className="h-6 w-auto shrink-0" />
+              <img src={"/kube-logo.png"} alt="KUBE" className={variant === "studio" ? "h-6 w-auto shrink-0 invert" : "h-6 w-auto shrink-0"} />
             )}
             <h1 className="font-bold truncate">{title}</h1>
           </div>
@@ -40,7 +42,7 @@ export function AppShell({
           </div>
         </div>
       </header>
-      <main className="max-w-3xl mx-auto px-4 py-5 pb-20">{children}</main>
+      <main className={`${variant === "studio" ? "max-w-[1600px] py-4 lg:py-6" : "max-w-3xl py-5 pb-20"} mx-auto px-4`}>{children}</main>
     </div>
   );
 }
