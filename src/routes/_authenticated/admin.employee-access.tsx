@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/app-shell";
-import { PermissionGuard } from "@/components/permission-guard";
+import { RoleGuard } from "@/components/permission-guard";
 import { listEmployeeAccess, saveEmployeePermissions } from "@/lib/employee-access.functions";
 import { EMPLOYEE_ASSIGNABLE_GROUPS, PERMISSION_LABELS, type Permission } from "@/lib/permissions";
 import { toast } from "sonner";
@@ -21,9 +21,9 @@ export const Route = createFileRoute("/_authenticated/admin/employee-access")({
     ],
   }),
   component: () => (
-    <PermissionGuard anyOf={["employees_manage"]}>
+    <RoleGuard>
       <EmployeeAccessPage />
-    </PermissionGuard>
+    </RoleGuard>
   ),
 });
 

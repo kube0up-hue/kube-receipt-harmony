@@ -8,10 +8,25 @@ import { Users, Package, Truck, ClipboardList, FileText, BarChart3, Wallet, Down
 import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
 import { ReceiptItemPhotos } from "@/features/receipt-photo-viewer";
 import { useBranchFilter } from "@/lib/use-branches";
+import { RoleGuard } from "@/components/permission-guard";
 
 
 export const Route = createFileRoute("/_authenticated/admin/")({
-  component: AdminHome,
+  head: () => ({
+    meta: [
+      { title: "لوحة الإدارة — KUBE Kitchen" },
+      { name: "description", content: "لوحة إدارة KUBE: الطلبات والاستلامات والمخزون والجرد والهدر والجودة والمبيعات والفواتير لكل فرع." },
+      { property: "og:title", content: "لوحة الإدارة — KUBE Kitchen" },
+      { property: "og:description", content: "إدارة عمليات فروع KUBE في شاشة واحدة." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <RoleGuard>
+      <AdminHome />
+    </RoleGuard>
+  ),
 });
 
 type DetailMode = "short" | "damaged" | "all";

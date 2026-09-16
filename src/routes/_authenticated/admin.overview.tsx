@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
-import { PermissionGuard } from "@/components/permission-guard";
+import { RoleGuard } from "@/components/permission-guard";
 import { useBranchFilter } from "@/lib/use-branches";
 import { AlertTriangle, ChevronLeft } from "lucide-react";
 
@@ -18,9 +18,9 @@ export const Route = createFileRoute("/_authenticated/admin/overview")({
     ],
   }),
   component: () => (
-    <PermissionGuard anyOf={["alerts_view", "reports_dues", "inventory_view"]}>
+    <RoleGuard>
       <OverviewPage />
-    </PermissionGuard>
+    </RoleGuard>
   ),
 });
 
