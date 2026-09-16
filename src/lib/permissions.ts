@@ -116,34 +116,70 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   { title: "التقارير والتنبيهات", items: ["reports_dues", "reports_export", "reports_integrity", "alerts_view"] },
 ];
 
-/** الصلاحيات التي تُسند لموظفي الفروع من صفحة «مهام الموظفين». */
+/**
+ * الصلاحيات التي تُسند لموظفي الفروع من صفحة «مهام الموظفين».
+ * ملاحظة: alerts_view غير قابلة للإسناد لأنها مرتبطة بلوحة المالك.
+ */
 export const EMPLOYEE_ASSIGNABLE = [
   "orders_create",
   "orders_receive",
   "orders_view",
+  "products_view",
   "inventory_view",
   "inventory_transfer",
   "inventory_receive_transfer",
   "inventory_adjust",
   "count_perform",
   "count_review",
+  "count_approve",
+  "count_edit_approved",
   "waste_record",
   "waste_view",
   "quality_record",
   "quality_view",
   "sales_record",
   "sales_review",
-  "alerts_view",
+  "sales_edit_approved",
+  "schedules_manage",
+  "recipes_manage",
+  "reports_export",
 ] as const satisfies readonly Permission[];
 
 export const EMPLOYEE_ASSIGNABLE_GROUPS: PermissionGroup[] = [
   { title: "الطلبات والاستلام", items: ["orders_create", "orders_receive", "orders_view"] },
-  { title: "المخزون والتحويلات", items: ["inventory_view", "inventory_transfer", "inventory_receive_transfer", "inventory_adjust"] },
-  { title: "الجرد", items: ["count_perform", "count_review"] },
+  { title: "المخزون والتحويلات", items: ["inventory_view", "products_view", "inventory_transfer", "inventory_receive_transfer", "inventory_adjust"] },
+  { title: "الجرد", items: ["count_perform", "count_review", "count_approve", "count_edit_approved"] },
   { title: "الهدر", items: ["waste_record", "waste_view"] },
   { title: "الجودة والمياه", items: ["quality_record", "quality_view"] },
-  { title: "المبيعات اليومية", items: ["sales_record", "sales_review"] },
-  { title: "التنبيهات", items: ["alerts_view"] },
+  { title: "المبيعات اليومية", items: ["sales_record", "sales_review", "sales_edit_approved"] },
+  { title: "الدوامات والوصفات", items: ["schedules_manage", "recipes_manage"] },
+  { title: "التقارير", items: ["reports_export"] },
+];
+
+/** حِزم جاهزة تُسند بضغطة واحدة ثم يمكن تعديلها. */
+export const EMPLOYEE_PRESETS: { title: string; permissions: Permission[] }[] = [
+  {
+    title: "مدير فرع",
+    permissions: [
+      "orders_create", "orders_receive", "orders_view", "products_view",
+      "inventory_view", "inventory_transfer", "inventory_receive_transfer", "inventory_adjust",
+      "count_perform", "count_review", "waste_record", "waste_view",
+      "quality_record", "quality_view", "sales_record", "sales_review",
+      "schedules_manage", "reports_export",
+    ],
+  },
+  {
+    title: "موظف جرد",
+    permissions: ["count_perform", "inventory_view", "products_view"],
+  },
+  {
+    title: "موظف استلام",
+    permissions: ["orders_create", "orders_receive", "orders_view", "inventory_view"],
+  },
+  {
+    title: "موظف جودة ومياه",
+    permissions: ["quality_record", "quality_view"],
+  },
 ];
 
 /** حزمة جاهزة تُقترح للمحاسب. */
