@@ -13,16 +13,15 @@ export interface ManagedUser {
 
 type AuthedSupabase = { from: (table: string) => any };
 
-/** يتحقق أن المتصل مدير (عبر جلسة المستخدم نفسها، لا عبر service role). */
+/** يتحقق أن المتصل مالك أو مدير (عبر جلسة المستخدم نفسها، لا عبر service role). */
 async function assertAdmin(supabase: AuthedSupabase, userId: string) {
   const { data, error } = await supabase
     .from("user_roles")
-    .select("id")
+    .select("role")
     .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
+    .in("role", ["admin", "owner"]);
   if (error) throw new Error(error.message);
-  if (!data) throw new Error("غير مصرح: إدارة الصلاحيات للمدير فقط");
+  if (!data || data.length === 0) throw new Error("غير مصرح: إدارة الصلاحيات للمالك أو المدير فقط");
 }
 
 /** قائمة المستخدمين مع أدوارهم وصلاحياتهم — للمدير فقط. */
