@@ -44,6 +44,7 @@ export const PERMISSIONS = [
   "orders_approve",
   "orders_receive",
   "alerts_view",
+  "ai_studio_use",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
@@ -93,6 +94,7 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   orders_approve: "اعتماد الطلبات",
   orders_receive: "استلام الطلبات",
   alerts_view: "عرض التنبيهات",
+  ai_studio_use: "استوديو الصور (AI KUBEUP Studio)",
 };
 
 export interface PermissionGroup {
@@ -114,6 +116,7 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   { title: "المبيعات اليومية", items: ["sales_record", "sales_review", "sales_edit_approved"] },
   { title: "الوصفات والدوامات والموظفون", items: ["recipes_manage", "schedules_manage", "employees_manage"] },
   { title: "التقارير والتنبيهات", items: ["reports_dues", "reports_export", "reports_integrity", "alerts_view"] },
+  { title: "استوديو الصور", items: ["ai_studio_use"] },
 ];
 
 /**
@@ -143,6 +146,7 @@ export const EMPLOYEE_ASSIGNABLE = [
   "schedules_manage",
   "recipes_manage",
   "reports_export",
+  "ai_studio_use",
 ] as const satisfies readonly Permission[];
 
 export const EMPLOYEE_ASSIGNABLE_GROUPS: PermissionGroup[] = [
@@ -154,6 +158,7 @@ export const EMPLOYEE_ASSIGNABLE_GROUPS: PermissionGroup[] = [
   { title: "المبيعات اليومية", items: ["sales_record", "sales_review", "sales_edit_approved"] },
   { title: "الدوامات والوصفات", items: ["schedules_manage", "recipes_manage"] },
   { title: "التقارير", items: ["reports_export"] },
+  { title: "استوديو الصور", items: ["ai_studio_use"] },
 ];
 
 /** حِزم جاهزة تُسند بضغطة واحدة ثم يمكن تعديلها. */
