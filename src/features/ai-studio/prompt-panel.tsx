@@ -109,7 +109,7 @@ export function PromptPanel({
           type="button"
           onClick={onGenerate}
           disabled={generating || disabled || prompt.trim().length < 3}
-          className="kube-btn inline-flex items-center justify-center gap-2 disabled:opacity-50"
+          className="kube-btn-primary inline-flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           {generating ? "جارٍ التوليد…" : "توليد"}
