@@ -68,7 +68,7 @@ function StudioPage() {
       const { data, error: qError } = await supabase
         .from("ai_kubeup_generations")
         .select(
-          "id, created_at, status, prompt, aspect_ratio, resolution, generated_image_path, error_message, brand_mode, reference_images",
+          "id, created_at, status, prompt, aspect_ratio, resolution, generated_image_path, error_message, brand_mode, reference_images, settings",
         )
         .order("created_at", { ascending: false })
         .limit(60);
