@@ -121,6 +121,27 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_kubeup_studio_settings: {
+        Row: {
+          brand_instruction: string
+          setting_key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          brand_instruction: string
+          setting_key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          brand_instruction?: string
+          setting_key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       branches: {
         Row: {
           code: string
@@ -1929,6 +1950,21 @@ export type Database = {
           p_receipt_id: string
         }
         Returns: string
+      }
+      update_ai_kubeup_brand_instruction: {
+        Args: { p_instruction: string }
+        Returns: {
+          brand_instruction: string
+          setting_key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "ai_kubeup_studio_settings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {
