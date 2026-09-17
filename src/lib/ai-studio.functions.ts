@@ -136,11 +136,17 @@ Maintain clean composition, elegant lighting, premium product presentation, and 
 If reference images are provided, preserve the mood, lighting direction, and composition style while naturally integrating KUBEUP identity and product presentation.
 Do not make the result look pasted. Make it feel like an original KUBEUP creative campaign.`;
 
-export function buildFinalPrompt(prompt: string, brandMode: boolean, aspectRatio: AspectRatio): string {
+export function buildFinalPrompt(
+  prompt: string,
+  brandMode: boolean,
+  aspectRatio: AspectRatio,
+  settings: StudioSettings = DEFAULT_STUDIO_SETTINGS,
+): string {
   const technical = `Output requirements: aspect ratio ${aspectRatio}, ultra high resolution 4K output, sharp commercial-grade detail, no watermark, no visible text artifacts.`;
-  return brandMode
-    ? `${prompt.trim()}\n\n${BRAND_INSTRUCTION}\n\n${technical}`
-    : `${prompt.trim()}\n\n${technical}`;
+  const creative = buildSettingsInstruction(settings);
+  return [prompt.trim(), brandMode ? BRAND_INSTRUCTION : "", creative, technical]
+    .filter((p) => p.length > 0)
+    .join("\n\n");
 }
 
 const GenerateInput = z.object({
@@ -148,6 +154,7 @@ const GenerateInput = z.object({
   aspectRatio: z.enum(ASPECT_RATIOS),
   brandMode: z.boolean(),
   referencePaths: z.array(z.string().min(1)).max(MAX_REFERENCES),
+  settings: SettingsSchema.optional(),
 });
 
 type AnySupabase = {
