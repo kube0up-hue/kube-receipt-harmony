@@ -93,6 +93,7 @@ function StudioPage() {
           aspectRatio,
           brandMode,
           referencePaths: references.map((r) => r.path),
+          settings,
         },
       });
       setResultPath(res.path);
