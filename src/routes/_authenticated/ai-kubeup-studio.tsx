@@ -51,6 +51,7 @@ function StudioPage() {
   const [prompt, setPrompt] = useState("");
   const [brandMode, setBrandMode] = useState(true);
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("1:1");
+  const [settings, setSettings] = useState<StudioSettings>(DEFAULT_STUDIO_SETTINGS);
   const [resultPath, setResultPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
