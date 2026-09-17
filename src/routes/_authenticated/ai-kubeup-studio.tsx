@@ -155,12 +155,15 @@ function StudioPage() {
           onBrandModeChange={setBrandMode}
           aspectRatio={aspectRatio}
           onAspectRatioChange={setAspectRatio}
+          settings={settings}
+          onSettingsChange={setSettings}
           onGenerate={() => void runGeneration()}
           onClear={() => {
             setPrompt("");
             setReferences([]);
             setResultPath(null);
             setError(null);
+            setSettings(DEFAULT_STUDIO_SETTINGS);
           }}
           generating={generating}
           disabled={!configured}
