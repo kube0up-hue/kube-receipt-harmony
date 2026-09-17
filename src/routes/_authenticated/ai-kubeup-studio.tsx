@@ -188,7 +188,11 @@ function StudioPage() {
                 ? row.aspect_ratio
                 : "1:1") as AspectRatio,
             );
-            toast.success("تم استرجاع الوصف");
+            setSettings({
+              ...DEFAULT_STUDIO_SETTINGS,
+              ...((row.settings ?? {}) as Partial<StudioSettings>),
+            });
+            toast.success("تم استرجاع الوصف والإعدادات");
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         />
