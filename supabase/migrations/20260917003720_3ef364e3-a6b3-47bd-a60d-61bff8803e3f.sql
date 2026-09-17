@@ -1,0 +1,1 @@
+ALTER TABLE public.ai_kubeup_generations ADD COLUMN IF NOT EXISTS settings jsonb NOT NULL DEFAULT '{}'::jsonb;

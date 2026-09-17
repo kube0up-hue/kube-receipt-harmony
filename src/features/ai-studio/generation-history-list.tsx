@@ -16,6 +16,7 @@ export interface GenerationRow {
   error_message: string | null;
   brand_mode: boolean;
   reference_images: unknown;
+  settings?: unknown;
 }
 
 export function GenerationHistoryList({

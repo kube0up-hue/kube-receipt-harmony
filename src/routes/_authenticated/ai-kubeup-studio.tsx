@@ -11,6 +11,8 @@ import {
   generateStudioImage,
   getStudioStatus,
   AI_STUDIO_MODEL,
+  DEFAULT_STUDIO_SETTINGS,
+  type StudioSettings,
   type AspectRatio,
 } from "@/lib/ai-studio.functions";
 import { StudioStatusBadge } from "@/features/ai-studio/status-badge";
@@ -49,6 +51,7 @@ function StudioPage() {
   const [prompt, setPrompt] = useState("");
   const [brandMode, setBrandMode] = useState(true);
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("1:1");
+  const [settings, setSettings] = useState<StudioSettings>(DEFAULT_STUDIO_SETTINGS);
   const [resultPath, setResultPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -65,7 +68,7 @@ function StudioPage() {
       const { data, error: qError } = await supabase
         .from("ai_kubeup_generations")
         .select(
-          "id, created_at, status, prompt, aspect_ratio, resolution, generated_image_path, error_message, brand_mode, reference_images",
+          "id, created_at, status, prompt, aspect_ratio, resolution, generated_image_path, error_message, brand_mode, reference_images, settings",
         )
         .order("created_at", { ascending: false })
         .limit(60);
@@ -90,6 +93,7 @@ function StudioPage() {
           aspectRatio,
           brandMode,
           referencePaths: references.map((r) => r.path),
+          settings,
         },
       });
       setResultPath(res.path);
@@ -151,12 +155,15 @@ function StudioPage() {
           onBrandModeChange={setBrandMode}
           aspectRatio={aspectRatio}
           onAspectRatioChange={setAspectRatio}
+          settings={settings}
+          onSettingsChange={setSettings}
           onGenerate={() => void runGeneration()}
           onClear={() => {
             setPrompt("");
             setReferences([]);
             setResultPath(null);
             setError(null);
+            setSettings(DEFAULT_STUDIO_SETTINGS);
           }}
           generating={generating}
           disabled={!configured}
@@ -181,7 +188,11 @@ function StudioPage() {
                 ? row.aspect_ratio
                 : "1:1") as AspectRatio,
             );
-            toast.success("تم استرجاع الوصف");
+            setSettings({
+              ...DEFAULT_STUDIO_SETTINGS,
+              ...((row.settings ?? {}) as Partial<StudioSettings>),
+            });
+            toast.success("تم استرجاع الوصف والإعدادات");
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         />

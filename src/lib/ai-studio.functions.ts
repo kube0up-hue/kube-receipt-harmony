@@ -5,6 +5,122 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const ASPECT_RATIOS = ["1:1", "4:5", "9:16", "16:9", "3:2"] as const;
 export type AspectRatio = (typeof ASPECT_RATIOS)[number];
 
+/* ===== الإعدادات الإبداعية ===== */
+
+export const BACKGROUND_PRESETS = [
+  { id: "keep", label: "كما في المرجع", hex: null },
+  { id: "white", label: "أبيض", hex: "#FFFFFF" },
+  { id: "black", label: "أسود", hex: "#0B0B0C" },
+  { id: "light-gray", label: "رمادي فاتح", hex: "#EDEDEA" },
+  { id: "cream", label: "كريمي", hex: "#F6E7C9" },
+  { id: "light-blue", label: "أزرق فاتح", hex: "#CFE0F7" },
+  { id: "kube-red", label: "أحمر KUBEUP", hex: "#D62828" },
+] as const;
+
+export const CAMERA_ANGLES = [
+  { id: "auto", label: "تلقائي", en: "" },
+  { id: "front", label: "أمام", en: "straight-on frontal camera angle at product eye level" },
+  { id: "three-quarter", label: "ثلاثة أرباع", en: "three-quarter camera angle showing front and side together" },
+  { id: "side", label: "جانبي", en: "pure side profile camera angle" },
+  { id: "top", label: "من أعلى", en: "top-down flat lay camera angle looking straight down" },
+  { id: "low", label: "من أسفل", en: "low camera angle looking slightly upward for a heroic presence" },
+  { id: "macro", label: "قريب جداً", en: "extreme macro close-up with shallow depth of field" },
+] as const;
+
+export const LIGHT_DIRECTIONS = [
+  { id: "auto", label: "تلقائي", en: "" },
+  { id: "front", label: "أمام", en: "main light coming from the front of the subject" },
+  { id: "back", label: "خلف", en: "backlight behind the subject creating a rim-light separation" },
+  { id: "right", label: "يمين", en: "main light coming from the right side" },
+  { id: "left", label: "يسار", en: "main light coming from the left side" },
+  { id: "top", label: "أعلى", en: "main light coming from directly above" },
+  { id: "bottom", label: "أسفل", en: "subtle light coming from below the subject" },
+] as const;
+
+export const LIGHT_QUALITIES = [
+  { id: "auto", label: "تلقائي", en: "" },
+  { id: "soft", label: "ناعمة", en: "soft diffused lighting with gentle gradient shadows" },
+  { id: "hard", label: "حادة", en: "hard directional lighting with crisp defined shadows" },
+] as const;
+
+export const SHOT_STYLES = [
+  { id: "auto", label: "تلقائي", en: "" },
+  { id: "product", label: "لقطة منتج", en: "clean studio product photography framing" },
+  { id: "social", label: "منشور سوشال", en: "social media post framing with clear negative space for a headline" },
+  { id: "lifestyle", label: "نمط حياة", en: "lifestyle editorial framing with natural environment context" },
+  { id: "packaging", label: "تغليف", en: "packaging mockup presentation with realistic materials" },
+] as const;
+
+export type BackgroundPresetId = (typeof BACKGROUND_PRESETS)[number]["id"];
+export type CameraAngleId = (typeof CAMERA_ANGLES)[number]["id"];
+export type LightDirectionId = (typeof LIGHT_DIRECTIONS)[number]["id"];
+export type LightQualityId = (typeof LIGHT_QUALITIES)[number]["id"];
+export type ShotStyleId = (typeof SHOT_STYLES)[number]["id"];
+
+export interface StudioSettings {
+  background: BackgroundPresetId | "custom";
+  backgroundHex: string | null;
+  cameraAngle: CameraAngleId;
+  lightDirection: LightDirectionId;
+  lightQuality: LightQualityId;
+  shotStyle: ShotStyleId;
+}
+
+export const DEFAULT_STUDIO_SETTINGS: StudioSettings = {
+  background: "keep",
+  backgroundHex: null,
+  cameraAngle: "auto",
+  lightDirection: "auto",
+  lightQuality: "auto",
+  shotStyle: "auto",
+};
+
+function findEn(list: readonly { id: string; en: string }[], id: string): string {
+  return list.find((x) => x.id === id)?.en ?? "";
+}
+
+/** يحوّل الإعدادات المختارة إلى تعليمات إنجليزية دقيقة للمودل. */
+export function buildSettingsInstruction(s: StudioSettings): string {
+  const lines: string[] = [];
+
+  if (s.background === "custom" && s.backgroundHex) {
+    lines.push(
+      `Replace the background with a clean, evenly lit solid background in the exact color ${s.backgroundHex.toUpperCase()}. Keep the subject edges clean and natural, with a believable contact shadow.`,
+    );
+  } else if (s.background !== "keep") {
+    const preset = BACKGROUND_PRESETS.find((b) => b.id === s.background);
+    if (preset?.hex) {
+      lines.push(
+        `Replace the background with a clean, evenly lit solid ${preset.label === "أسود" ? "black" : ""} background in the exact color ${preset.hex.toUpperCase()}. Keep the subject edges clean and natural, with a believable contact shadow.`,
+      );
+    }
+  }
+
+  const angle = findEn(CAMERA_ANGLES, s.cameraAngle);
+  if (angle) lines.push(`Camera: ${angle}.`);
+
+  const dir = findEn(LIGHT_DIRECTIONS, s.lightDirection);
+  const quality = findEn(LIGHT_QUALITIES, s.lightQuality);
+  if (dir || quality) lines.push(`Lighting: ${[dir, quality].filter(Boolean).join(", ")}.`);
+
+  const style = findEn(SHOT_STYLES, s.shotStyle);
+  if (style) lines.push(`Composition: ${style}.`);
+
+  return lines.join("\n");
+}
+
+const SettingsSchema = z.object({
+  background: z.string().min(1).max(40),
+  backgroundHex: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, "لون غير صحيح")
+    .nullable(),
+  cameraAngle: z.string().min(1).max(40),
+  lightDirection: z.string().min(1).max(40),
+  lightQuality: z.string().min(1).max(40),
+  shotStyle: z.string().min(1).max(40),
+});
+
 export const AI_STUDIO_MODEL = "gemini-3-pro-image";
 export const AI_STUDIO_RESOLUTION = "4K";
 export const REFERENCE_BUCKET = "ai-kubeup-reference-images";
@@ -20,11 +136,17 @@ Maintain clean composition, elegant lighting, premium product presentation, and 
 If reference images are provided, preserve the mood, lighting direction, and composition style while naturally integrating KUBEUP identity and product presentation.
 Do not make the result look pasted. Make it feel like an original KUBEUP creative campaign.`;
 
-export function buildFinalPrompt(prompt: string, brandMode: boolean, aspectRatio: AspectRatio): string {
+export function buildFinalPrompt(
+  prompt: string,
+  brandMode: boolean,
+  aspectRatio: AspectRatio,
+  settings: StudioSettings = DEFAULT_STUDIO_SETTINGS,
+): string {
   const technical = `Output requirements: aspect ratio ${aspectRatio}, ultra high resolution 4K output, sharp commercial-grade detail, no watermark, no visible text artifacts.`;
-  return brandMode
-    ? `${prompt.trim()}\n\n${BRAND_INSTRUCTION}\n\n${technical}`
-    : `${prompt.trim()}\n\n${technical}`;
+  const creative = buildSettingsInstruction(settings);
+  return [prompt.trim(), brandMode ? BRAND_INSTRUCTION : "", creative, technical]
+    .filter((p) => p.length > 0)
+    .join("\n\n");
 }
 
 const GenerateInput = z.object({
@@ -32,6 +154,7 @@ const GenerateInput = z.object({
   aspectRatio: z.enum(ASPECT_RATIOS),
   brandMode: z.boolean(),
   referencePaths: z.array(z.string().min(1)).max(MAX_REFERENCES),
+  settings: SettingsSchema.optional(),
 });
 
 type AnySupabase = {
@@ -113,7 +236,11 @@ export const generateStudioImage = createServerFn({ method: "POST" })
     const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) throw new Error("مفتاح Gemini غير مُهيأ بعد");
 
-    const finalPrompt = buildFinalPrompt(data.prompt, data.brandMode, data.aspectRatio);
+    const settings: StudioSettings = {
+      ...DEFAULT_STUDIO_SETTINGS,
+      ...(data.settings as Partial<StudioSettings> | undefined),
+    };
+    const finalPrompt = buildFinalPrompt(data.prompt, data.brandMode, data.aspectRatio, settings);
 
     // 1) سجل العملية أولاً حتى يظهر أي فشل في السجل
     const { data: row, error: insertError } = await supabase
@@ -127,6 +254,7 @@ export const generateStudioImage = createServerFn({ method: "POST" })
         resolution: AI_STUDIO_RESOLUTION,
         model_name: AI_STUDIO_MODEL,
         reference_images: data.referencePaths.map((p) => ({ bucket: REFERENCE_BUCKET, path: p })),
+        settings,
         created_by: context.userId,
       })
       .select("id")
