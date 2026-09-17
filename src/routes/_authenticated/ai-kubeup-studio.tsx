@@ -11,6 +11,8 @@ import {
   generateStudioImage,
   getStudioStatus,
   AI_STUDIO_MODEL,
+  DEFAULT_STUDIO_SETTINGS,
+  type StudioSettings,
   type AspectRatio,
 } from "@/lib/ai-studio.functions";
 import { StudioStatusBadge } from "@/features/ai-studio/status-badge";
