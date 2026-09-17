@@ -203,13 +203,16 @@ export const getStudioBrandSettings = createServerFn({ method: "GET" })
     const supabase = context.supabase as unknown as AnySupabase;
     await assertStudioAccess(supabase, context.userId);
     const [{ data: setting }, { data: roles }] = await Promise.all([
-      supabase.from("ai_kubeup_studio_settings").select("brand_instruction, updated_at").eq("setting_key", "brand_identity").maybeSingle(),
+      supabase.from("ai_kubeup_studio_settings").select("brand_instruction, updated_at, updated_by").eq("setting_key", "brand_identity").maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", context.userId).in("role", ["admin", "owner"]),
     ]);
+    const { data: updater } = setting?.updated_by
+      ? await supabase.from("profiles").select("full_name").eq("id", setting.updated_by).maybeSingle()
+      : { data: null };
     return {
       instruction: setting?.brand_instruction ?? BRAND_INSTRUCTION,
       updatedAt: setting?.updated_at ?? null,
-      updatedByName: null,
+      updatedByName: updater?.full_name ?? null,
       canEdit: (roles?.length ?? 0) > 0,
     };
   });
