@@ -220,10 +220,29 @@ export const saveStudioBrandSettings = createServerFn({ method: "POST" })
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", context.userId).in("role", ["admin", "owner"]);
     if ((roles?.length ?? 0) === 0) throw new Error("لا تملك صلاحية تعديل هوية KUBEUP");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin.rpc("update_ai_kubeup_brand_instruction", { p_instruction: data.instruction });
+    const { data: previous } = await supabaseAdmin
+      .from("ai_kubeup_studio_settings")
+      .select("brand_instruction")
+      .eq("setting_key", "brand_identity")
+      .maybeSingle();
+    const updatedAt = new Date().toISOString();
+    const { error } = await supabaseAdmin.from("ai_kubeup_studio_settings").upsert({
+      setting_key: "brand_identity",
+      brand_instruction: data.instruction,
+      updated_by: context.userId,
+      updated_at: updatedAt,
+    });
     if (error) throw new Error(error.message);
-    const result = Array.isArray(row) ? row[0] : row;
-    return { instruction: result?.brand_instruction ?? data.instruction, updatedAt: result?.updated_at ?? new Date().toISOString(), canEdit: true };
+    const { error: auditError } = await supabaseAdmin.from("activity_log").insert({
+      actor_user: context.userId,
+      action: "update_ai_kubeup_brand_instruction",
+      entity: "ai_kubeup_studio_settings",
+      details: { setting_key: "brand_identity" },
+      old_value: { brand_instruction: previous?.brand_instruction ?? null },
+      new_value: { brand_instruction: data.instruction },
+    });
+    if (auditError) throw new Error(auditError.message);
+    return { instruction: data.instruction, updatedAt, canEdit: true };
   });
 
 export interface GenerateResult {

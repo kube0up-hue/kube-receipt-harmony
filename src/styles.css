@@ -96,6 +96,7 @@
   --studio-border: oklch(0.30 0.005 285);
   --studio-accent: oklch(0.55 0.21 27);
   --studio-accent-foreground: oklch(0.99 0 0);
+  --studio-control-light: oklch(0.94 0.003 90);
 }
 
 @layer base {
@@ -183,6 +184,13 @@
   background: color-mix(in oklab, var(--studio-bg) 64%, transparent);
   border: 1px solid var(--color-studio-border);
   color: var(--color-studio-foreground);
+}
+
+@utility studio-camera-grid {
+  background-image:
+    linear-gradient(var(--color-studio-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-studio-border) 1px, transparent 1px);
+  background-size: 2rem 2rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

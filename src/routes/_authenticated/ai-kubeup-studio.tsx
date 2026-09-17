@@ -9,7 +9,9 @@ import { PermissionGuard } from "@/components/permission-guard";
 import { supabase } from "@/integrations/supabase/client";
 import {
   generateStudioImage,
+  getStudioBrandSettings,
   getStudioStatus,
+  saveStudioBrandSettings,
   AI_STUDIO_MODEL,
   DEFAULT_STUDIO_SETTINGS,
   type StudioSettings,
@@ -20,6 +22,9 @@ import { ReferenceUploadPanel, type ReferenceItem } from "@/features/ai-studio/r
 import { PromptPanel } from "@/features/ai-studio/prompt-panel";
 import { ResultPreviewPanel } from "@/features/ai-studio/result-preview-panel";
 import { GenerationHistoryList, type GenerationRow } from "@/features/ai-studio/generation-history-list";
+import { BrandIdentityPanel } from "@/features/ai-studio/brand-identity-panel";
+import { useCurrentUser } from "@/lib/use-current-user";
+import { primaryRoleHome } from "@/lib/current-user";
 
 export const Route = createFileRoute("/_authenticated/ai-kubeup-studio")({
   head: () => ({
@@ -45,7 +50,10 @@ export const Route = createFileRoute("/_authenticated/ai-kubeup-studio")({
 function StudioPage() {
   const queryClient = useQueryClient();
   const fetchStatus = useServerFn(getStudioStatus);
+  const fetchBrandSettings = useServerFn(getStudioBrandSettings);
+  const saveBrandSettings = useServerFn(saveStudioBrandSettings);
   const generate = useServerFn(generateStudioImage);
+  const currentUser = useCurrentUser();
 
   const [references, setReferences] = useState<ReferenceItem[]>([]);
   const [prompt, setPrompt] = useState("");
@@ -55,6 +63,7 @@ function StudioPage() {
   const [resultPath, setResultPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [savingBrand, setSavingBrand] = useState(false);
 
   const status = useQuery({
     queryKey: ["ai-studio-status"],
@@ -75,6 +84,11 @@ function StudioPage() {
       if (qError) throw qError;
       return (data ?? []) as GenerationRow[];
     },
+  });
+
+  const brandSettings = useQuery({
+    queryKey: ["ai-studio-brand-settings"],
+    queryFn: () => fetchBrandSettings(),
   });
 
   const configured = status.data?.configured ?? false;
@@ -109,7 +123,7 @@ function StudioPage() {
   }
 
   return (
-    <AppShell title="AI KUBEUP Studio" variant="studio">
+    <AppShell title="AI KUBEUP Studio" variant="studio" back={{ to: primaryRoleHome(currentUser.data?.roles ?? []), label: "الرجوع" }}>
       <div className="font-studio-body">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -148,7 +162,25 @@ function StudioPage() {
           error={error}
           onRegenerate={() => void runGeneration()}
         /></div>
-        <div className="order-1 xl:order-3"><PromptPanel
+        <div className="order-1 space-y-4 xl:order-3">
+          <BrandIdentityPanel
+            instruction={brandSettings.data?.instruction ?? ""}
+            canEdit={brandSettings.data?.canEdit ?? false}
+            saving={savingBrand}
+            onSave={async (instruction) => {
+              setSavingBrand(true);
+              try {
+                const saved = await saveBrandSettings({ data: { instruction } });
+                queryClient.setQueryData(["ai-studio-brand-settings"], saved);
+                toast.success("تم حفظ تعليمات هوية KUBEUP");
+              } catch (saveError) {
+                toast.error(saveError instanceof Error ? saveError.message : "تعذر حفظ التعليمات");
+              } finally {
+                setSavingBrand(false);
+              }
+            }}
+          />
+          <PromptPanel
           prompt={prompt}
           onPromptChange={setPrompt}
           brandMode={brandMode}
@@ -168,7 +200,8 @@ function StudioPage() {
           generating={generating}
           disabled={!configured}
           model={AI_STUDIO_MODEL}
-        /></div>
+          />
+        </div>
       </div>
 
       <div className="mt-4">
