@@ -273,24 +273,28 @@ export function PromptPanel({
         </div>
       </div>
 
-      <div className="mt-auto grid grid-cols-[1fr_auto] gap-2 pt-2">
-        <Button
-          type="button"
-          onClick={onGenerate}
-          disabled={generating || disabled || prompt.trim().length < 3}
-          className="h-12 bg-studio-accent font-bold text-studio-accent-foreground shadow-[0_10px_30px_color-mix(in_oklab,var(--studio-accent)_22%,transparent)] hover:bg-studio-accent/90"
-        >
-          {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-          {generating ? "جارٍ التوليد…" : "توليد"}
-        </Button>
-        <Button
-          type="button"
-          onClick={onClear}
-          disabled={generating}
-          variant="outline" className="h-12 border-studio-border bg-studio-bg/40 text-studio-foreground hover:bg-studio-panel-raised"
-        >
-          <Eraser className="w-4 h-4" /> تفريغ
-        </Button>
+      <div className="sticky bottom-0 -mb-4 -mx-4 mt-auto bg-studio-panel/95 px-4 pb-4 pt-3 shadow-[0_-12px_30px_-6px_color-mix(in_oklab,var(--studio-bg)_80%,transparent)] backdrop-blur-sm lg:-mx-5 lg:px-5">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button
+            type="button"
+            onClick={onGenerate}
+            disabled={generating || disabled || prompt.trim().length < 3}
+            className="h-12 flex-1 bg-studio-accent font-bold text-studio-accent-foreground shadow-[0_10px_30px_color-mix(in_oklab,var(--studio-accent)_22%,transparent)] hover:bg-studio-accent/90"
+          >
+            {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {generating ? "جارٍ التوليد…" : "توليد الصورة"}
+          </Button>
+          <Button
+            type="button"
+            onClick={onClear}
+            disabled={generating}
+            variant="outline"
+            className="h-12 border-studio-border bg-studio-bg/40 text-studio-foreground hover:bg-studio-panel-raised sm:w-auto"
+          >
+            <Eraser className="w-4 h-4" />
+            <span className="sm:sr-only">تفريغ</span>
+          </Button>
+        </div>
       </div>
     </section>
   );
