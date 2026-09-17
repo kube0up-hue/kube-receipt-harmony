@@ -79,6 +79,7 @@ export type Database = {
           prompt: string
           reference_images: Json
           resolution: string
+          settings: Json
           status: string
           updated_at: string
         }
@@ -96,6 +97,7 @@ export type Database = {
           prompt: string
           reference_images?: Json
           resolution?: string
+          settings?: Json
           status?: string
           updated_at?: string
         }
@@ -113,6 +115,7 @@ export type Database = {
           prompt?: string
           reference_images?: Json
           resolution?: string
+          settings?: Json
           status?: string
           updated_at?: string
         }
