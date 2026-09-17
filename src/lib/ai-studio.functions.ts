@@ -254,6 +254,7 @@ export const generateStudioImage = createServerFn({ method: "POST" })
         resolution: AI_STUDIO_RESOLUTION,
         model_name: AI_STUDIO_MODEL,
         reference_images: data.referencePaths.map((p) => ({ bucket: REFERENCE_BUCKET, path: p })),
+        settings,
         created_by: context.userId,
       })
       .select("id")
