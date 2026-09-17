@@ -236,7 +236,11 @@ export const generateStudioImage = createServerFn({ method: "POST" })
     const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) throw new Error("مفتاح Gemini غير مُهيأ بعد");
 
-    const finalPrompt = buildFinalPrompt(data.prompt, data.brandMode, data.aspectRatio);
+    const settings: StudioSettings = {
+      ...DEFAULT_STUDIO_SETTINGS,
+      ...(data.settings as Partial<StudioSettings> | undefined),
+    };
+    const finalPrompt = buildFinalPrompt(data.prompt, data.brandMode, data.aspectRatio, settings);
 
     // 1) سجل العملية أولاً حتى يظهر أي فشل في السجل
     const { data: row, error: insertError } = await supabase
