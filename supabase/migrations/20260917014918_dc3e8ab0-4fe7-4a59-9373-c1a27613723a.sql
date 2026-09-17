@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.update_ai_kubeup_brand_instruction(text) FROM authenticated;
