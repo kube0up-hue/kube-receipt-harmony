@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
  * مبدّل الفروع: نخلة / سلطانة / المستودع / كل الفروع.
  * يظهر فقط لمن لديه أكثر من فرع، وعند التغيير تُحدَّث كل بيانات الصفحة.
  */
-export function BranchSwitcher() {
+export function BranchSwitcher({ variant = "default" }: { variant?: "default" | "studio" }) {
   const { branches, canSeeAll, scope, label, loading } = useBranchFilter();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -27,12 +27,23 @@ export function BranchSwitcher() {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-bold hover:border-primary transition max-w-[9.5rem]"
+          className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-bold transition max-w-[11rem] ${
+            variant === "studio"
+              ? "border-studio-border bg-studio-foreground text-studio-bg hover:bg-studio-foreground/90"
+              : "border-border bg-card hover:border-primary"
+          }`}
           aria-label="تبديل الفرع"
         >
-          <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
+          {scope !== "all" && branches.find((b) => b.id === scope)?.kind === "warehouse" ? (
+            <Warehouse className="w-3.5 h-3.5 shrink-0" />
+          ) : (
+            <Building2 className="w-3.5 h-3.5 shrink-0" />
+          )}
           <span className="truncate">{label}</span>
-          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+          <span className="hidden font-normal opacity-60 sm:inline">
+            {scope === "all" ? "نطاق" : branches.find((b) => b.id === scope)?.kind === "warehouse" ? "مستودع" : "فرع"}
+          </span>
+          <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-60" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" dir="rtl" className="w-56 p-1">
@@ -42,7 +53,7 @@ export function BranchSwitcher() {
         {branches.map((b) => (
           <Option
             key={b.id}
-            label={b.name}
+            label={`${b.name} · ${b.kind === "warehouse" ? "مستودع" : "فرع"}`}
             warehouse={b.kind === "warehouse"}
             active={scope === b.id}
             onClick={() => choose(b.id)}

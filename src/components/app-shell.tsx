@@ -23,7 +23,7 @@ export function AppShell({
         <div className={`${variant === "studio" ? "max-w-[1600px]" : "max-w-3xl"} mx-auto px-4 h-14 flex items-center justify-between`}>
           <div className="flex items-center gap-3 min-w-0">
             {back ? (
-              <Link to={back.to} className="text-sm text-muted-foreground font-semibold shrink-0">
+              <Link to={back.to} className={variant === "studio" ? "rounded-md border border-studio-border bg-studio-panel-raised px-2.5 py-1.5 text-xs font-semibold text-studio-foreground hover:bg-studio-foreground hover:text-studio-bg" : "text-sm text-muted-foreground font-semibold shrink-0"}>
                 ← {back.label ?? "رجوع"}
               </Link>
             ) : (
@@ -32,7 +32,7 @@ export function AppShell({
             <h1 className="font-bold truncate">{title}</h1>
           </div>
           <div className="flex items-center gap-2 text-sm shrink-0">
-            <BranchSwitcher />
+            <BranchSwitcher variant={variant} />
             {cu?.fullName && <span className="text-muted-foreground hidden md:inline truncate max-w-[8rem]">{cu.fullName}</span>}
             <button
               onClick={() => signOutAndGo(navigate)}

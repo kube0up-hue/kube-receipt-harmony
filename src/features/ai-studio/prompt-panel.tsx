@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Eraser, Loader2, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { Sparkles, Eraser, Loader2, SlidersHorizontal, ChevronDown, Camera, Sun, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
 import {
   ASPECT_RATIOS,
   type AspectRatio,
@@ -55,6 +55,34 @@ function OptionRow({
             {o.label}
           </Button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+const lightIcons = {
+  top: ArrowUp,
+  bottom: ArrowDown,
+  right: ArrowRight,
+  left: ArrowLeft,
+} as const;
+
+function LightDirectionPicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+  return (
+    <div>
+      <div className="mb-2 text-xs text-studio-muted">اتجاه الإضاءة</div>
+      <div className="relative mx-auto grid max-w-64 grid-cols-3 gap-2 rounded-md border border-studio-border bg-studio-panel p-3">
+        {LIGHT_DIRECTIONS.map((option) => {
+          const Icon = lightIcons[option.id as keyof typeof lightIcons] ?? Sun;
+          return (
+            <Button key={option.id} type="button" variant="outline" size="sm" onClick={() => onChange(option.id)} title={`إضاءة من ${option.label}`} className={`h-14 flex-col gap-1 px-1 text-[10px] ${value === option.id ? "border-studio-accent bg-studio-accent/10 text-studio-foreground" : "border-studio-border bg-studio-bg/50 text-studio-muted"}`}>
+              <Icon className="h-4 w-4" />{option.label}
+            </Button>
+          );
+        })}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <span className="flex h-11 w-11 items-center justify-center rounded-md border border-studio-border bg-studio-bg text-studio-muted shadow-lg"><Camera className="h-5 w-5" /></span>
+        </div>
       </div>
     </div>
   );
@@ -148,7 +176,8 @@ export function PromptPanel({
                 aspectRatio === r ? "border-studio-accent bg-studio-accent/10 text-studio-foreground" : "border-studio-border bg-studio-bg/40 text-studio-muted hover:bg-studio-panel-raised"
               }`}
             >
-              {r}
+              <span className={`block border border-current ${r === "9:16" ? "h-5 w-3" : r === "16:9" ? "h-3 w-5" : r === "4:5" ? "h-5 w-4" : r === "3:2" ? "h-3 w-5" : "h-4 w-4"}`} />
+              <span>{r}</span>
             </Button>
           ))}
         </div>
@@ -216,13 +245,16 @@ export function PromptPanel({
           onClick={() => setAdvancedOpen((v) => !v)}
           className="flex w-full items-center justify-between gap-2 px-3 py-3 text-xs font-bold text-studio-foreground"
         >
-          <span className="flex items-center gap-2"><SlidersHorizontal className="h-3.5 w-3.5 text-studio-muted" /> الزاوية والإضاءة</span>
+           <span className="min-w-0 text-right">
+             <span className="flex items-center gap-2"><SlidersHorizontal className="h-3.5 w-3.5 text-studio-muted" /> إعدادات الكاميرا</span>
+             {!advancedOpen && <span className="mt-1 block truncate text-[10px] font-normal text-studio-muted">{CAMERA_ANGLES.find((x) => x.id === settings.cameraAngle)?.label} · {LIGHT_DIRECTIONS.find((x) => x.id === settings.lightDirection)?.label} · {LIGHT_QUALITIES.find((x) => x.id === settings.lightQuality)?.label}</span>}
+           </span>
           <ChevronDown className={`h-4 w-4 text-studio-muted transition ${advancedOpen ? "rotate-180" : ""}`} />
         </button>
         {advancedOpen && (
           <div className="space-y-4 border-t border-studio-border p-3">
             <OptionRow label="زاوية التصوير" options={CAMERA_ANGLES} value={settings.cameraAngle} onChange={(id) => patch({ cameraAngle: id as StudioSettings["cameraAngle"] })} />
-            <OptionRow label="اتجاه الإضاءة" options={LIGHT_DIRECTIONS} value={settings.lightDirection} onChange={(id) => patch({ lightDirection: id as StudioSettings["lightDirection"] })} />
+            <LightDirectionPicker value={settings.lightDirection} onChange={(id) => patch({ lightDirection: id as StudioSettings["lightDirection"] })} />
             <OptionRow label="نوع الإضاءة" options={LIGHT_QUALITIES} value={settings.lightQuality} onChange={(id) => patch({ lightQuality: id as StudioSettings["lightQuality"] })} cols={3} />
             <OptionRow label="نمط اللقطة" options={SHOT_STYLES} value={settings.shotStyle} onChange={(id) => patch({ shotStyle: id as StudioSettings["shotStyle"] })} />
           </div>

@@ -20,10 +20,14 @@ export const BACKGROUND_PRESETS = [
 export const CAMERA_ANGLES = [
   { id: "auto", label: "تلقائي", en: "" },
   { id: "front", label: "أمام", en: "straight-on frontal camera angle at product eye level" },
+  { id: "back", label: "خلف", en: "straight-on rear camera angle showing the back of the product" },
+  { id: "right", label: "يمين", en: "camera positioned on the right side of the product" },
+  { id: "left", label: "يسار", en: "camera positioned on the left side of the product" },
   { id: "three-quarter", label: "ثلاثة أرباع", en: "three-quarter camera angle showing front and side together" },
   { id: "side", label: "جانبي", en: "pure side profile camera angle" },
   { id: "top", label: "من أعلى", en: "top-down flat lay camera angle looking straight down" },
   { id: "low", label: "من أسفل", en: "low camera angle looking slightly upward for a heroic presence" },
+  { id: "bottom", label: "أسفل", en: "camera positioned below the product looking upward" },
   { id: "macro", label: "قريب جداً", en: "extreme macro close-up with shallow depth of field" },
 ] as const;
 
@@ -186,6 +190,42 @@ export const getStudioStatus = createServerFn({ method: "GET" })
     resolution: AI_STUDIO_RESOLUTION,
   }));
 
+export interface StudioBrandSettings {
+  instruction: string;
+  updatedAt: string | null;
+  canEdit: boolean;
+}
+
+export const getStudioBrandSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<StudioBrandSettings> => {
+    const supabase = context.supabase as unknown as AnySupabase;
+    await assertStudioAccess(supabase, context.userId);
+    const [{ data: setting }, { data: roles }] = await Promise.all([
+      supabase.from("ai_kubeup_studio_settings").select("brand_instruction, updated_at").eq("setting_key", "brand_identity").maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", context.userId).in("role", ["admin", "owner"]),
+    ]);
+    return {
+      instruction: setting?.brand_instruction ?? BRAND_INSTRUCTION,
+      updatedAt: setting?.updated_at ?? null,
+      canEdit: (roles?.length ?? 0) > 0,
+    };
+  });
+
+export const saveStudioBrandSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ instruction: z.string().trim().min(20).max(8000) }).parse(input))
+  .handler(async ({ data, context }): Promise<StudioBrandSettings> => {
+    const supabase = context.supabase as unknown as AnySupabase;
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", context.userId).in("role", ["admin", "owner"]);
+    if ((roles?.length ?? 0) === 0) throw new Error("لا تملك صلاحية تعديل هوية KUBEUP");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin.rpc("update_ai_kubeup_brand_instruction", { p_instruction: data.instruction });
+    if (error) throw new Error(error.message);
+    const result = Array.isArray(row) ? row[0] : row;
+    return { instruction: result?.brand_instruction ?? data.instruction, updatedAt: result?.updated_at ?? new Date().toISOString(), canEdit: true };
+  });
+
 export interface GenerateResult {
   id: string;
   path: string;
@@ -240,7 +280,20 @@ export const generateStudioImage = createServerFn({ method: "POST" })
       ...DEFAULT_STUDIO_SETTINGS,
       ...(data.settings as Partial<StudioSettings> | undefined),
     };
-    const finalPrompt = buildFinalPrompt(data.prompt, data.brandMode, data.aspectRatio, settings);
+    let brandInstruction = BRAND_INSTRUCTION;
+    if (data.brandMode) {
+      const { data: brandSetting } = await supabase
+        .from("ai_kubeup_studio_settings")
+        .select("brand_instruction")
+        .eq("setting_key", "brand_identity")
+        .maybeSingle();
+      brandInstruction = brandSetting?.brand_instruction ?? BRAND_INSTRUCTION;
+    }
+    const technical = `Output requirements: aspect ratio ${data.aspectRatio}, ultra high resolution 4K output, sharp commercial-grade detail, no watermark, no visible text artifacts.`;
+    const creative = buildSettingsInstruction(settings);
+    const finalPrompt = [data.prompt.trim(), data.brandMode ? brandInstruction : "", creative, technical]
+      .filter((part) => part.length > 0)
+      .join("\n\n");
 
     // 1) سجل العملية أولاً حتى يظهر أي فشل في السجل
     const { data: row, error: insertError } = await supabase
