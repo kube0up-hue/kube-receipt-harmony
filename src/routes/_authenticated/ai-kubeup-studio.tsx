@@ -154,7 +154,7 @@ function StudioPage() {
       )}
 
       <div className="grid items-stretch gap-4 xl:grid-cols-[minmax(250px,0.8fr)_minmax(420px,1.6fr)_minmax(300px,1fr)]">
-        <div className="order-2 xl:order-1"><ReferenceUploadPanel items={references} onChange={setReferences} disabled={generating} /></div>
+        <div className="order-1 xl:order-1"><ReferenceUploadPanel items={references} onChange={setReferences} disabled={generating} /></div>
         <div className="order-3 xl:order-2"><ResultPreviewPanel
           path={resultPath}
           prompt={prompt}
@@ -162,11 +162,13 @@ function StudioPage() {
           error={error}
           onRegenerate={() => void runGeneration()}
         /></div>
-        <div className="order-1 space-y-4 xl:order-3">
+        <div className="order-2 space-y-4 xl:order-3">
           <BrandIdentityPanel
             instruction={brandSettings.data?.instruction ?? ""}
             canEdit={brandSettings.data?.canEdit ?? false}
             saving={savingBrand}
+            updatedAt={brandSettings.data?.updatedAt ?? null}
+            updatedByName={brandSettings.data?.updatedByName ?? null}
             onSave={async (instruction) => {
               setSavingBrand(true);
               try {

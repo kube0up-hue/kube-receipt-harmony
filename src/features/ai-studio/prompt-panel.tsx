@@ -71,7 +71,7 @@ function LightDirectionPicker({ value, onChange }: { value: string; onChange: (i
   return (
     <div>
       <div className="mb-2 text-xs text-studio-muted">اتجاه الإضاءة</div>
-      <div className="relative mx-auto grid max-w-64 grid-cols-3 gap-2 rounded-md border border-studio-border bg-studio-panel p-3">
+      <div className="studio-camera-grid relative mx-auto grid max-w-64 grid-cols-3 gap-2 rounded-md border border-studio-border bg-studio-panel p-3">
         {LIGHT_DIRECTIONS.map((option) => {
           const Icon = lightIcons[option.id as keyof typeof lightIcons] ?? Sun;
           return (

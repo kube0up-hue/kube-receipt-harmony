@@ -193,6 +193,7 @@ export const getStudioStatus = createServerFn({ method: "GET" })
 export interface StudioBrandSettings {
   instruction: string;
   updatedAt: string | null;
+  updatedByName: string | null;
   canEdit: boolean;
 }
 
@@ -208,6 +209,7 @@ export const getStudioBrandSettings = createServerFn({ method: "GET" })
     return {
       instruction: setting?.brand_instruction ?? BRAND_INSTRUCTION,
       updatedAt: setting?.updated_at ?? null,
+      updatedByName: null,
       canEdit: (roles?.length ?? 0) > 0,
     };
   });
@@ -242,7 +244,8 @@ export const saveStudioBrandSettings = createServerFn({ method: "POST" })
       new_value: { brand_instruction: data.instruction },
     });
     if (auditError) throw new Error(auditError.message);
-    return { instruction: data.instruction, updatedAt, canEdit: true };
+    const { data: actor } = await supabaseAdmin.from("profiles").select("full_name").eq("id", context.userId).maybeSingle();
+    return { instruction: data.instruction, updatedAt, updatedByName: actor?.full_name ?? null, canEdit: true };
   });
 
 export interface GenerateResult {

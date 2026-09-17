@@ -7,11 +7,15 @@ export function BrandIdentityPanel({
   instruction,
   canEdit,
   saving,
+  updatedAt,
+  updatedByName,
   onSave,
 }: {
   instruction: string;
   canEdit: boolean;
   saving: boolean;
+  updatedAt: string | null;
+  updatedByName: string | null;
   onSave: (instruction: string) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
@@ -31,6 +35,12 @@ export function BrandIdentityPanel({
             <div className="truncate text-[11px] text-studio-muted">
               {dirty ? "تعديلات غير محفوظة" : "التعليمات المعتمدة تُضاف تلقائيًا"}
             </div>
+            {!dirty && updatedAt && (
+              <div className="mt-0.5 text-[10px] text-studio-muted">
+                آخر تحديث {new Intl.DateTimeFormat("ar-SA", { dateStyle: "short", timeStyle: "short" }).format(new Date(updatedAt))}
+                {updatedByName ? ` · ${updatedByName}` : ""}
+              </div>
+            )}
           </div>
         </div>
         <Button type="button" variant="outline" size="sm" onClick={() => setOpen((v) => !v)} className="h-8 border-studio-border bg-studio-panel-raised text-studio-foreground">
