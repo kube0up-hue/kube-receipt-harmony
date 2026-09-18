@@ -158,7 +158,7 @@ function QualityPage() {
               {photoMissing && <p className="text-xs text-muted-foreground">صورة القياس إلزامية — صوّر شاشة الجهاز والرقم الظاهر.</p>}
 
               <button onClick={() => save.mutate(m.id)} disabled={disabled}
-                className="kube-btn w-full inline-flex items-center justify-center gap-1 disabled:opacity-50">
+                className="kube-btn-primary w-full inline-flex items-center justify-center gap-1 disabled:opacity-50">
                 <Droplets className="w-4 h-4" /> حفظ
               </button>
             </div>
