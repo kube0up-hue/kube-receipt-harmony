@@ -896,6 +896,7 @@ export type Database = {
           label: string
           max_ok: number | null
           min_ok: number | null
+          requires_photo: boolean
           sort_order: number
           unit: string
           updated_at: string
@@ -908,6 +909,7 @@ export type Database = {
           label: string
           max_ok?: number | null
           min_ok?: number | null
+          requires_photo?: boolean
           sort_order?: number
           unit?: string
           updated_at?: string
@@ -920,6 +922,7 @@ export type Database = {
           label?: string
           max_ok?: number | null
           min_ok?: number | null
+          requires_photo?: boolean
           sort_order?: number
           unit?: string
           updated_at?: string
@@ -1965,6 +1968,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      update_quality_metric_limits: {
+        Args: { p_max: number; p_metric_id: string; p_min: number }
+        Returns: undefined
       }
     }
     Enums: {
