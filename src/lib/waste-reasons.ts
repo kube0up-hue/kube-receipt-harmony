@@ -13,9 +13,10 @@ export const WASTE_REASON_LABEL: Record<string, string> = Object.fromEntries(
 );
 
 export const QUALITY_STATUS: Record<string, { label: string; cls: string }> = {
-  ok: { label: "مطابق", cls: "bg-success/15 text-success border-success/30" },
-  warn: { label: "قريب من الحد", cls: "bg-warning/15 text-warning-foreground border-warning/30" },
-  out_of_range: { label: "خارج الحد", cls: "bg-kube-red/10 text-kube-red border-kube-red/30" },
+  ok: { label: "ضمن النطاق", cls: "bg-success/15 text-success border-success/30" },
+  // القراءات التاريخية بحالة "warn" تُعرض كخارج النطاق — الحالات الآن حالتان فقط.
+  warn: { label: "خارج النطاق", cls: "bg-kube-red/10 text-kube-red border-kube-red/30" },
+  out_of_range: { label: "خارج النطاق", cls: "bg-kube-red/10 text-kube-red border-kube-red/30" },
 };
 
 export const SALES_STATUS: Record<string, { label: string; cls: string }> = {

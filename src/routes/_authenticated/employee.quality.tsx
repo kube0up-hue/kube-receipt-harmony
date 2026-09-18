@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
@@ -7,16 +7,17 @@ import { PermissionGuard } from "@/components/permission-guard";
 import { useBranchFilter } from "@/lib/use-branches";
 import { QUALITY_STATUS } from "@/lib/waste-reasons";
 import { formatDateTimeAr } from "@/lib/format-date";
+import { uploadOpsPhotos } from "@/lib/ops-photos";
 import { toast } from "sonner";
-import { Droplets, AlertTriangle } from "lucide-react";
+import { Droplets, AlertTriangle, Camera, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/employee/quality")({
   head: () => ({
     meta: [
       { title: "قياسات المياه والجودة — KUBE Kitchen" },
-      { name: "description", content: "تسجيل ملوحة المياه ودرجة الحموضة وحرارة الثلاجات مع تنبيه فوري عند تجاوز الحدود المسموحة." },
+      { name: "description", content: "تسجيل جودة الماء (TDS) بصورة إلزامية للقياس، ودرجة حرارة الثلاجة 1 والثلاجة 2 مع النطاق المقبول." },
       { property: "og:title", content: "قياسات المياه والجودة — KUBE Kitchen" },
-      { property: "og:description", content: "قياسات يومية بحدود مقبولة وتنبيه عند الخروج عنها." },
+      { property: "og:description", content: "ثلاثة قياسات فقط: جودة الماء وحرارة الثلاجتين." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -28,20 +29,33 @@ export const Route = createFileRoute("/_authenticated/employee/quality")({
   ),
 });
 
+type Metric = {
+  id: string;
+  code: string;
+  label: string;
+  unit: string;
+  min_ok: number | null;
+  max_ok: number | null;
+  requires_photo: boolean;
+};
+
 function QualityPage() {
   const qc = useQueryClient();
   const { branchId, label, loading } = useBranchFilter();
   const [values, setValues] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [photos, setPhotos] = useState<Record<string, File[]>>({});
 
   const metrics = useQuery({
-    queryKey: ["quality-metrics"],
-    queryFn: async () => {
+    queryKey: ["quality-metrics-active"],
+    queryFn: async (): Promise<Metric[]> => {
       const { data, error } = await supabase
-        .from("quality_metrics").select("id, code, label, unit, min_ok, max_ok")
-        .eq("is_active", true).order("sort_order");
+        .from("quality_metrics")
+        .select("id, code, label, unit, min_ok, max_ok, requires_photo")
+        .eq("is_active", true)
+        .order("sort_order");
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as Metric[];
     },
   });
 
@@ -62,12 +76,14 @@ function QualityPage() {
 
   const save = useMutation({
     mutationFn: async (metricId: string) => {
+      const files = photos[metricId] ?? [];
+      const paths = files.length > 0 ? await uploadOpsPhotos(files, `quality/${branchId}`) : [];
       const { error } = await supabase.rpc("record_quality_reading", {
         p_branch_id: branchId!,
         p_metric_id: metricId,
         p_value: Number(values[metricId]),
         p_note: notes[metricId]?.trim() || undefined,
-        p_photo_paths: [],
+        p_photo_paths: paths,
       });
       if (error) throw error;
       return metricId;
@@ -76,6 +92,7 @@ function QualityPage() {
       toast.success("تم تسجيل القياس");
       setValues((v) => ({ ...v, [metricId]: "" }));
       setNotes((n) => ({ ...n, [metricId]: "" }));
+      setPhotos((p) => ({ ...p, [metricId]: [] }));
       qc.invalidateQueries({ queryKey: ["quality-readings"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -101,28 +118,49 @@ function QualityPage() {
         {(metrics.data ?? []).map((m) => {
           const v = values[m.id] ?? "";
           const num = Number(v);
+          const noteText = (notes[m.id] ?? "").trim();
+          const files = photos[m.id] ?? [];
           const outOfRange = v !== "" && !Number.isNaN(num) &&
             ((m.min_ok !== null && num < Number(m.min_ok)) || (m.max_ok !== null && num > Number(m.max_ok)));
+          const photoMissing = m.requires_photo && files.length === 0;
+          const noteMissing = outOfRange && noteText === "";
+          const disabled = v === "" || Number.isNaN(num) || photoMissing || noteMissing || save.isPending;
+
           return (
-            <div key={m.id} className="kube-card space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <div className="font-bold">{m.label}</div>
-                <div className="text-xs text-muted-foreground">
-                  المقبول: {m.min_ok ?? "—"} إلى {m.max_ok ?? "—"} {m.unit}
+            <div key={m.id} className="kube-card space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="font-bold">{m.label}</div>
+                  <div className="text-xs text-muted-foreground">{m.unit}</div>
+                </div>
+                <div className="text-xs text-muted-foreground text-left shrink-0">
+                  النطاق المقبول
+                  <div className="font-semibold">{m.min_ok ?? "—"} — {m.max_ok ?? "—"}</div>
                 </div>
               </div>
-              <div className="grid grid-cols-[1fr_auto] gap-2">
-                <input type="number" inputMode="decimal" step="any" value={v}
-                  onChange={(e) => setValues((s) => ({ ...s, [m.id]: e.target.value }))}
-                  placeholder={`القيمة ${m.unit}`} className="kube-input" />
-                <button onClick={() => save.mutate(m.id)} disabled={v === "" || Number.isNaN(num) || save.isPending}
-                  className="kube-btn inline-flex items-center gap-1 disabled:opacity-50">
-                  <Droplets className="w-4 h-4" /> حفظ
-                </button>
-              </div>
+
+              <input type="number" inputMode="decimal" step="any" value={v}
+                onChange={(e) => setValues((s) => ({ ...s, [m.id]: e.target.value }))}
+                placeholder={`القراءة (${m.unit})`} className="kube-input" />
+
+              {m.requires_photo && (
+                <PhotoPicker files={files} onChange={(f) => setPhotos((s) => ({ ...s, [m.id]: f }))} />
+              )}
+
               <input value={notes[m.id] ?? ""} onChange={(e) => setNotes((s) => ({ ...s, [m.id]: e.target.value }))}
-                placeholder="ملاحظة (اختياري)" className="kube-input" />
-              {outOfRange && <p className="text-xs font-semibold text-kube-red">القيمة خارج الحد المسموح — أبلغ مسؤول التشغيل.</p>}
+                placeholder={outOfRange ? "الملاحظة إلزامية — اذكر سبب القراءة" : "ملاحظة (اختياري)"} className="kube-input" />
+
+              {outOfRange && (
+                <p className="text-xs font-semibold text-kube-red">
+                  القراءة خارج النطاق المقبول — تأكد من القراءة. إن كانت صحيحة فاكتب ملاحظة قبل الحفظ، وسيصل تنبيه للمالك.
+                </p>
+              )}
+              {photoMissing && <p className="text-xs text-muted-foreground">صورة القياس إلزامية — صوّر شاشة الجهاز والرقم الظاهر.</p>}
+
+              <button onClick={() => save.mutate(m.id)} disabled={disabled}
+                className="kube-btn-primary w-full inline-flex items-center justify-center gap-1 disabled:opacity-50">
+                <Droplets className="w-4 h-4" /> حفظ
+              </button>
             </div>
           );
         })}
@@ -153,5 +191,33 @@ function QualityPage() {
         </section>
       </div>
     </AppShell>
+  );
+}
+
+/** اختيار/تصوير صورة القياس (إلزامية لقياس جودة الماء). */
+function PhotoPicker({ files, onChange }: { files: File[]; onChange: (f: File[]) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  return (
+    <div className="space-y-2">
+      <input ref={ref} type="file" accept="image/*" capture="environment" className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onChange([f]);
+          e.target.value = "";
+        }} />
+      <button type="button" onClick={() => ref.current?.click()}
+        className="kube-btn-outline w-full inline-flex items-center justify-center gap-2">
+        <Camera className="w-4 h-4" /> {files.length > 0 ? "تغيير صورة القياس" : "تصوير القياس"}
+      </button>
+      {files.length > 0 && (
+        <div className="relative w-28">
+          <img src={URL.createObjectURL(files[0]!)} alt="صورة القياس" className="w-28 h-28 object-cover rounded-md border" />
+          <button type="button" onClick={() => onChange([])}
+            className="absolute -top-2 -left-2 bg-kube-red text-white rounded-full p-1">
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
