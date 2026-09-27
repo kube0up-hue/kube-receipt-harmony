@@ -3,12 +3,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Search, Save, FileDown, AlertTriangle } from "lucide-react";
+import { Loader2, Search, Save, FileDown, AlertTriangle, ChevronDown, Camera } from "lucide-react";
+import { Fragment } from "react";
 import { formatMoney, formatQty, formatSigned, lineAmount, num, round2, round3, sumMoney } from "@/lib/money";
 import { downloadCsv } from "@/lib/csv";
 import { riyadhDayEndExclusive, riyadhDayStart, riyadhToday } from "@/lib/riyadh-time";
+import { ReceiptItemPhotos } from "@/features/receipt-photo-viewer";
+import { formatDateTimeAr } from "@/lib/format-date";
 
 
+
+type Delivery = {
+  receiptId: string; date: string; orderNumber: string;
+  ordered: number; received: number; damaged: number; accepted: number; paths: string[];
+};
 
 type Row = {
   product_id: string;
@@ -20,6 +28,7 @@ type Row = {
   ordered_qty: number;
   invoiced_qty: string;
   unit_price: string;
+  deliveries: Delivery[];
 };
 
 export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accountant" }) {
@@ -61,36 +70,56 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
 
     // Get receipts in period
     const { data: recs, error: rErr } = await supabase
-      .from("receipts").select("id")
+      .from("receipts").select("id,received_at,status,orders(order_number)")
       .eq("supplier_id", supplierId)
+      .in("status", ["submitted", "approved"])
       .gte("received_at", riyadhDayStart(periodStart))
-      .lt("received_at", riyadhDayEndExclusive(periodEnd));
+      .lt("received_at", riyadhDayEndExclusive(periodEnd))
+      .order("received_at");
     if (rErr) { toast.error(rErr.message); return; }
 
-    const recIds = (recs ?? []).map(r => r.id);
-    const items = recIds.length
-      ? (await supabase.from("receipt_items")
-          .select("product_id,ordered_qty,received_qty,damaged_qty,accepted_qty")
-          .in("receipt_id", recIds)).data ?? []
-      : [];
+    const recList = (recs ?? []) as unknown as { id: string; received_at: string; orders: { order_number: string } | null }[];
+    const recMap = new Map(recList.map((r) => [r.id, r]));
+    const recIds = recList.map(r => r.id);
+    let items: { receipt_id: string; product_id: string; ordered_qty: number; received_qty: number; damaged_qty: number; accepted_qty: number }[] = [];
+    let photos: { receipt_id: string; product_id: string | null; storage_path: string }[] = [];
+    if (recIds.length) {
+      const [iRes, pRes] = await Promise.all([
+        supabase.from("receipt_items").select("receipt_id,product_id,ordered_qty,received_qty,damaged_qty,accepted_qty").in("receipt_id", recIds),
+        supabase.from("receipt_photos").select("receipt_id,product_id,storage_path").in("receipt_id", recIds),
+      ]);
+      if (iRes.error) { toast.error(iRes.error.message); return; }
+      items = iRes.data ?? [];
+      photos = pRes.data ?? [];
+    }
 
-    const agg = new Map<string, { o: number; r: number; d: number; a: number }>();
+    const agg = new Map<string, { o: number; r: number; d: number; a: number; dl: Delivery[] }>();
     for (const it of items) {
       const k = it.product_id;
-      const cur = agg.get(k) ?? { o: 0, r: 0, d: 0, a: 0 };
+      const cur = agg.get(k) ?? { o: 0, r: 0, d: 0, a: 0, dl: [] };
       cur.o += Number(it.ordered_qty); cur.r += Number(it.received_qty);
       cur.d += Number(it.damaged_qty); cur.a += Number(it.accepted_qty);
+      const rec = recMap.get(it.receipt_id);
+      cur.dl.push({
+        receiptId: it.receipt_id,
+        date: rec?.received_at ?? "",
+        orderNumber: rec?.orders?.order_number ?? "—",
+        ordered: Number(it.ordered_qty), received: Number(it.received_qty),
+        damaged: Number(it.damaged_qty), accepted: Number(it.accepted_qty),
+        paths: photos.filter((p) => p.receipt_id === it.receipt_id && (p.product_id === k || p.product_id === null)).map((p) => p.storage_path),
+      });
       agg.set(k, cur);
     }
 
     const newRows: Row[] = (prods ?? []).map(p => {
-      const a = agg.get(p.id) ?? { o: 0, r: 0, d: 0, a: 0 };
+      const a = agg.get(p.id) ?? { o: 0, r: 0, d: 0, a: 0, dl: [] };
       const price = round2(num((p as { unit_price?: number | string }).unit_price));
       return {
         product_id: p.id, product_name: p.name, unit: p.unit,
         accepted_qty: round3(a.a), received_qty: round3(a.r), damaged_qty: round3(a.d), ordered_qty: round3(a.o),
         invoiced_qty: a.a ? String(round3(a.a)) : "",
         unit_price: price ? String(price) : "",
+        deliveries: a.dl,
       };
     });
     setRows(newRows);
