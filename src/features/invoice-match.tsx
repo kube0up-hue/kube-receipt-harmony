@@ -34,6 +34,7 @@ type Row = {
 export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accountant" }) {
   const nav = useNavigate();
   const qc = useQueryClient();
+  const [open, setOpen] = useState<Record<string, boolean>>({});
   const [supplierId, setSupplierId] = useState<string>("");
   const [periodStart, setPeriodStart] = useState<string>(() => `${riyadhToday().slice(0, 8)}01`);
   const [periodEnd, setPeriodEnd] = useState<string>(() => riyadhToday());
@@ -344,6 +345,7 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
               <thead>
                 <tr className="text-xs text-muted-foreground border-b border-border">
                   <th className="text-right py-2">المنتج</th>
+                  <th className="text-center py-2">المطلوب</th>
                   <th className="text-center py-2">المستلم</th>
                   <th className="text-center py-2">التالف</th>
                   <th className="text-center py-2 font-bold text-foreground">المقبول</th>
@@ -363,12 +365,22 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                   const due = lineAmount(r.accepted_qty, up);
                   const invAmt = lineAmount(iq, up);
                   const amtDiff = round2(invAmt - due);
+                  const isOpen = !!open[r.product_id];
                   return (
-                    <tr key={r.product_id} className={`border-b border-border/50 ${(r.accepted_qty > 0 || iq > 0) && up <= 0 ? "bg-kube-red/5" : ""}`}>
+                    <Fragment key={r.product_id}>
+                    <tr className={`border-b border-border/50 ${(r.accepted_qty > 0 || iq > 0) && up <= 0 ? "bg-kube-red/5" : ""}`}>
                       <td className="py-2">
                         <div className="font-semibold">{r.product_name}</div>
                         <div className="text-xs text-muted-foreground">{r.unit}</div>
+                        {r.deliveries.length > 0 && (
+                          <button type="button" onClick={() => setOpen((s) => ({ ...s, [r.product_id]: !isOpen }))}
+                            className="mt-1 inline-flex items-center gap-1 text-xs font-semibold underline">
+                            <Camera className="w-3 h-3" /> {r.deliveries.length} استلام
+                            <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                          </button>
+                        )}
                       </td>
+                      <td className="text-center">{formatQty(r.ordered_qty)}</td>
                       <td className="text-center">{formatQty(r.received_qty)}</td>
                       <td className="text-center text-kube-red">{r.damaged_qty ? formatQty(r.damaged_qty) : "—"}</td>
                       <td className="text-center font-bold">{formatQty(r.accepted_qty)}</td>
@@ -397,14 +409,36 @@ export function InvoiceMatchForm({ basePath }: { basePath: "/admin" | "/accounta
                         {formatSigned(amtDiff)}
                       </td>
                     </tr>
+                    {isOpen && (
+                      <tr className="bg-muted/40 border-b border-border/50">
+                        <td colSpan={11} className="p-2">
+                          <div className="space-y-2">
+                            {r.deliveries.map((d) => (
+                              <div key={d.receiptId} className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                                <span className="font-semibold">{d.date ? formatDateTimeAr(d.date) : "—"}</span>
+                                <span>طلب {d.orderNumber}</span>
+                                <span>المطلوب {formatQty(d.ordered)}</span>
+                                <span>المستلم {formatQty(d.received)}</span>
+                                {d.damaged > 0 && <span className="text-kube-red">التالف {formatQty(d.damaged)}</span>}
+                                <span className="font-bold">المقبول {formatQty(d.accepted)}</span>
+                                {d.paths.length > 0
+                                  ? <ReceiptItemPhotos paths={d.paths} meta={{ product: r.product_name, unit: r.unit, orderNumber: d.orderNumber, date: d.date, ordered: d.ordered }} />
+                                  : <span className="text-muted-foreground">بدون صور</span>}
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   );
                 })}
-                {rows.length === 0 && <tr><td colSpan={10} className="text-center py-6 text-muted-foreground">لا توجد منتجات</td></tr>}
+                {rows.length === 0 && <tr><td colSpan={11} className="text-center py-6 text-muted-foreground">لا توجد منتجات</td></tr>}
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-border font-bold">
                   <td className="py-2">الإجمالي</td>
-                  <td></td><td></td>
+                  <td></td><td></td><td></td>
                   <td className="text-center">{formatQty(totals.acc)}</td>
                   <td className="text-center">{formatQty(totals.inv)}</td>
                   <td></td><td></td>
