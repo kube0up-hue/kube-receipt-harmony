@@ -45,7 +45,8 @@ const todayRiyadh = () =>
 
 function QualityAdmin() {
   const { branchId, label } = useBranchFilter();
-  const { roles } = useCurrentUser();
+  const { data: me } = useCurrentUser();
+  const roles = me?.roles ?? [];
   const canEditLimits = roles.includes("admin") || roles.includes("owner");
 
   const metrics = useQuery({
