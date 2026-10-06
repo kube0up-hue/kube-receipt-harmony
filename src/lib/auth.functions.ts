@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createHash } from "crypto";
+import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 
@@ -12,6 +13,26 @@ function pinToPassword(pin: string): string {
 
 function empEmail(employeeId: string) {
   return `emp-${employeeId}@kube.internal`;
+}
+
+// حماية دخول PIN من التخمين — المحاولات تُسجَّل في pin_login_attempts.
+// إذا لم يكن الجدول موجوداً بعد، يستمر الدخول بدون حد (لا نكسر دخول الموظفين).
+const PIN_WINDOW_MINUTES = 15;
+const PIN_MAX_FAILS_PER_IP = 5;
+const PIN_MAX_FAILS_GLOBAL = 50;
+
+function requestIp(): string {
+  try {
+    const h = getRequest().headers;
+    return (
+      h.get("cf-connecting-ip") ||
+      h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      h.get("x-real-ip") ||
+      "unknown"
+    );
+  } catch {
+    return "unknown";
+  }
 }
 
 /**
@@ -28,6 +49,32 @@ export const signInWithPin = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { createClient } = await import("@supabase/supabase-js");
 
+    const ip = requestIp();
+    const since = new Date(Date.now() - PIN_WINDOW_MINUTES * 60_000).toISOString();
+    const [ipFails, allFails] = await Promise.all([
+      supabaseAdmin
+        .from("pin_login_attempts")
+        .select("id", { count: "exact", head: true })
+        .eq("ip", ip)
+        .eq("success", false)
+        .gte("created_at", since),
+      supabaseAdmin
+        .from("pin_login_attempts")
+        .select("id", { count: "exact", head: true })
+        .eq("success", false)
+        .gte("created_at", since),
+    ]);
+    const logAttempt = async (success: boolean, reason: string) => {
+      await supabaseAdmin.from("pin_login_attempts").insert({ ip, success, reason });
+    };
+    if (
+      (!ipFails.error && (ipFails.count ?? 0) >= PIN_MAX_FAILS_PER_IP) ||
+      (!allFails.error && (allFails.count ?? 0) >= PIN_MAX_FAILS_GLOBAL)
+    ) {
+      await logAttempt(false, "locked");
+      throw new Error("محاولات كثيرة، حاول بعد 15 دقيقة");
+    }
+
     const { data: emp, error: empErr } = await supabaseAdmin
       .from("employees")
       .select("id, full_name, is_active, user_id")
@@ -35,8 +82,14 @@ export const signInWithPin = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (empErr) throw new Error(empErr.message);
-    if (!emp) throw new Error("رقم PIN غير صحيح");
-    if (!emp.is_active) throw new Error("هذا الموظف غير مفعّل");
+    if (!emp) {
+      await logAttempt(false, "wrong_pin");
+      throw new Error("رقم PIN غير صحيح");
+    }
+    if (!emp.is_active) {
+      await logAttempt(false, "inactive");
+      throw new Error("هذا الموظف غير مفعّل");
+    }
 
     const email = empEmail(emp.id);
     const password = pinToPassword(data.pin);
@@ -73,6 +126,7 @@ export const signInWithPin = createServerFn({ method: "POST" })
       password,
     });
     if (signInErr || !signInData.session) throw new Error(signInErr?.message ?? "فشل تسجيل الدخول");
+    await logAttempt(true, "ok");
 
     return {
       access_token: signInData.session.access_token,
