@@ -77,4 +77,8 @@ export {
   type ProductStudioPreset,
   type VideoScriptTemplate,
 } from "./datasets/halai-engine";
+export {
+  HALAI_AI_MODELS_CATALOG,
+  type AiModelEngine,
+} from "./datasets/ai-models-catalog";
 
