@@ -1,15 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { PermissionGuard } from "@/components/permission-guard";
 import {
   Sparkles,
   Copy,
   Plus,
   ChevronLeft,
-  ChevronRight,
   Search,
   Layers,
-  Download,
   Zap,
   Bot,
   Video,
@@ -25,31 +23,24 @@ import {
   ShoppingBag,
   Cpu,
   Radio,
-  Sliders,
   Send,
   Coffee,
   Check,
   TrendingUp,
   Image as ImageIcon,
-  Palette,
-  Eye,
-  Maximize2,
-  Users,
+  Key,
+  ExternalLink,
+  ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  SAUDI_SOCIAL_POSTS,
   SAUDI_VISUAL_PROMPTS,
-  SAUDI_TREND_PLAYBOOKS,
   SAUDI_UGC_FORMATS,
   SAUDI_CREATOR_PERSONAS,
   KUBE_PRODUCT_STUDIO_PRESETS,
-  KUBE_VIDEO_SCRIPTS,
   HALAI_AI_MODELS_CATALOG,
   UgcFormat,
-  SaudiCreatorPersona,
   ProductStudioPreset,
-  VideoScriptTemplate,
   AiModelEngine,
 } from "@/features/marketing/ai-marketing-dataset";
 import { useCurrentUser } from "@/lib/use-current-user";
@@ -58,24 +49,24 @@ import { primaryRoleHome } from "@/lib/current-user";
 export const Route = createFileRoute("/_authenticated/admin/marketing")({
   head: () => ({
     meta: [
-      { title: "الرئيسية | Halai KUBE AI" },
+      { title: "الرئيسية | KUBE AI — مركز الإبداع والتوليد الذكي" },
       {
         name: "description",
         content:
-          "منظومة ومحركات التوليد الذكية لكافيه ومطبخ KUBE المطابقة لمنصة هلاي (Hallah.ai): سوبر ايجنت، استوديو المنتجات ثلاثي الأبعاد، شخصيات UGC، وكتالوج النماذج العالمية.",
+          "منظومة ومحركات التوليد الذكية لكافيه ومطبخ KUBE: سوبر ايجنت، استوديو المنتجات ثلاثي الأبعاد، شخصيات UGC، وكتالوج النماذج العالمية.",
       },
-      { property: "og:title", content: "KUBE هلاي AI — مركز الإبداع والذكاء الاصطناعي" },
+      { property: "og:title", content: "KUBE AI — مركز الإبداع والتوليد الذكي" },
       { property: "og:description", content: "ابدع بلا حدود مع محركات الذكاء الاصطناعي التوليدي لكافيه KUBE." },
     ],
   }),
   component: () => (
     <PermissionGuard anyOf={["ai_studio_use", "reports_export", "orders_view"]}>
-      <HalaiMarketingPage />
+      <KubeAiMarketingPage />
     </PermissionGuard>
   ),
 });
 
-// Halai Official SVG Engine Icons
+// Official Engine SVG Logos
 const ENGINE_LOGOS = [
   { name: "Kling", icon: "https://hallah.ai/icons/kling.svg", invert: false },
   { name: "Veed", icon: "https://hallah.ai/icons/veed.svg", invert: true },
@@ -94,7 +85,7 @@ const ENGINE_LOGOS = [
 // Horizontal Showcase Stream (Section 2)
 const SHOWCASE_CARDS = [
   {
-    title: "هلاي ميميك",
+    title: "كيوب ميميك",
     tag: "رائج",
     desc: "احتفظ بحركة الفيديو وكاميرته وتوقيته، وأعد بناء الشخصيات والمنتجات والمشهد من صورك",
     thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/f902bd3c5421e3c5b4175ec715a4b194/thumbnails/thumbnail.jpg?height=720",
@@ -150,7 +141,7 @@ const SHOWCASE_CARDS = [
     action: "ugc_studio",
   },
   {
-    title: "هلاي على سلة وزد",
+    title: "كيوب على سلة وزد",
     tag: "جديد",
     desc: "أستوديو المنتجات والتسويق والإعلانات و UGC — مباشرة داخل لوحة متجرك وكاشير KUBE.",
     thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/ff003dae9963a722e9bfa4fcad1eb47a/thumbnails/thumbnail.jpg?height=720",
@@ -168,15 +159,15 @@ const SHOWCASE_CARDS = [
 // Real UGC Creators (Section 7)
 const UGC_CREATORS = [
   {
-    name: "SULTAN | سلطان",
+    name: "سلطان | Sultan",
     views: "128K",
     likes: "12K",
-    role: "عاشق الاسبريسو",
+    role: "عاشق الاسبريسو والروقان",
     thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/c43e443131757e6b7f81f374a372b878/thumbnails/thumbnail.jpg?height=720",
     avatar: "https://media.hallah.ai/cdn-cgi/image/width=400,format=auto/cms/studios/ugc-2/characters/male/sultan.png",
   },
   {
-    name: "NOURA | نورة",
+    name: "نورة | Noura",
     views: "45.2K",
     likes: "3.1K",
     role: "طالبة عمارة ومقهى",
@@ -184,7 +175,7 @@ const UGC_CREATORS = [
     avatar: "https://media.hallah.ai/cdn-cgi/image/width=400,format=auto/cms/studios/ugc-2/characters/female/olivia.png",
   },
   {
-    name: "NADA | ندى",
+    name: "ندى | Nada",
     views: "34.5K",
     likes: "1.5K",
     role: "خبيرة الحلى والكرواسون",
@@ -192,7 +183,7 @@ const UGC_CREATORS = [
     avatar: "https://media.hallah.ai/cdn-cgi/image/width=400,format=auto/cms/studios/ugc-2/characters/female/hessa.png",
   },
   {
-    name: "REEMA | ريما",
+    name: "ريما | Reema",
     views: "89.1K",
     likes: "3.1K",
     role: "صانعة محتوى لايف ستايل",
@@ -200,7 +191,7 @@ const UGC_CREATORS = [
     avatar: "https://media.hallah.ai/cdn-cgi/image/width=400,format=auto/cms/studios/ugc-2/characters/female/reema.png",
   },
   {
-    name: "AHMED | أحمد",
+    name: "أحمد | Ahmed",
     views: "210K",
     likes: "42K",
     role: "مستشار مالي وروقان الصباح",
@@ -243,6 +234,82 @@ const TEMPLATES_ITEMS = [
   },
 ];
 
+// API Key Providers List for Direct Integration
+const AI_PROVIDERS = [
+  {
+    id: "kling",
+    name: "Kling AI (Kuaishou)",
+    purpose: "توليد فيديوهات UGC والسكب الحركي للقهوة والموشن",
+    keyEnv: "KLING_API_KEY",
+    endpoint: "https://api.klingai.com/v1/videos/image2video",
+    docUrl: "https://klingai.org/api",
+    status: "موصى به للـ UGC",
+  },
+  {
+    id: "veo",
+    name: "Google Cloud Vertex AI (Veo 2 & Veo 3.1)",
+    purpose: "إعلانات سينمائية بدقة 4K HDR ومؤثرات كاميرا دقيقة",
+    keyEnv: "GOOGLE_APPLICATION_CREDENTIALS / GEMINI_API_KEY",
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/veo-2.0",
+    docUrl: "https://cloud.google.com/vertex-ai",
+    status: "موصى به للإعلانات الكبرى",
+  },
+  {
+    id: "wanx",
+    name: "Alibaba Cloud DashScope (WanX 2.6 Pro & Qwen)",
+    purpose: "محاكاة فيزياء السوائل وتوليد النصوص العربية بوضوح",
+    keyEnv: "DASHSCOPE_API_KEY",
+    endpoint: "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc",
+    docUrl: "https://dashscope.console.aliyun.com",
+    status: "موصى به للمنتجات 3D",
+  },
+  {
+    id: "seadance",
+    name: "ByteDance Volcano Engine (SeaDance 2.5)",
+    purpose: "مقاطع ريلز وتيك توك سريعة مع صوت متزامن أصلي",
+    keyEnv: "VOLCANO_API_KEY",
+    endpoint: "https://ark.cn-beijing.volces.com/api/v3/video/generations",
+    docUrl: "https://console.volcengine.com/ark",
+    status: "موصى به للترندات",
+  },
+  {
+    id: "flux",
+    name: "Black Forest Labs (Flux 1.1 Pro & Max 2)",
+    purpose: "صور منتجات فوتوغرافية فائقة الواقعية والماكرو بدقة 8K",
+    keyEnv: "BFL_API_KEY",
+    endpoint: "https://api.bfl.ml/v1/flux-pro-1.1",
+    docUrl: "https://bfl.ml",
+    status: "موصى به للماكرو والعلب",
+  },
+  {
+    id: "grok",
+    name: "xAI (Grok Imagine)",
+    purpose: "إعلانات ليلية نيون ونبرة شبابية جريئة",
+    keyEnv: "XAI_API_KEY",
+    endpoint: "https://api.x.ai/v1/images/generations",
+    docUrl: "https://console.x.ai",
+    status: "موصى به لأجواء المساء",
+  },
+  {
+    id: "minimax",
+    name: "MiniMax Hailuo (H3 & Video-01)",
+    purpose: "توليد سريع متعدد المراجع (صورة + فيديو + صوت)",
+    keyEnv: "MINIMAX_API_KEY",
+    endpoint: "https://api.minimax.chat/v1/video_generation",
+    docUrl: "https://api.minimax.chat",
+    status: "موصى به للتوليد السريع",
+  },
+  {
+    id: "elevenlabs",
+    name: "ElevenLabs Voice AI",
+    purpose: "توليد أصوات شخصيات الرياض النجدية الواقعية للـ UGC",
+    keyEnv: "ELEVENLABS_API_KEY",
+    endpoint: "https://api.elevenlabs.io/v1/text-to-speech",
+    docUrl: "https://elevenlabs.io",
+    status: "موصى به للأصوات",
+  },
+];
+
 interface ChatMessage {
   id: string;
   sender: "user" | "agent";
@@ -250,14 +317,14 @@ interface ChatMessage {
   timestamp: string;
 }
 
-function HalaiMarketingPage() {
+function KubeAiMarketingPage() {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const backHomeUrl = primaryRoleHome(currentUser.data?.roles ?? []);
 
-  // Studio Modal Active State (if user opens a full interactive studio workspace)
+  // Modal Workspace States
   const [activeStudioModal, setActiveStudioModal] = useState<
-    "none" | "super_agent" | "product_3d" | "ugc_studio" | "ads_9x" | "models_api" | "promlog"
+    "none" | "super_agent" | "product_3d" | "ugc_studio" | "ads_9x" | "models_api" | "promlog" | "providers_guide"
   >("none");
 
   // Mobile drawer toggle
@@ -273,7 +340,7 @@ function HalaiMarketingPage() {
     {
       id: "msg-0",
       sender: "agent",
-      text: "أهلاً بك زياد عيسى في سوبر ايجنت KUBE! ☕️⚡️\nالمحرك مدرب على لهجة الرياض وأسرار القهوة المختصة ونبرة برق و STC. اختر أي صيغة UGC أو اسألني لأصيغ لك إعلانات سينمائية فوراً.",
+      text: "أهلاً بك زياد عيسى في سوبر ايجنت KUBE AI! ☕️⚡️\nالمحرك مدرب على لهجة الرياض وأسرار القهوة المختصة ونبرة برق و STC. اختر أي صيغة UGC أو اطلب ما تريد وسأصيغ لك إعلانات سينمائية للتوليد فوراً.",
       timestamp: "الآن",
     },
   ]);
@@ -288,8 +355,6 @@ function HalaiMarketingPage() {
   const [lightingIntensity, setLightingIntensity] = useState<"soft" | "hard">("soft");
   const [aspectRatio, setAspectRatio] = useState<"1:1" | "4:5" | "9:16" | "16:9">("9:16");
   const [selectedPreset, setSelectedPreset] = useState<ProductStudioPreset>(KUBE_PRODUCT_STUDIO_PRESETS[0]);
-  const [productUrlInput, setProductUrlInput] = useState("");
-  const [isRendering3D, setIsRendering3D] = useState(false);
 
   // ==========================================
   // UGC & Personas State
@@ -333,7 +398,7 @@ function HalaiMarketingPage() {
     setIsAgentTyping(true);
 
     setTimeout(() => {
-      const replyText = `يا هلا زياد! أبشر بعزك ☕️✨\nتم توجيه المحرك (${selectedEngine}) لصياغة سكريبت بصري بالصيغة: "${selectedUgcFormat.nameAr}"\n\n📌 المشهد: لقطة ماكرو 4K مع تكثيف قطرات الندى على كوب كولد برو KUBE الأسود المطفي.\n🎙️ الصوت: "إذا يومك ما بدأ بقطرة تروق المخ... KUBE يضبط مزاجك بضغطة زر".\n⚡️ البرومبت الجاهز للإنتاج:\n${selectedUgcFormat.promptDirective}\n\nجاهز للتوليد الفوري على Kling 3 Turbo أو Google Veo 3.1!`;
+      const replyText = `يا هلا زياد! أبشر بعزك ☕️✨\nتم توجيه المحرك (${selectedEngine}) لصياغة سكريبت بصري بالصيغة: "${selectedUgcFormat.nameAr}"\n\n📌 المشهد: لقطة ماكرو 4K مع تكثيف قطرات الندى على كوب كولد برو KUBE الأسود المطفي مع لمسات الأحمر المتوهج.\n🎙️ الصوت: "إذا يومك ما بدأ بقطرة تروق المخ... KUBE يضبط مزاجك بضغطة زر".\n⚡️ البرومبت الجاهز للإنتاج:\n${selectedUgcFormat.promptDirective}\n\nجاهز للتوليد الفوري على Kling 3 Turbo أو Google Veo 3.1!`;
 
       const agentMsg: ChatMessage = {
         id: `agent-${Date.now()}`,
@@ -353,7 +418,7 @@ function HalaiMarketingPage() {
       setGenerated9Pack([
         {
           title: "زاوية الماكرو والسكب",
-          prompt: `Cinematic macro 8k commercial shot of ${adsProductTitle}, slow motion milk swirl dripping, studio spotlight, Hasselblad lens f/1.4`,
+          prompt: `Cinematic macro 8k commercial shot of ${adsProductTitle}, slow motion milk swirl dripping, studio spotlight with subtle red glow, Hasselblad lens f/1.4`,
           tag: "انستقرام 1:1",
         },
         {
@@ -363,7 +428,7 @@ function HalaiMarketingPage() {
         },
         {
           title: "ستايل الشارع الفاخر",
-          prompt: `Street style photography on Prince Turki Road Riyadh, luxury black KUBE cup, minimalist neon lighting, 4:5 vertical`,
+          prompt: `Street style photography on Prince Turki Road Riyadh, luxury black and red KUBE cup, minimalist neon lighting, 4:5 vertical`,
           tag: "سناب شات 9:16",
         },
         {
@@ -372,8 +437,8 @@ function HalaiMarketingPage() {
           tag: "تويتر 16:9",
         },
         {
-          title: "إضاءة النيون المسائية",
-          prompt: `Matte black cup under amber and emerald neon glow, dark luxury moody cafe vibe, ultra-sharp detail`,
+          title: "إضاءة النيون الحمراء المسائية",
+          prompt: `Matte black cup under deep crimson red and amber neon glow, dark luxury moody cafe vibe, ultra-sharp detail`,
           tag: "ريلز 9:16",
         },
         {
@@ -388,7 +453,7 @@ function HalaiMarketingPage() {
         },
         {
           title: "الرخام الأسود والظل",
-          prompt: `Black nero marquina marble pedestal holding the coffee, rim backlighting, elegant typography space`,
+          prompt: `Black nero marquina marble pedestal holding the coffee, red rim backlighting, elegant typography space`,
           tag: "كتالوج 1:1",
         },
         {
@@ -404,22 +469,22 @@ function HalaiMarketingPage() {
   return (
     <div
       dir="rtl"
-      className="w-full min-h-screen bg-black text-white selection:bg-[#74ff52] selection:text-black font-sans overflow-x-hidden antialiased"
+      className="w-full min-h-screen bg-black text-white selection:bg-[#ff2a4b] selection:text-white font-sans overflow-x-hidden antialiased"
       style={{
         backgroundColor: "#000000",
-        fontFamily: '"IBM Plex Sans Arabic", "PingARLT", "Rubik", sans-serif',
+        fontFamily: '"IBM Plex Sans Arabic", "Alexandria", "Cairo", sans-serif',
       }}
     >
       {/* ============================================================== */}
-      {/* 1. FIXED TOPBAR (Exact Halai Header Structure)                 */}
+      {/* 1. FIXED TOPBAR (Exact Studio Header with Red Theme)            */}
       {/* ============================================================== */}
       <header
         data-app-topbar="true"
-        className="h-12 md:h-16 flex items-center justify-between px-3 md:px-8 shrink-0 z-[9999] w-full transition-all duration-300 fixed top-0 left-0 bg-black/60 backdrop-blur-xl border-b border-white/5"
+        className="h-12 md:h-16 flex items-center justify-between px-3 md:px-8 shrink-0 z-[9999] w-full transition-all duration-300 fixed top-0 left-0 bg-black/75 backdrop-blur-xl border-b border-white/5"
       >
         {/* Right Section: Mobile Menu + Logo + Desktop Nav */}
         <div className="flex items-center h-full gap-2 md:gap-5">
-          {/* Mobile Menu Drawer Toggle */}
+          {/* Mobile Menu Toggle */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -428,14 +493,22 @@ function HalaiMarketingPage() {
             <MenuIcon className="w-5 h-5" />
           </button>
 
-          {/* KUBE Halai Logo */}
-          <Link to="/admin/marketing" className="h-8 md:h-12 flex items-center shrink-0 cursor-pointer hover:scale-105 transition-transform gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#74ff52] to-emerald-600 shadow-lg shadow-[#74ff52]/20 text-black font-black text-sm">
+          {/* KUBE AI Brand Logo */}
+          <Link
+            to="/admin/marketing"
+            className="h-8 md:h-12 flex items-center shrink-0 cursor-pointer hover:scale-105 transition-transform gap-2.5"
+          >
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#ff334b] via-[#ef4444] to-[#991b1b] shadow-lg shadow-[#ff2a4b]/30 text-white font-black text-base border border-white/20">
               K
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-base font-black tracking-wider text-white">KUBE</span>
-              <span className="text-[#74ff52] font-bold text-sm">هلاي AI</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff3b56] to-[#ff2a4b] font-black text-sm">
+                AI
+              </span>
+              <span className="rounded-full bg-[#ff2a4b]/20 border border-[#ff2a4b]/40 px-2 py-0.5 text-[9px] font-bold text-[#ff3b56] font-mono">
+                STUDIO v2
+              </span>
             </div>
           </Link>
 
@@ -470,7 +543,7 @@ function HalaiMarketingPage() {
               onClick={() => setActiveStudioModal("product_3d")}
               className="group flex items-center gap-1.5 text-sm font-medium transition-colors h-full px-2.5 text-zinc-400 hover:text-white"
             >
-              <Layers className="w-4 h-4 text-[#74ff52]" />
+              <Layers className="w-4 h-4 text-[#ff2a4b]" />
               <span>الاستديو</span>
             </button>
 
@@ -489,17 +562,26 @@ function HalaiMarketingPage() {
               onClick={() => setActiveStudioModal("super_agent")}
               className="flex items-center gap-1.5 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium text-white bg-white/5 hover:bg-white/10 border border-white/10"
             >
-              <Bot className="w-4 h-4 text-[#74ff52]" />
+              <Bot className="w-4 h-4 text-[#ff2a4b]" />
               <span>سوبر ايجنت</span>
-              <span className="text-[9px] uppercase px-1.5 rounded-sm font-bold -skew-x-12 shrink-0 bg-[#74ff52] text-black">
+              <span className="text-[9px] uppercase px-1.5 rounded-sm font-bold -skew-x-12 shrink-0 bg-[#ff2a4b] text-white">
                 جديد
               </span>
             </button>
           </nav>
         </div>
 
-        {/* Left Section: Back to ERP + Library + Profile */}
-        <div className="flex items-center gap-2.5 md:gap-4">
+        {/* Left Section: API Keys Report + Back to ERP + Library + Profile */}
+        <div className="flex items-center gap-2.5 md:gap-3.5">
+          {/* Provider API Keys Button */}
+          <button
+            onClick={() => setActiveStudioModal("providers_guide")}
+            className="flex items-center gap-1.5 h-8 px-2.5 rounded-[10px] bg-[#ff2a4b]/15 hover:bg-[#ff2a4b]/25 border border-[#ff2a4b]/40 text-[#ff3b56] text-xs font-bold transition-all shadow-sm"
+          >
+            <Key className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">مفاتيح المزودين (API)</span>
+          </button>
+
           <Link
             to={backHomeUrl}
             className="flex items-center gap-1.5 h-8 ps-2 pe-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs md:text-sm font-medium transition-all"
@@ -517,15 +599,7 @@ function HalaiMarketingPage() {
             <span className="hidden sm:inline">المكتبة</span>
           </button>
 
-          <button
-            onClick={() => toast.info("لا توجد إشعارات جديدة")}
-            className="relative flex items-center justify-center w-8 h-8 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all"
-          >
-            <Bell className="w-3.5 h-3.5" />
-            <span className="absolute top-1 end-1 w-1.5 h-1.5 rounded-full bg-[#74ff52]" />
-          </button>
-
-          {/* User Profile Capsule with Glowing Ring */}
+          {/* User Profile Capsule with Signature KUBE Red Glowing Ring */}
           <div className="flex items-center gap-2 relative">
             <div className="relative flex items-center justify-center w-[36px] h-[36px] md:w-[44px] md:h-[44px]">
               <svg width="44" height="44" className="absolute inset-0 -rotate-90 pointer-events-none" viewBox="0 0 44 44">
@@ -539,26 +613,26 @@ function HalaiMarketingPage() {
                   strokeDasharray="125"
                   strokeDashoffset="0"
                   strokeLinecap="round"
-                  style={{ stroke: "#74ff52" }}
+                  style={{ stroke: "#ff2a4b" }}
                 />
               </svg>
               <div
-                className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-zinc-900 border border-white/20 flex items-center justify-center text-white text-xs md:text-sm font-bold shadow-lg overflow-hidden cursor-pointer"
-                title="زياد عيسى • VIP غير محدود"
+                className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-zinc-900 border border-white/20 flex items-center justify-center text-white text-xs md:text-sm font-black shadow-lg overflow-hidden cursor-pointer"
+                title="زياد عيسى • KUBE VIP"
               >
                 <span>ز</span>
               </div>
             </div>
             <div className="hidden lg:block text-right">
               <span className="text-xs font-bold text-white block">زياد عيسى</span>
-              <span className="text-[10px] text-[#74ff52] font-mono block">VIP داخلي • غير محدود</span>
+              <span className="text-[10px] text-[#ff3b56] font-mono block">استخدام داخلي خاص • KUBE</span>
             </div>
           </div>
         </div>
       </header>
 
       {/* ============================================================== */}
-      {/* 2. SECTION 1: HERO (100vh Full Screen Edge-to-Edge)            */}
+      {/* 2. SECTION 1: HERO (100vh Full Screen Edge-to-Edge with Red)   */}
       {/* ============================================================== */}
       <section className="relative h-[100vh] min-h-[700px] flex flex-col items-center justify-center text-center px-4 md:px-6 overflow-hidden shrink-0 pt-16">
         {/* Background Stream Loop */}
@@ -566,16 +640,16 @@ function HalaiMarketingPage() {
           <img
             src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/40dba6a71d8013595711298206cc8d48/thumbnails/thumbnail.jpg?height=720"
             alt=""
-            className="absolute inset-0 w-full h-full object-cover opacity-60 scale-105 transition-transform duration-1000"
+            className="absolute inset-0 w-full h-full object-cover opacity-50 scale-105 transition-transform duration-1000"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/45 to-black" />
         </div>
 
         {/* Hero Content */}
         <div className="relative z-10 max-w-6xl w-full space-y-6 md:space-y-8 animate-in fade-in duration-1000 px-4">
-          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black uppercase text-white leading-[0.85] drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)] tracking-tighter">
+          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black uppercase text-white leading-[0.85] drop-shadow-[0_20px_50px_rgba(0,0,0,0.95)] tracking-tighter">
             ابدع <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-br from-[#74ff52] via-[#74ff52] to-[#74ff52]/40">
+            <span className="text-transparent bg-clip-text bg-gradient-to-br from-[#ff3b56] via-[#ff2a4b] to-[#b91c1c]">
               بلا حدود.
             </span>
           </h1>
@@ -591,7 +665,7 @@ function HalaiMarketingPage() {
                   setActiveStudioModal("super_agent");
                   toast.success(`تم اختيار محرك ${eng.name}`);
                 }}
-                className="w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center shrink-0 hover:bg-white/15 hover:scale-110 hover:border-[#74ff52]/50 transition-all duration-300 cursor-pointer shadow-lg"
+                className="w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center shrink-0 hover:bg-white/15 hover:scale-110 hover:border-[#ff2a4b]/60 transition-all duration-300 cursor-pointer shadow-lg"
               >
                 <img
                   src={eng.icon}
@@ -610,7 +684,7 @@ function HalaiMarketingPage() {
           <div className="flex items-center justify-center gap-3 md:gap-4 flex-wrap pt-2">
             <button
               onClick={() => setActiveStudioModal("super_agent")}
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-[14px] bg-[#74ff52] hover:bg-[#62e043] text-black font-black text-sm md:text-base shadow-xl shadow-[#74ff52]/20 hover:scale-105 active:scale-95 transition-all"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-[14px] bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm md:text-base shadow-xl shadow-[#ff2a4b]/30 hover:scale-105 active:scale-95 transition-all"
             >
               <Zap className="w-4 h-4 fill-current" />
               <span>أطلق سوبر ايجنت ▶</span>
@@ -620,7 +694,7 @@ function HalaiMarketingPage() {
               onClick={() => setActiveStudioModal("product_3d")}
               className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-sm md:text-base backdrop-blur-md hover:scale-105 active:scale-95 transition-all"
             >
-              <Layers className="w-4 h-4 text-[#74ff52]" />
+              <Layers className="w-4 h-4 text-[#ff2a4b]" />
               <span>استديو المنتجات 3D</span>
             </button>
 
@@ -628,7 +702,7 @@ function HalaiMarketingPage() {
               onClick={() => setActiveStudioModal("ads_9x")}
               className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-[14px] bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-200 font-bold text-sm md:text-base backdrop-blur-md hover:scale-105 active:scale-95 transition-all"
             >
-              <Sparkles className="w-4 h-4 text-amber-400" />
+              <Sparkles className="w-4 h-4 text-[#ff3b56]" />
               <span>استديو الإعلانات 9x</span>
             </button>
           </div>
@@ -651,15 +725,15 @@ function HalaiMarketingPage() {
                   else if (card.action === "models") setActiveStudioModal("models_api");
                   else setActiveStudioModal("super_agent");
                 }}
-                className="group relative shrink-0 snap-start w-[82vw] sm:w-[50vw] md:w-[380px] lg:w-[420px] aspect-[16/10] rounded-[22px] overflow-hidden bg-zinc-900 text-right ring-1 ring-white/10 hover:ring-[#74ff52]/50 transition-all cursor-pointer shadow-2xl"
+                className="group relative shrink-0 snap-start w-[82vw] sm:w-[50vw] md:w-[380px] lg:w-[420px] aspect-[16/10] rounded-[22px] overflow-hidden bg-zinc-900 text-right ring-1 ring-white/10 hover:ring-[#ff2a4b]/60 transition-all cursor-pointer shadow-2xl"
               >
                 <div className="absolute inset-0 block transition-transform duration-700 group-hover:scale-105">
                   <img src={card.thumb} alt={card.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
-                {/* Badge Tag */}
-                <span className="absolute top-4 start-4 z-20 font-bold text-xs uppercase px-2.5 py-1 rounded-sm -skew-x-12 shadow-xl bg-[#74ff52] text-black">
+                {/* Badge Tag in Signature Red */}
+                <span className="absolute top-4 start-4 z-20 font-black text-xs uppercase px-2.5 py-1 rounded-sm -skew-x-12 shadow-xl bg-[#ff2a4b] text-white">
                   {card.tag}
                 </span>
 
@@ -669,8 +743,8 @@ function HalaiMarketingPage() {
                     {card.title}
                   </span>
                   <p className="text-xs md:text-sm text-zinc-300 line-clamp-2 leading-relaxed">{card.desc}</p>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#74ff52] pt-2">
-                    جرّبه الآن <ArrowRight className="w-3.5 h-3.5" />
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#ff3b56] pt-2">
+                    توليد فوري <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
               </div>
@@ -686,8 +760,10 @@ function HalaiMarketingPage() {
         <div className="relative z-20 max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div className="flex flex-col items-center lg:items-start text-center lg:text-right gap-6">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#74ff52] animate-pulse" />
-              <span className="text-xs font-bold text-[#74ff52] font-mono uppercase tracking-wider">استديو التسويق 2.0</span>
+              <span className="h-2 w-2 rounded-full bg-[#ff2a4b] animate-pulse" />
+              <span className="text-xs font-bold text-[#ff3b56] font-mono uppercase tracking-wider">
+                استديو التسويق 2.0
+              </span>
             </div>
 
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-black leading-[1.1] tracking-tight text-white">
@@ -701,7 +777,7 @@ function HalaiMarketingPage() {
 
             <button
               onClick={() => setActiveStudioModal("product_3d")}
-              className="inline-flex items-center justify-center gap-2 px-9 h-12 rounded-[14px] bg-[#74ff52] hover:bg-[#62e043] text-black font-black text-sm shadow-xl shadow-[#74ff52]/20 hover:scale-105 active:scale-95 transition-all"
+              className="inline-flex items-center justify-center gap-2 px-9 h-12 rounded-[14px] bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm shadow-xl shadow-[#ff2a4b]/25 hover:scale-105 active:scale-95 transition-all"
             >
               <Layers className="w-4 h-4 fill-current" />
               <span>أنشئ إعلانًا ثلاثي الأبعاد</span>
@@ -718,8 +794,8 @@ function HalaiMarketingPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
-              <div className="absolute top-4 right-4 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] font-mono text-[#74ff52] border border-[#74ff52]/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#74ff52] animate-pulse" />
+              <div className="absolute top-4 right-4 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] font-mono text-[#ff3b56] border border-[#ff2a4b]/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#ff2a4b] animate-pulse" />
                 <span>3D Lighting • Hasselblad</span>
               </div>
 
@@ -740,8 +816,8 @@ function HalaiMarketingPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#74ff52] font-mono">استوديو الشخصيات</span>
-                <span className="text-[9px] uppercase px-1.5 py-0.5 rounded-sm font-bold bg-[#74ff52] text-black">
+                <span className="text-xs font-bold text-[#ff3b56] font-mono">استوديو الشخصيات</span>
+                <span className="text-[9px] uppercase px-1.5 py-0.5 rounded-sm font-black bg-[#ff2a4b] text-white">
                   جديد
                 </span>
               </div>
@@ -779,7 +855,7 @@ function HalaiMarketingPage() {
                   setActiveStudioModal("ugc_studio");
                   toast.success(`تم اختيار شخصية ${creator.name}`);
                 }}
-                className="group relative rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#74ff52] cursor-pointer transition-all shadow-xl"
+                className="group relative rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#ff2a4b] cursor-pointer transition-all shadow-xl"
               >
                 <div className="aspect-[3/4] w-full overflow-hidden">
                   <img
@@ -806,7 +882,7 @@ function HalaiMarketingPage() {
       <section className="px-4 sm:px-6 md:px-12 py-16 max-w-[1600px] mx-auto border-t border-white/5">
         <div className="rounded-[32px] border border-white/10 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 sm:p-10 md:p-16 relative overflow-hidden shadow-2xl">
           <div className="relative z-10 max-w-2xl space-y-6 text-right">
-            <span className="text-xs font-mono uppercase text-[#74ff52] font-bold">فريقك الإبداعي</span>
+            <span className="text-xs font-mono uppercase text-[#ff3b56] font-bold">فريقك الإبداعي</span>
             <h2 className="text-4xl md:text-6xl font-black text-white leading-tight">سوبر ايجنت KUBE</h2>
             <p className="text-base md:text-lg text-zinc-300 leading-relaxed">
               وكيل ذكاء اصطناعي سعودي فائق التطور، يكتب السكريبتات الإعلانية، يضبط إضاءة الكافيه، ويطلق الحملات في ثوانٍ.
@@ -815,7 +891,7 @@ function HalaiMarketingPage() {
             <div className="flex items-center gap-3 pt-4">
               <button
                 onClick={() => setActiveStudioModal("super_agent")}
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[#74ff52] hover:bg-[#62e043] text-black font-black text-sm shadow-xl shadow-[#74ff52]/20 hover:scale-105 transition-all"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm shadow-xl shadow-[#ff2a4b]/30 hover:scale-105 transition-all"
               >
                 <Bot className="w-4 h-4 fill-current" />
                 <span>جرّب سوبر ايجنت الآن</span>
@@ -834,7 +910,9 @@ function HalaiMarketingPage() {
             <div className="space-y-3">
               <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-none">
                 تطبيقات
-                <span className="block text-[#74ff52]">جاهزة للإبداع</span>
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#ff3b56] to-[#ff2a4b]">
+                  جاهزة للإبداع
+                </span>
               </h2>
               <p className="text-base md:text-lg text-white/70 max-w-2xl">
                 تخطى كتابة البرومت. استخدم قوالبنا المصممة باحترافية لإنشاء محتوى لكافيه KUBE في ثوانٍ.
@@ -859,7 +937,7 @@ function HalaiMarketingPage() {
                   toast.success(`تم اختيار قالب "${tmpl.title}" ونقله لسوبر ايجنت`);
                   setActiveStudioModal("super_agent");
                 }}
-                className="group relative rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#74ff52] transition-all cursor-pointer shadow-xl"
+                className="group relative rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#ff2a4b] transition-all cursor-pointer shadow-xl"
               >
                 <div className="aspect-[3/4] w-full overflow-hidden">
                   <img
@@ -870,7 +948,7 @@ function HalaiMarketingPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                 </div>
                 <div className="p-3 space-y-1 text-right">
-                  <span className="text-[10px] font-mono text-[#74ff52] block">{tmpl.cat}</span>
+                  <span className="text-[10px] font-mono text-[#ff3b56] block">{tmpl.cat}</span>
                   <span className="text-xs font-black text-white block truncate">{tmpl.title}</span>
                 </div>
               </div>
@@ -885,7 +963,7 @@ function HalaiMarketingPage() {
       <section className="relative w-full overflow-hidden bg-black py-16 md:py-24 border-t border-white/5">
         <div className="relative z-30 mx-auto max-w-[1600px] px-4 md:px-8 space-y-10">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <span className="text-xs font-bold font-mono text-[#74ff52] uppercase">UGC Studio 2.0</span>
+            <span className="text-xs font-bold font-mono text-[#ff3b56] uppercase">UGC Studio 2.0</span>
             <h2 className="text-4xl md:text-6xl font-black text-white">أنشئ مقاطع يو جي سي عالية الواقعية</h2>
             <p className="text-sm md:text-base text-zinc-400">
               أصوات سعودية ونبرات طبيعية تناسب إعلانات تيك توك وسناب شات وريلز.
@@ -901,7 +979,7 @@ function HalaiMarketingPage() {
                   setActiveCreator(item);
                   setActiveStudioModal("ugc_studio");
                 }}
-                className="group relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-pointer hover:border-[#74ff52] transition-all shadow-xl"
+                className="group relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-pointer hover:border-[#ff2a4b] transition-all shadow-xl"
               >
                 <div className="aspect-[9/15] w-full relative overflow-hidden">
                   <img
@@ -919,7 +997,7 @@ function HalaiMarketingPage() {
 
                   {/* Play Icon */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-10 h-10 rounded-full bg-[#74ff52] text-black flex items-center justify-center shadow-2xl">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff334b] to-[#dc2626] text-white flex items-center justify-center shadow-2xl">
                       <Play className="w-5 h-5 fill-current mr-0.5" />
                     </div>
                   </div>
@@ -950,7 +1028,7 @@ function HalaiMarketingPage() {
         <div className="relative z-20 max-w-[1600px] mx-auto px-4 md:px-8 space-y-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-3">
-              <span className="text-xs font-bold font-mono text-[#74ff52]">رائج</span>
+              <span className="text-xs font-bold font-mono text-[#ff3b56]">رائج</span>
               <h2 className="text-4xl md:text-6xl font-black text-white">استديو الإعلانات — ٩ صور من لقطة واحدة</h2>
               <p className="text-sm md:text-base text-zinc-400 max-w-xl">
                 أنشئ صور إعلانية عالية التحويل. 9 صور احترافية تناسب كل أنواع الحملات وكل المقاسات.
@@ -959,10 +1037,10 @@ function HalaiMarketingPage() {
 
             <button
               onClick={() => setActiveStudioModal("ads_9x")}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[#74ff52] hover:bg-[#62e043] text-black font-black text-sm shadow-xl shadow-[#74ff52]/20 hover:scale-105 transition-all self-start md:self-auto"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm shadow-xl shadow-[#ff2a4b]/30 hover:scale-105 transition-all self-start md:self-auto"
             >
               <Sparkles className="w-4 h-4 fill-current" />
-              <span>ابدأ التوليد 9x</span>
+              <span>توليد الـ 9 إعلانات فوراً</span>
             </button>
           </div>
         </div>
@@ -983,14 +1061,14 @@ function HalaiMarketingPage() {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute top-4 right-4 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-0.5 text-[9px] font-mono text-white">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#74ff52] animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ff2a4b] animate-pulse" />
                   <span>LIVE Motion</span>
                 </div>
               </div>
             </div>
 
             <div className="space-y-6 text-center lg:text-right max-w-xl">
-              <span className="text-xs font-mono uppercase text-[#74ff52] font-bold">LIVE</span>
+              <span className="text-xs font-mono uppercase text-[#ff3b56] font-bold">LIVE</span>
               <h2 className="text-4xl md:text-6xl font-black text-white leading-tight">نسختك المُطابقة</h2>
               <p className="text-base text-zinc-300 leading-relaxed">
                 انقل الحركة الحقيقية إلى أي شخصية أو فنجان قهوة. ارفع مشية، تلويحة، أو سكب — وشاهد إبداعك يتحرك تماماً مثلك.
@@ -1006,7 +1084,7 @@ function HalaiMarketingPage() {
                   <span className="text-[10px] text-zinc-400">أعلى دقة</span>
                 </div>
                 <div className="p-3 rounded-xl bg-zinc-900/80 border border-white/10">
-                  <span className="text-lg font-black text-[#74ff52] block">Pro</span>
+                  <span className="text-lg font-black text-[#ff3b56] block">Pro</span>
                   <span className="text-[10px] text-zinc-400">مطابقة الحركة</span>
                 </div>
               </div>
@@ -1021,7 +1099,7 @@ function HalaiMarketingPage() {
       <section className="py-16 md:py-24 max-w-[1600px] mx-auto px-4 md:px-8 border-t border-white/5 space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
-            <span className="text-xs font-bold font-mono text-[#74ff52]">المحركات ونماذج الـ API</span>
+            <span className="text-xs font-bold font-mono text-[#ff3b56]">المحركات ونماذج الـ API</span>
             <h2 className="text-3xl md:text-5xl font-black text-white">كتالوج النماذج العالمية للربط البرمجي</h2>
             <p className="text-xs md:text-sm text-zinc-400">
               حصر شامل لمحركات Kling, Veo, WanX, Flux, Grok, Omni مع وثائق الـ Endpoints الجاهزة للربط مع سيرفرات KUBE.
@@ -1032,7 +1110,7 @@ function HalaiMarketingPage() {
             onClick={() => setActiveStudioModal("models_api")}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs transition-all self-start md:self-auto"
           >
-            <Code className="w-4 h-4 text-[#74ff52]" />
+            <Code className="w-4 h-4 text-[#ff3b56]" />
             <span>عرض وثائق الـ API كاملة</span>
           </button>
         </div>
@@ -1045,12 +1123,12 @@ function HalaiMarketingPage() {
                 setSelectedModelForApi(model);
                 setActiveStudioModal("models_api");
               }}
-              className="rounded-2xl border border-white/10 bg-zinc-900/70 p-5 space-y-3 hover:border-[#74ff52] cursor-pointer transition-all flex flex-col justify-between"
+              className="rounded-2xl border border-white/10 bg-zinc-900/70 p-5 space-y-3 hover:border-[#ff2a4b] cursor-pointer transition-all flex flex-col justify-between"
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-black text-white">{model.nameAr}</span>
-                  <span className="text-[10px] font-mono text-[#74ff52] bg-white/5 px-2 py-0.5 rounded-md">
+                  <span className="text-[10px] font-mono text-[#ff3b56] bg-white/5 px-2 py-0.5 rounded-md">
                     {model.provider}
                   </span>
                 </div>
@@ -1072,7 +1150,7 @@ function HalaiMarketingPage() {
       <section id="mcp-section" className="py-16 max-w-[1600px] mx-auto px-4 md:px-8 border-t border-white/5 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 to-black p-8 space-y-4">
-            <span className="text-xs font-mono text-[#74ff52]">متوفر في متجر تطبيقات سلة</span>
+            <span className="text-xs font-mono text-[#ff3b56]">متوفر في متجر تطبيقات سلة</span>
             <h3 className="text-2xl font-black text-white">عزّز متجرك في سلة</h3>
             <p className="text-xs md:text-sm text-zinc-400 leading-relaxed">
               أنشئ صور منتجاتك وفيديوهاتها وإعلاناتها من لوحة تحكم سلة مباشرة وبمزامنة فورية مع كاشير KUBE.
@@ -1087,7 +1165,7 @@ function HalaiMarketingPage() {
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 to-black p-8 space-y-4">
-            <span className="text-xs font-mono text-[#74ff52]">متوفر في متجر تطبيقات زد</span>
+            <span className="text-xs font-mono text-[#ff3b56]">متوفر في متجر تطبيقات زد</span>
             <h3 className="text-2xl font-black text-white">عزّز متجرك في زد</h3>
             <p className="text-xs md:text-sm text-zinc-400 leading-relaxed">
               أنشئ صور منتجاتك وفيديوهاتها وإعلاناتها من لوحة تحكم زد مباشرة وبمزامنة فورية مع نظام KUBE ERP.
@@ -1109,7 +1187,7 @@ function HalaiMarketingPage() {
       <section className="py-16 max-w-[1600px] mx-auto px-4 md:px-8 border-t border-white/5 space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
-            <span className="text-xs font-bold font-mono text-[#74ff52]">وصول مجاني</span>
+            <span className="text-xs font-bold font-mono text-[#ff3b56]">وصول مجاني داخلي</span>
             <h2 className="text-3xl md:text-5xl font-black text-white">بروملوق — بنك برومبتات القهوة</h2>
             <p className="text-xs md:text-sm text-zinc-400">
               مكتبة خاصة من البرومتات الجاهزة للتنفيذ، احصل عليها فوراً وانشر إبداعك.
@@ -1120,7 +1198,7 @@ function HalaiMarketingPage() {
             onClick={() => setActiveStudioModal("promlog")}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs transition-all self-start md:self-auto"
           >
-            <FolderOpen className="w-4 h-4 text-[#74ff52]" />
+            <FolderOpen className="w-4 h-4 text-[#ff3b56]" />
             <span>عرض كل البرومبتات (40+)</span>
           </button>
         </div>
@@ -1129,10 +1207,10 @@ function HalaiMarketingPage() {
           {SAUDI_VISUAL_PROMPTS.slice(0, 3).map((vp) => (
             <div
               key={vp.id}
-              className="rounded-2xl border border-white/10 bg-zinc-900/60 p-5 space-y-3 flex flex-col justify-between hover:border-[#74ff52]/50 transition-all"
+              className="rounded-2xl border border-white/10 bg-zinc-900/60 p-5 space-y-3 flex flex-col justify-between hover:border-[#ff2a4b]/50 transition-all"
             >
               <div className="space-y-2 text-right">
-                <span className="text-[10px] font-mono text-[#74ff52] uppercase block">{vp.category}</span>
+                <span className="text-[10px] font-mono text-[#ff3b56] uppercase block">{vp.category}</span>
                 <h4 className="text-sm font-black text-white">{vp.title}</h4>
                 <p className="text-xs text-zinc-300 leading-relaxed font-sans">{vp.arabicPrompt}</p>
                 <div className="p-2.5 rounded-xl bg-black/60 border border-white/5 text-[10px] font-mono text-zinc-400 line-clamp-3 select-all">
@@ -1142,7 +1220,7 @@ function HalaiMarketingPage() {
 
               <button
                 onClick={() => handleCopy(vp.englishPrompt, vp.title)}
-                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-[#74ff52] hover:text-black text-zinc-200 font-bold text-xs transition-colors"
+                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-zinc-200 font-bold text-xs transition-colors"
               >
                 <Copy className="w-3.5 h-3.5" />
                 <span>نسخ البرومبت بالإنجليزية</span>
@@ -1153,15 +1231,15 @@ function HalaiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 14. FOOTER (Exact Halai Footer Style)                          */}
+      {/* 14. FOOTER (Studio Footer)                                      */}
       {/* ============================================================== */}
       <footer className="w-full border-t border-white/10 bg-black py-12 px-4 md:px-8 text-zinc-400 text-xs">
         <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#74ff52] text-black font-black text-xs">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-[#ff334b] to-[#dc2626] text-white font-black text-xs">
               K
             </div>
-            <span className="font-bold text-white text-sm">KUBE هلاي AI</span>
+            <span className="font-bold text-white text-sm">KUBE AI</span>
             <span>— منظومة الذكاء الاصطناعي التوليدي الخاصة بكافيه ومطبخ KUBE</span>
           </div>
 
@@ -1175,13 +1253,13 @@ function HalaiMarketingPage() {
             <button onClick={() => setActiveStudioModal("product_3d")} className="hover:text-white transition-colors">
               استديو المنتجات 3D
             </button>
-            <button onClick={() => setActiveStudioModal("models_api")} className="hover:text-white transition-colors">
-              محركات API
+            <button onClick={() => setActiveStudioModal("providers_guide")} className="hover:text-white transition-colors text-[#ff3b56]">
+              دليل مفاتيح المزودين (API)
             </button>
           </div>
 
           <div className="text-[11px] font-mono text-zinc-500">
-            الرياض، المملكة العربية السعودية • إصدار 2026 Studio
+            الرياض، المملكة العربية السعودية • إصدار KUBE AI Studio 2026
           </div>
         </div>
       </footer>
@@ -1195,7 +1273,7 @@ function HalaiMarketingPage() {
             {/* Modal Topbar */}
             <div className="h-14 px-5 border-b border-white/10 flex items-center justify-between bg-zinc-950/80 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-6 h-6 rounded-lg bg-[#74ff52] text-black flex items-center justify-center font-black text-xs">
+                <div className="w-6 h-6 rounded-lg bg-[#ff2a4b] text-white flex items-center justify-center font-black text-xs">
                   ⚡️
                 </div>
                 <span className="text-sm font-black text-white">
@@ -1205,6 +1283,7 @@ function HalaiMarketingPage() {
                   {activeStudioModal === "ads_9x" && "استديو الإعلانات 9x — حزمة الـ 9 زوايا"}
                   {activeStudioModal === "models_api" && "كتالوج نماذج ومحركات الذكاء الاصطناعي (API)"}
                   {activeStudioModal === "promlog" && "بروملوق — بنك برومبتات كافيه KUBE"}
+                  {activeStudioModal === "providers_guide" && "دليل مفاتيح المزودين ومستودعات الربط (API Keys Guide)"}
                 </span>
               </div>
 
@@ -1219,7 +1298,71 @@ function HalaiMarketingPage() {
 
             {/* Modal Body */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
-              {/* MODAL 1: SUPER AGENT WORKSPACE */}
+              {/* MODAL: PROVIDERS API KEYS GUIDE (New Report) */}
+              {activeStudioModal === "providers_guide" && (
+                <div className="space-y-6 text-right">
+                  <div className="pb-4 border-b border-white/10 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Key className="w-5 h-5 text-[#ff2a4b]" />
+                      <h3 className="font-black text-base md:text-lg text-white">
+                        دليل المزودين لجلب مفاتيح الربط البرمجي (API Keys)
+                      </h3>
+                    </div>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      هذا التقرير الشامل يوضح أسماء المنصات العالمية، لوحات المطورين، أسماء المفاتيح المطلوبة، ونقاط الربط (Endpoints) حتى نربط معهم مباشرة وتعمل مخرجات KUBE AI بنفس دقة ومخرجات هلاي.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {AI_PROVIDERS.map((prov) => (
+                      <div
+                        key={prov.id}
+                        className="rounded-2xl border border-white/10 bg-zinc-900/80 p-5 space-y-3 flex flex-col justify-between hover:border-[#ff2a4b]/50 transition-colors"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-black text-white">{prov.name}</span>
+                            <span className="text-[10px] font-mono text-[#ff3b56] bg-[#ff2a4b]/15 px-2 py-0.5 rounded-md border border-[#ff2a4b]/30">
+                              {prov.status}
+                            </span>
+                          </div>
+                          <p className="text-xs text-zinc-300 leading-relaxed">{prov.purpose}</p>
+
+                          <div className="p-3 rounded-xl bg-black/60 border border-white/5 space-y-1.5 font-mono text-[11px] text-zinc-400">
+                            <div>
+                              المتغير المطلوب: <span className="text-[#ff3b56] font-bold">{prov.keyEnv}</span>
+                            </div>
+                            <div className="truncate">
+                              الـ Endpoint: <span className="text-zinc-300">{prov.endpoint}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                          <a
+                            href={prov.docUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs transition-colors"
+                          >
+                            <span>لوحة المطورين</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                          <button
+                            onClick={() => handleCopy(prov.keyEnv, "اسم المتغير")}
+                            className="px-3 py-2 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-zinc-300 font-bold text-xs transition-colors"
+                            title="نسخ اسم المتغير"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL: SUPER AGENT WORKSPACE */}
               {activeStudioModal === "super_agent" && (
                 <div className="h-full flex flex-col justify-between space-y-4">
                   {/* Chat Stream */}
@@ -1231,7 +1374,7 @@ function HalaiMarketingPage() {
                       >
                         <div
                           className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs ${
-                            msg.sender === "user" ? "bg-amber-500 text-black" : "bg-[#74ff52] text-black font-black"
+                            msg.sender === "user" ? "bg-amber-500 text-black" : "bg-[#ff2a4b] text-white font-black"
                           }`}
                         >
                           {msg.sender === "user" ? "ز" : "K"}
@@ -1239,7 +1382,7 @@ function HalaiMarketingPage() {
                         <div
                           className={`max-w-[80%] rounded-2xl p-4 text-xs md:text-sm leading-relaxed whitespace-pre-wrap ${
                             msg.sender === "user"
-                              ? "bg-[#74ff52] text-black font-medium"
+                              ? "bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-medium"
                               : "bg-zinc-900 border border-white/10 text-white"
                           }`}
                         >
@@ -1249,16 +1392,15 @@ function HalaiMarketingPage() {
                     ))}
 
                     {isAgentTyping && (
-                      <div className="flex items-center gap-2 text-xs text-[#74ff52] font-mono animate-pulse">
+                      <div className="flex items-center gap-2 text-xs text-[#ff3b56] font-mono animate-pulse">
                         <Bot className="w-4 h-4" />
                         <span>سوبر ايجنت يصيغ المحتوى البصري...</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Input Capsule with Format & Engine Selectors */}
+                  {/* Input Capsule with Format Quick Chips */}
                   <div className="space-y-3 pt-3 border-t border-white/10 shrink-0">
-                    {/* UGC Format Quick Chips */}
                     <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
                       {SAUDI_UGC_FORMATS.slice(0, 6).map((fmt) => (
                         <button
@@ -1269,7 +1411,7 @@ function HalaiMarketingPage() {
                           }}
                           className={`px-3 py-1.5 rounded-full font-bold whitespace-nowrap transition-all ${
                             selectedUgcFormat.id === fmt.id
-                              ? "bg-[#74ff52] text-black"
+                              ? "bg-[#ff2a4b] text-white"
                               : "bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white"
                           }`}
                         >
@@ -1289,7 +1431,7 @@ function HalaiMarketingPage() {
                       />
                       <button
                         onClick={() => handleSendAgent()}
-                        className="w-10 h-10 rounded-xl bg-[#74ff52] hover:bg-[#62e043] text-black flex items-center justify-center shadow-lg shrink-0 transition-transform active:scale-95"
+                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white flex items-center justify-center shadow-lg shrink-0 transition-transform active:scale-95"
                       >
                         <Send className="w-4 h-4" />
                       </button>
@@ -1298,7 +1440,7 @@ function HalaiMarketingPage() {
                 </div>
               )}
 
-              {/* MODAL 2: 3D PRODUCT STUDIO WORKSPACE */}
+              {/* MODAL: 3D PRODUCT STUDIO WORKSPACE */}
               {activeStudioModal === "product_3d" && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
                   {/* Left: 4K Preview Stage */}
@@ -1309,7 +1451,7 @@ function HalaiMarketingPage() {
                         alt="3D Coffee"
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-3 right-3 rounded-full bg-black/70 backdrop-blur-md px-3 py-1 text-[10px] font-mono text-[#74ff52] border border-[#74ff52]/30">
+                      <div className="absolute top-3 right-3 rounded-full bg-black/70 backdrop-blur-md px-3 py-1 text-[10px] font-mono text-[#ff3b56] border border-[#ff2a4b]/30">
                         {lightingDirection} • {lightingIntensity} • {aspectRatio}
                       </div>
                     </div>
@@ -1321,7 +1463,7 @@ function HalaiMarketingPage() {
                       </div>
                       <button
                         onClick={() => toast.success("جاري تحميل الصورة الأصلية بدقة 4K")}
-                        className="rounded-xl bg-[#74ff52] text-black font-black px-4 py-2 hover:bg-[#62e043]"
+                        className="rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black px-4 py-2 hover:from-[#ff4d64] hover:to-[#ef4444]"
                       >
                         تحميل 4K
                       </button>
@@ -1349,7 +1491,7 @@ function HalaiMarketingPage() {
                             onClick={() => setLightingDirection(btn.id as any)}
                             className={`py-2 rounded-lg font-bold text-xs transition-all ${
                               lightingDirection === btn.id
-                                ? "bg-[#74ff52] text-black"
+                                ? "bg-[#ff2a4b] text-white shadow-md shadow-[#ff2a4b]/30"
                                 : "bg-black/60 border border-white/10 text-zinc-300 hover:text-white"
                             }`}
                           >
@@ -1361,9 +1503,9 @@ function HalaiMarketingPage() {
 
                     {/* Interactive 3D Sphere */}
                     <div className="rounded-xl border border-white/10 bg-black/60 p-4 text-center space-y-2">
-                      <div className="w-20 h-20 rounded-full border-2 border-dashed border-[#74ff52]/40 mx-auto flex items-center justify-center relative shadow-inner">
+                      <div className="w-20 h-20 rounded-full border-2 border-dashed border-[#ff2a4b]/40 mx-auto flex items-center justify-center relative shadow-inner">
                         <div
-                          className={`w-5 h-5 rounded-full bg-[#74ff52] shadow-lg shadow-[#74ff52]/50 transition-transform duration-300 ${
+                          className={`w-5 h-5 rounded-full bg-[#ff2a4b] shadow-lg shadow-[#ff2a4b]/60 transition-transform duration-300 ${
                             lightingDirection === "top"
                               ? "-translate-y-5"
                               : lightingDirection === "bottom"
@@ -1404,15 +1546,15 @@ function HalaiMarketingPage() {
                         toast.info("جاري ريندر المشهد ثلاثي الأبعاد...");
                         setTimeout(() => toast.success("تم تحديث الريندر بنجاح!"), 700);
                       }}
-                      className="w-full py-3 rounded-xl bg-[#74ff52] text-black font-black text-xs shadow-lg shadow-[#74ff52]/20"
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black text-xs shadow-lg shadow-[#ff2a4b]/30"
                     >
-                      تحديث الريندر فوراً
+                      توليد الريندر فوراً
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* MODAL 3: UGC STUDIO WORKSPACE */}
+              {/* MODAL: UGC STUDIO WORKSPACE */}
               {activeStudioModal === "ugc_studio" && (
                 <div className="space-y-6 text-right">
                   <div className="flex items-center justify-between pb-4 border-b border-white/10">
@@ -1420,7 +1562,7 @@ function HalaiMarketingPage() {
                       <h3 className="font-black text-base text-white">استديو شخصيات UGC 2.0</h3>
                       <p className="text-xs text-zinc-400">توليد سكريبت ومقطع إعلاني بصوت واقعي للهجة النجدية</p>
                     </div>
-                    <span className="text-xs font-mono text-[#74ff52]">الشخصية الحالية: {activeCreator.name}</span>
+                    <span className="text-xs font-mono text-[#ff3b56]">الشخصية الحالية: {activeCreator.name}</span>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1435,7 +1577,7 @@ function HalaiMarketingPage() {
                         }}
                         className={`rounded-2xl border p-3 flex items-center gap-3 cursor-pointer transition-all ${
                           activeCreator.name === c.name
-                            ? "border-[#74ff52] bg-[#74ff52]/10"
+                            ? "border-[#ff2a4b] bg-[#ff2a4b]/10"
                             : "border-white/10 bg-zinc-900/60 hover:border-white/20"
                         }`}
                       >
@@ -1451,7 +1593,7 @@ function HalaiMarketingPage() {
                   {ugcScriptOutput && (
                     <div className="p-5 rounded-2xl bg-zinc-900 border border-white/10 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#74ff52]">السكريبت الإعلاني المقترح:</span>
+                        <span className="text-xs font-bold text-[#ff3b56]">السكريبت الإعلاني المقترح:</span>
                         <button
                           onClick={() => handleCopy(ugcScriptOutput, "السكريبت")}
                           className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
@@ -1467,7 +1609,7 @@ function HalaiMarketingPage() {
                 </div>
               )}
 
-              {/* MODAL 4: ADS STUDIO 9x */}
+              {/* MODAL: ADS STUDIO 9x */}
               {activeStudioModal === "ads_9x" && (
                 <div className="space-y-6 text-right">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/10">
@@ -1477,7 +1619,7 @@ function HalaiMarketingPage() {
                     </div>
                     <button
                       onClick={handleGenerate9Pack}
-                      className="px-6 py-2.5 rounded-xl bg-[#74ff52] hover:bg-[#62e043] text-black font-black text-xs shadow-lg shadow-[#74ff52]/20"
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-xs shadow-lg shadow-[#ff2a4b]/30"
                     >
                       توليد الـ 9 إعلانات فوراً
                     </button>
@@ -1489,7 +1631,7 @@ function HalaiMarketingPage() {
                       type="text"
                       value={adsProductTitle}
                       onChange={(e) => setAdsProductTitle(e.target.value)}
-                      className="flex-1 rounded-xl bg-zinc-900 border border-white/15 px-4 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-[#74ff52]"
+                      className="flex-1 rounded-xl bg-zinc-900 border border-white/15 px-4 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-[#ff2a4b]"
                     />
                   </div>
 
@@ -1503,7 +1645,7 @@ function HalaiMarketingPage() {
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
                               <span className="text-xs font-bold text-white">{item.title}</span>
-                              <span className="text-[9px] font-mono text-[#74ff52] bg-white/5 px-2 py-0.5 rounded-md">
+                              <span className="text-[9px] font-mono text-[#ff3b56] bg-[#ff2a4b]/15 px-2 py-0.5 rounded-md">
                                 {item.tag}
                               </span>
                             </div>
@@ -1513,7 +1655,7 @@ function HalaiMarketingPage() {
                           </div>
                           <button
                             onClick={() => handleCopy(item.prompt, item.title)}
-                            className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-[#74ff52] hover:text-black text-xs font-bold transition-colors"
+                            className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-xs font-bold transition-colors"
                           >
                             نسخ البرومبت
                           </button>
@@ -1524,19 +1666,19 @@ function HalaiMarketingPage() {
                 </div>
               )}
 
-              {/* MODAL 5: MODELS API CATALOG */}
+              {/* MODAL: MODELS API CATALOG */}
               {activeStudioModal === "models_api" && (
                 <div className="space-y-6 text-right">
                   <div className="flex items-center justify-between pb-4 border-b border-white/10">
                     <div>
                       <h3 className="font-black text-base text-white">وثائق الـ API ونماذج التوليد العالمية</h3>
                       <p className="text-xs text-zinc-400">
-                        النموذج المحدد: <span className="text-[#74ff52]">{selectedModelForApi.nameAr}</span>
+                        النموذج المحدد: <span className="text-[#ff3b56]">{selectedModelForApi.nameAr}</span>
                       </p>
                     </div>
                     <button
                       onClick={() => handleCopy(JSON.stringify(selectedModelForApi.samplePayload, null, 2), "الـ Payload")}
-                      className="px-4 py-2 rounded-xl bg-[#74ff52] text-black font-black text-xs"
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black text-xs shadow-md shadow-[#ff2a4b]/30"
                     >
                       نسخ JSON Payload
                     </button>
@@ -1550,7 +1692,7 @@ function HalaiMarketingPage() {
                           المزود: <span className="text-white">{selectedModelForApi.provider}</span>
                         </div>
                         <div>
-                          الـ Endpoint المقترح: <span className="text-[#74ff52]">{selectedModelForApi.apiEndpoint}</span>
+                          الـ Endpoint المقترح: <span className="text-[#ff3b56]">{selectedModelForApi.apiEndpoint}</span>
                         </div>
                         <div>
                           أقصى دقة: <span className="text-white">{selectedModelForApi.maxResolution}</span>
@@ -1560,7 +1702,7 @@ function HalaiMarketingPage() {
                         </div>
                         <div>
                           الصوت الأصلي:{" "}
-                          <span className={selectedModelForApi.nativeAudio ? "text-[#74ff52]" : "text-zinc-500"}>
+                          <span className={selectedModelForApi.nativeAudio ? "text-[#ff3b56]" : "text-zinc-500"}>
                             {selectedModelForApi.nativeAudio ? "مدعوم بنقاء استوديو" : "غير مدمج"}
                           </span>
                         </div>
@@ -1569,7 +1711,7 @@ function HalaiMarketingPage() {
 
                     <div className="space-y-3">
                       <h4 className="text-xs font-bold text-white">عينة كود الربط البرمجي (Payload):</h4>
-                      <pre className="p-4 rounded-2xl bg-black border border-white/10 text-[11px] font-mono text-[#74ff52] overflow-x-auto">
+                      <pre className="p-4 rounded-2xl bg-black border border-white/10 text-[11px] font-mono text-[#ff3b56] overflow-x-auto">
                         {JSON.stringify(selectedModelForApi.samplePayload, null, 2)}
                       </pre>
                     </div>
@@ -1577,7 +1719,7 @@ function HalaiMarketingPage() {
                 </div>
               )}
 
-              {/* MODAL 6: PROMLOG */}
+              {/* MODAL: PROMLOG */}
               {activeStudioModal === "promlog" && (
                 <div className="space-y-6 text-right">
                   <div className="pb-4 border-b border-white/10">
@@ -1592,7 +1734,7 @@ function HalaiMarketingPage() {
                         className="rounded-2xl border border-white/10 bg-zinc-900 p-4 space-y-2.5 flex flex-col justify-between"
                       >
                         <div className="space-y-1.5">
-                          <span className="text-[10px] font-mono text-[#74ff52] block">{p.category}</span>
+                          <span className="text-[10px] font-mono text-[#ff3b56] block">{p.category}</span>
                           <h4 className="text-xs font-black text-white">{p.title}</h4>
                           <p className="text-xs text-zinc-300 leading-relaxed font-sans">{p.arabicPrompt}</p>
                           <div className="p-2.5 rounded-xl bg-black/60 border border-white/5 text-[10px] font-mono text-zinc-400 select-all">
@@ -1602,7 +1744,7 @@ function HalaiMarketingPage() {
 
                         <button
                           onClick={() => handleCopy(p.englishPrompt, p.title)}
-                          className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-[#74ff52] hover:text-black text-xs font-bold transition-colors"
+                          className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-xs font-bold transition-colors"
                         >
                           نسخ البرومبت بالإنجليزية
                         </button>
