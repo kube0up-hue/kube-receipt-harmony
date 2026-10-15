@@ -41,25 +41,32 @@ function AuthPage() {
   if (hasAdmin === false) return <SetupAdmin onDone={() => setHasAdmin(true)} />;
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        <div className="text-center mb-10">
-          <img src={"/kube-logo.png"} alt="KUBE" className="h-32 sm:h-40 w-auto mx-auto" />
-          <div className="mt-5 text-xl font-semibold tracking-wide">Supplier Receiving</div>
-          <p className="text-muted-foreground text-sm mt-2">تسجيل الطلبات والاستلامات ومطابقة الفواتير</p>
+        <div className="text-center mb-8">
+          <img src={"/kube-logo.png"} alt="KUBE" className="h-28 sm:h-36 w-auto mx-auto" />
+          <div className="mt-4 font-display font-extrabold text-2xl tracking-tight text-foreground">KUBE ERP</div>
+          <p className="text-muted-foreground text-xs font-display font-medium mt-1">منظومة إدارة التوريد والاستلامات ومطابقة الفواتير</p>
         </div>
 
-
-        <div className="kube-card">
-          <div className="flex gap-2 mb-6 bg-muted p-1 rounded-md">
+        <div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-sm">
+          <div className="flex gap-1.5 mb-6 bg-muted/60 p-1.5 rounded-2xl border border-border/60">
             <button
               onClick={() => setTab("pin")}
-              className={`flex-1 py-2 rounded font-semibold transition ${tab === "pin" ? "bg-card shadow-sm" : "text-muted-foreground"}`}
-            >موظف فرع (PIN)</button>
+              className={`flex-1 py-2.5 rounded-xl text-xs font-display font-bold transition-all cursor-pointer ${
+                tab === "pin" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              موظف فرع (PIN)
+            </button>
             <button
               onClick={() => setTab("email")}
-              className={`flex-1 py-2 rounded font-semibold transition ${tab === "email" ? "bg-card shadow-sm" : "text-muted-foreground"}`}
-            >محاسب / إدارة</button>
+              className={`flex-1 py-2.5 rounded-xl text-xs font-display font-bold transition-all cursor-pointer ${
+                tab === "email" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              محاسب / إدارة
+            </button>
           </div>
           {tab === "pin" ? <PinLogin /> : <EmailLogin />}
         </div>
@@ -82,7 +89,7 @@ function PinLogin() {
       const { access_token, refresh_token } = await doSignIn({ data: { pin: pin.trim() } });
       const { error } = await supabase.auth.setSession({ access_token, refresh_token });
       if (error) throw error;
-      toast.success("تم تسجيل الدخول");
+      toast.success("تم تسجيل الدخول بنجاح");
       navigate({ to: "/employee" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "فشل تسجيل الدخول");
@@ -94,7 +101,7 @@ function PinLogin() {
   return (
     <form onSubmit={submit} className="space-y-4">
       <label className="block">
-        <span className="block text-sm font-semibold mb-2">أدخل رقم الـ PIN</span>
+        <span className="block text-xs font-display font-bold text-foreground mb-2">أدخل رمز الدخول السريع (PIN)</span>
         <input
           type="tel"
           inputMode="numeric"
@@ -102,12 +109,15 @@ function PinLogin() {
           value={pin}
           onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
           maxLength={8}
-          className="kube-input text-center text-2xl tracking-[0.5em] font-bold"
+          className="w-full h-14 rounded-2xl border border-border/80 bg-muted/20 text-center font-display font-black text-3xl tracking-[0.4em] focus:bg-background focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-foreground"
           placeholder="••••"
         />
       </label>
-      <button disabled={loading || pin.length < 4} className="kube-btn-primary w-full disabled:opacity-50">
-        {loading ? "جارٍ الدخول..." : "دخول"}
+      <button
+        disabled={loading || pin.length < 4}
+        className="kube-btn-primary w-full h-12 rounded-xl text-sm font-display font-bold disabled:opacity-40 cursor-pointer"
+      >
+        {loading ? "جارٍ التحقق والدخول…" : "تسجيل الدخول"}
       </button>
     </form>
   );
