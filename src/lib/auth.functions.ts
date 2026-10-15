@@ -18,8 +18,10 @@ function empEmail(employeeId: string) {
 // حماية دخول PIN من التخمين — المحاولات تُسجَّل في pin_login_attempts.
 // إذا لم يكن الجدول موجوداً بعد، يستمر الدخول بدون حد (لا نكسر دخول الموظفين).
 const PIN_WINDOW_MINUTES = 15;
-const PIN_MAX_FAILS_PER_IP = 5;
-const PIN_MAX_FAILS_GLOBAL = 50;
+// الحد الأساسي لكل رقم PIN (موظف) وليس لكل شبكة — حتى لا يتأثر زملاء نفس الفرع.
+const PIN_MAX_FAILS_PER_PIN = 5;
+// حد عام مرتفع كحماية من التخمين الواسع فقط.
+const PIN_MAX_FAILS_GLOBAL = 200;
 
 function requestIp(): string {
   try {
