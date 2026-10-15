@@ -801,6 +801,33 @@ export type Database = {
           },
         ]
       }
+      pin_login_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string
+          pin_hash: string | null
+          reason: string
+          success: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip?: string
+          pin_hash?: string | null
+          reason?: string
+          success?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string
+          pin_hash?: string | null
+          reason?: string
+          success?: boolean
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string | null

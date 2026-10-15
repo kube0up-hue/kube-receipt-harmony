@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792091065187,
+      "tag": "0000_create_pin_login_attempts_with_pin_hash",
+      "breakpoints": true
+    }
+  ]
+}
