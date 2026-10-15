@@ -34,6 +34,7 @@ import {
   AlertCircle,
   Layers,
   ArrowRight,
+  Camera,
 } from "lucide-react";
 import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
 import { ReceiptItemPhotos } from "@/features/receipt-photo-viewer";
@@ -313,6 +314,14 @@ function AdminHome() {
             desc: "جدولة أوامر الشراء ومتابعة وصول بضائع الموردين",
             badge: s?.pending ? `${s.pending} معلق` : undefined,
             color: "text-emerald-500 bg-emerald-500/10",
+          },
+          {
+            to: "/accountant/receipts",
+            label: "معرض وتوثيق صور الاستلامات",
+            icon: Camera,
+            desc: "استعراض كامل الصور الملتقطة من الفروع للبضائع والتوالف والتدقيق البصري",
+            badge: "توثيق بصري",
+            color: "text-amber-500 bg-amber-500/10",
           },
           {
             to: "/admin/inventory",
@@ -627,6 +636,13 @@ function AdminHome() {
             >
               <PlusCircle className="w-3.5 h-3.5 text-primary" />
               <span>طلب مورد جديد</span>
+            </Link>
+            <Link
+              to="/accountant/receipts"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border/80 bg-card px-3.5 py-2 text-xs font-display font-semibold text-foreground hover:bg-muted/70 hover:border-foreground/20 transition-all active:scale-[0.98]"
+            >
+              <Camera className="w-3.5 h-3.5 text-emerald-500" />
+              <span>معرض صور الاستلامات</span>
             </Link>
             <Link
               to="/admin/invoices"
