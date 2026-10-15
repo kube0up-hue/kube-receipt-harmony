@@ -134,7 +134,7 @@ const INITIAL_CAMPAIGNS: CampaignItem[] = [
 function MarketingHubPage() {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
-  const backHomeUrl = primaryRoleHome(currentUser.role);
+  const backHomeUrl = primaryRoleHome(currentUser.data?.roles ?? []);
 
   const [activeTab, setActiveTab] = useState<TabType>("social_engine");
 

@@ -50,11 +50,12 @@ export function isAdminRole(roles: AppRole[]): boolean {
 }
 
 /** الصفحة الرئيسية لكل دور — تغطي كل أدوار قاعدة البيانات. */
-export function primaryRoleHome(roles: AppRole[]): string {
-  if (roles.includes("admin") || roles.includes("owner")) return "/admin";
-  if (roles.includes("operations") || roles.includes("branch_manager")) return "/employee";
-  if (roles.includes("accountant")) return "/accountant";
-  if (roles.includes("marketing")) return "/admin/marketing";
-  if (roles.includes("branch_employee")) return "/employee";
+export function primaryRoleHome(roles?: AppRole[] | null): string {
+  const r = Array.isArray(roles) ? roles : [];
+  if (r.includes("admin") || r.includes("owner")) return "/admin";
+  if (r.includes("operations") || r.includes("branch_manager")) return "/employee";
+  if (r.includes("accountant")) return "/accountant";
+  if (r.includes("marketing")) return "/admin/marketing";
+  if (r.includes("branch_employee")) return "/employee";
   return "/auth";
 }
