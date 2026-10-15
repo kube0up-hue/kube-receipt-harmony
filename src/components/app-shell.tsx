@@ -9,18 +9,32 @@ export function AppShell({
   back,
   children,
   variant = "default",
+  maxWidth,
 }: {
   title: string;
   back?: { to: string; label?: string };
   children: ReactNode;
-  variant?: "default" | "studio";
+  variant?: "default" | "studio" | "wide";
+  maxWidth?: "default" | "wide" | "narrow" | "full";
 }) {
   const { data: cu } = useCurrentUser();
   const navigate = useNavigate();
+
+  const containerWidth =
+    variant === "studio"
+      ? "max-w-[1600px]"
+      : maxWidth === "wide" || variant === "wide"
+        ? "max-w-6xl"
+        : maxWidth === "full"
+          ? "max-w-7xl"
+          : maxWidth === "narrow"
+            ? "max-w-xl"
+            : "max-w-4xl";
+
   return (
     <div className={variant === "studio" ? "min-h-screen bg-studio-bg text-studio-foreground" : "min-h-screen bg-background"}>
       <header className={variant === "studio" ? "sticky top-0 z-30 border-b border-studio-border bg-studio-bg/95 backdrop-blur" : "sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border"}>
-        <div className={`${variant === "studio" ? "max-w-[1600px]" : "max-w-3xl"} mx-auto px-4 h-14 flex items-center justify-between`}>
+        <div className={`${containerWidth} mx-auto px-4 h-14 flex items-center justify-between`}>
           <div className="flex items-center gap-3 min-w-0">
             {back ? (
               <Link to={back.to} className={variant === "studio" ? "rounded-md border border-studio-border bg-studio-panel-raised px-2.5 py-1.5 text-xs font-semibold text-studio-foreground hover:bg-studio-foreground hover:text-studio-bg" : "text-sm text-muted-foreground font-semibold shrink-0"}>
@@ -42,7 +56,7 @@ export function AppShell({
           </div>
         </div>
       </header>
-      <main className={`${variant === "studio" ? "max-w-[1600px] py-4 lg:py-6" : "max-w-3xl py-5 pb-20"} mx-auto px-4`}>{children}</main>
+      <main className={`${variant === "studio" ? "max-w-[1600px] py-4 lg:py-6" : `${containerWidth} py-5 pb-20`} mx-auto px-4`}>{children}</main>
     </div>
   );
 }

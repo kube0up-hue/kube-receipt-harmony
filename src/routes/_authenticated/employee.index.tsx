@@ -8,6 +8,8 @@ import { formatDateAr } from "@/lib/format-date";
 import { riyadhToday, riyadhDayStart } from "@/lib/riyadh-time";
 import { usePendingOrders } from "@/lib/use-pending-orders";
 
+import { useCurrentUser } from "@/lib/use-current-user";
+
 export const Route = createFileRoute("/_authenticated/employee/")({
   head: () => ({
     meta: [
@@ -23,6 +25,8 @@ export const Route = createFileRoute("/_authenticated/employee/")({
 });
 
 function EmployeeHome() {
+  const { data: cu } = useCurrentUser();
+  const isAdminOrManager = cu?.roles?.some((r) => r === "admin" || r === "manager");
   const pending = usePendingOrders(20);
 
   const today = riyadhToday();
@@ -42,104 +46,71 @@ function EmployeeHome() {
   });
 
   return (
-    <AppShell title="واجهة موظف الفرع">
+    <AppShell title="واجهة موظف الفرع" maxWidth="narrow">
+      {isAdminOrManager && (
+        <div className="mb-4 p-3 bg-muted/70 border border-border rounded-xl flex items-center justify-between gap-3 text-xs">
+          <span className="text-muted-foreground">أنت مسجل بصلاحيات الإدارة والمالك.</span>
+          <Link to="/admin" className="font-bold text-primary hover:underline flex items-center gap-1">
+            الانتقال للوحة الإدارة ←
+          </Link>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-3 mb-6">
         <Can anyOf={["orders_create"]}>
           <Link to="/employee/new-order" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <PlusCircle className="w-8 h-8" />
+            <PlusCircle className="w-8 h-8 text-primary" />
             <span className="font-bold text-center">تسجيل طلب جديد</span>
           </Link>
         </Can>
         <Can anyOf={["orders_receive", "orders_view", "orders_create"]}>
           <Link to="/employee/pending" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <Clock className="w-8 h-8" />
+            <Clock className="w-8 h-8 text-amber-500" />
             <span className="font-bold text-center">بانتظار الاستلام</span>
-            <span className="text-xs text-muted-foreground">{pending.data?.length ?? 0}</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-muted font-bold">{pending.data?.length ?? 0}</span>
           </Link>
         </Can>
         <Can anyOf={["orders_receive", "orders_view", "orders_create"]}>
           <Link to="/employee/today" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <PackageCheck className="w-8 h-8" />
+            <PackageCheck className="w-8 h-8 text-success" />
             <span className="font-bold text-center">استلامات اليوم</span>
-            <span className="text-xs text-muted-foreground">{todayReceipts.data?.length ?? 0}</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-muted font-bold">{todayReceipts.data?.length ?? 0}</span>
           </Link>
         </Can>
         <Can anyOf={["orders_receive", "orders_view", "orders_create"]}>
           <Link to="/employee/history" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <History className="w-8 h-8" />
+            <History className="w-8 h-8 text-muted-foreground" />
             <span className="font-bold text-center">سجل آخر 7 أيام</span>
           </Link>
         </Can>
         <Can anyOf={["waste_record"]}>
           <Link to="/employee/waste" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <Trash2 className="w-8 h-8" />
+            <Trash2 className="w-8 h-8 text-muted-foreground" />
             <span className="font-bold text-center">تسجيل الهدر</span>
           </Link>
         </Can>
         <Can anyOf={["quality_record"]}>
           <Link to="/employee/quality" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <Droplets className="w-8 h-8" />
+            <Droplets className="w-8 h-8 text-muted-foreground" />
             <span className="font-bold text-center">قياسات المياه والجودة</span>
           </Link>
         </Can>
         <Can anyOf={["sales_record"]}>
           <Link to="/employee/sales" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <BadgeDollarSign className="w-8 h-8" />
+            <BadgeDollarSign className="w-8 h-8 text-muted-foreground" />
             <span className="font-bold text-center">المبيعات اليومية</span>
           </Link>
         </Can>
-        <Can anyOf={["count_perform", "count_review", "count_approve"]}>
+        <Can anyOf={["count_perform"]}>
           <Link to="/admin/counts" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <ClipboardCheck className="w-8 h-8" />
+            <ClipboardCheck className="w-8 h-8 text-muted-foreground" />
             <span className="font-bold text-center">الجرد</span>
           </Link>
         </Can>
-        <Can anyOf={["inventory_view"]}>
-          <Link to="/admin/inventory" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <Boxes className="w-8 h-8" />
-            <span className="font-bold text-center">المخزون</span>
-          </Link>
-        </Can>
-        <Can anyOf={["inventory_transfer", "inventory_receive_transfer"]}>
+        <Can anyOf={["inventory_receive_transfer"]}>
           <Link to="/admin/transfers" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <ArrowLeftRight className="w-8 h-8" />
-            <span className="font-bold text-center">تحويلات المخزون</span>
-          </Link>
-        </Can>
-        <Can anyOf={["waste_view"]}>
-          <Link to="/admin/waste" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <Trash2 className="w-8 h-8" />
-            <span className="font-bold text-center">تقارير الهدر</span>
-          </Link>
-        </Can>
-        <Can anyOf={["quality_view"]}>
-          <Link to="/admin/quality" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <Droplets className="w-8 h-8" />
-            <span className="font-bold text-center">تقارير الجودة والمياه</span>
-          </Link>
-        </Can>
-        <Can anyOf={["sales_review", "sales_edit_approved"]}>
-          <Link to="/admin/sales" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <BadgeDollarSign className="w-8 h-8" />
-            <span className="font-bold text-center">مراجعة المبيعات</span>
-          </Link>
-        </Can>
-        <Can anyOf={["schedules_manage"]}>
-          <Link to="/admin/shifts" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <CalendarClock className="w-8 h-8" />
-            <span className="font-bold text-center">الدوامات</span>
-          </Link>
-        </Can>
-        <Can anyOf={["recipes_manage"]}>
-          <Link to="/admin/recipes" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <BookOpen className="w-8 h-8" />
-            <span className="font-bold text-center">الوصفات</span>
-          </Link>
-        </Can>
-        <Can anyOf={["ai_studio_use"]}>
-          <Link to="/ai-kubeup-studio" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <Sparkles className="w-8 h-8" />
-            <span className="font-bold text-center">AI KUBEUP Studio</span>
+            <ArrowLeftRight className="w-8 h-8 text-muted-foreground" />
+            <span className="font-bold text-center">استلام تحويل</span>
           </Link>
         </Can>
       </div>

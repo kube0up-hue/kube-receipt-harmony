@@ -266,29 +266,60 @@ function AdminHome() {
     { label: "فواتير جاهزة للتحويل", v: s?.invReady },
   ];
 
-  const links: { to: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { to: "/admin/overview", label: "لوحة المالك والتنبيهات", icon: BarChart3 },
-    { to: "/admin/employees", label: "الموظفون", icon: Users },
-    { to: "/admin/employee-access", label: "مهام الموظفين وصلاحياتهم", icon: UserCog },
-    { to: "/admin/shifts", label: "الدوامات", icon: CalendarClock },
-    { to: "/admin/recipes", label: "الوصفات", icon: BookOpen },
-    { to: "/admin/waste", label: "الهدر", icon: Trash2 },
-    { to: "/admin/quality", label: "الجودة والمياه", icon: Droplets },
-    { to: "/admin/sales", label: "المبيعات اليومية", icon: BadgeDollarSign },
-    { to: "/admin/suppliers", label: "الموردون", icon: Truck },
-    { to: "/admin/products", label: "المنتجات", icon: Package },
-    { to: "/admin/inventory", label: "المخزون", icon: Boxes },
-    { to: "/admin/transfers", label: "تحويلات المخزون", icon: ArrowLeftRight },
-    { to: "/admin/counts", label: "الجرد", icon: ClipboardCheck },
-    { to: "/admin/orders", label: "الطلبات والاستلامات", icon: ClipboardList },
-    
-    { to: "/admin/invoices", label: "الفواتير", icon: FileText },
-    { to: "/admin/payments", label: "السداد", icon: Wallet },
-    { to: "/admin/dues", label: "المبالغ المستحقة للسداد", icon: Wallet },
-    { to: "/admin/reports", label: "التقارير", icon: BarChart3 },
-    { to: "/admin/permissions", label: "صلاحيات المستخدمين", icon: ShieldCheck },
-    { to: "/admin/branches", label: "الفروع ووصول المستخدمين", icon: Building2 },
-    { to: "/ai-kubeup-studio", label: "AI KUBEUP Studio", icon: Sparkles },
+  interface LinkItem {
+    to: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    desc?: string;
+  }
+
+  interface LinkGroup {
+    title: string;
+    links: LinkItem[];
+  }
+
+  const linkGroups: LinkGroup[] = [
+    {
+      title: "العمليات والمخزون",
+      links: [
+        { to: "/admin/overview", label: "لوحة المالك والتنبيهات", icon: BarChart3, desc: "نظرة شاملة ومؤشرات حية" },
+        { to: "/admin/orders", label: "الطلبات والاستلامات", icon: ClipboardList, desc: "سجل الطلبات وتأكيد وصول البضائع" },
+        { to: "/admin/inventory", label: "المخزون والمستودعات", icon: Boxes, desc: "الأرصدة الحالية وحدود الطلب" },
+        { to: "/admin/counts", label: "الجرد الدوري", icon: ClipboardCheck, desc: "مطابقة الفعلي والدفتري" },
+        { to: "/admin/transfers", label: "تحويلات المخزون", icon: ArrowLeftRight, desc: "النقل بين الفروع والمستودعات" },
+      ],
+    },
+    {
+      title: "المالية والموردين",
+      links: [
+        { to: "/admin/invoices", label: "فواتير الموردين", icon: FileText, desc: "تسجيل ومطابقة الفواتير الأسبوعية" },
+        { to: "/admin/payments", label: "السداد والدفعات", icon: Wallet, desc: "توثيق الحوالات وأرقام المراجع" },
+        { to: "/admin/dues", label: "المبالغ المستحقة للسداد", icon: Wallet, desc: "أرصدة الموردين الجاهزة للدفع" },
+        { to: "/admin/suppliers", label: "دليل الموردين", icon: Truck, desc: "بيانات التواصل ودورات الفواتير" },
+        { to: "/admin/products", label: "قائمة المنتجات", icon: Package, desc: "الأسعار ووحدات القياس" },
+      ],
+    },
+    {
+      title: "المطبخ والجودة والتشغيل",
+      links: [
+        { to: "/admin/waste", label: "سجل الهدر والتوالف", icon: Trash2, desc: "تحليل أسباب الهدر وتكاليفه" },
+        { to: "/admin/quality", label: "قياسات الجودة والمياه", icon: Droplets, desc: "درجات الحرارة ونقاء المياه" },
+        { to: "/admin/sales", label: "المبيعات اليومية", icon: BadgeDollarSign, desc: "إيرادات الفروع ومطابقتها" },
+        { to: "/admin/recipes", label: "دليل الوصفات والمكونات", icon: BookOpen, desc: "معايير التحضير وتكلفة الأصناف" },
+        { to: "/admin/shifts", label: "الدوامات والشيفتات", icon: CalendarClock, desc: "جدولة وجلسات عمل الباريستا" },
+      ],
+    },
+    {
+      title: "التحليلات والإدارة والذكاء الاصطناعي",
+      links: [
+        { to: "/ai-kubeup-studio", label: "AI KUBEUP Studio", icon: Sparkles, desc: "استوديو توليد وتصميم صور KUBEUP" },
+        { to: "/admin/reports", label: "التقارير المتقدمة والتصدير", icon: BarChart3, desc: "تصدير Excel و PDF وفلاتر شاملة" },
+        { to: "/admin/employees", label: "الموظفون وحسابات PIN", icon: Users, desc: "إدارة بيانات الموظفين والرموز" },
+        { to: "/admin/employee-access", label: "مهام وصلاحيات الموظفين", icon: UserCog, desc: "تخصيص المهام الميدانية للفرع" },
+        { to: "/admin/branches", label: "الفروع والمستودعات", icon: Building2, desc: "إعداد مواقع KUBE وصلاحيات الوصول" },
+        { to: "/admin/permissions", label: "صلاحيات المستخدمين", icon: ShieldCheck, desc: "إدارة الصلاحيات المتقدمة للأدوار" },
+      ],
+    },
   ];
 
   const totalQty = (detail.data ?? []).reduce((a, r) => a + r.qty, 0);
@@ -368,12 +399,12 @@ function AdminHome() {
   }
 
   return (
-    <AppShell title="لوحة الإدارة">
+    <AppShell title="لوحة الإدارة" maxWidth="wide">
       <div className="mb-3 text-sm text-muted-foreground flex items-center gap-2">
         <Building2 className="w-4 h-4 text-primary" />
         <span>المؤشرات المعروضة لـ: <span className="font-bold text-foreground">{branchLabel}</span></span>
       </div>
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {cards.map((c) => {
           const clickable = !!c.onClick;
           return (
@@ -391,23 +422,44 @@ function AdminHome() {
           );
         })}
       </div>
-      <div className="mb-4">
+      <div className="mb-6">
         <button
           type="button"
           onClick={runIntegrityCheck}
           disabled={integrityRunning}
-          className="w-full kube-card flex items-center justify-center gap-2 font-bold hover:border-primary transition disabled:opacity-60"
+          className="w-full kube-card flex items-center justify-center gap-2 font-bold hover:border-primary transition disabled:opacity-60 py-3"
         >
-          <ShieldCheck className="w-5 h-5" />
+          <ShieldCheck className="w-5 h-5 text-primary" />
           {integrityRunning ? "جارٍ فحص سلامة البيانات…" : "فحص سلامة البيانات (آخر 24 ساعة)"}
         </button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {links.map((l) => (
-          <Link key={l.to} to={l.to} className="kube-card flex items-center gap-3 hover:border-primary transition">
-            <l.icon className="w-5 h-5 text-primary" />
-            <span className="font-bold">{l.label}</span>
-          </Link>
+
+      <div className="space-y-6">
+        {linkGroups.map((grp) => (
+          <div key={grp.title} className="space-y-2">
+            <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
+              {grp.title}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {grp.links.map((l) => (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  className="kube-card flex items-start gap-3 p-4 hover:border-primary hover:shadow-sm transition group"
+                >
+                  <div className="p-2 rounded-lg bg-muted text-foreground group-hover:bg-primary group-hover:text-primary-foreground transition shrink-0 mt-0.5">
+                    <l.icon className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-foreground text-sm">
+                      {l.label}
+                    </div>
+                    {l.desc && <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{l.desc}</div>}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
 

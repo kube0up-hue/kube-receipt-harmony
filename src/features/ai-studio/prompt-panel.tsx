@@ -14,12 +14,12 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const QUICK_PROMPTS: { label: string; text: string }[] = [
-  { label: "Product Shot", text: "Studio product shot of the KUBEUP cup on a clean surface, soft directional light, crisp shadows, premium minimal styling." },
-  { label: "Social Campaign", text: "Social campaign visual for KUBEUP with bold negative space for a headline, modern editorial styling, confident premium mood." },
-  { label: "Packaging Mockup", text: "Premium packaging mockup presenting KUBEUP identity on cup and sleeve, realistic materials, elegant studio lighting." },
-  { label: "Story Visual", text: "Vertical story visual of a KUBEUP moment, cinematic depth, lifestyle framing, elegant and youthful premium feel." },
-  { label: "Luxury Minimal", text: "Luxury minimal composition with the KUBEUP cup, generous empty space, refined shadow play, black and white palette with a subtle red accent." },
-  { label: "Cinematic Coffee", text: "Cinematic close-up of coffee being poured for KUBEUP, dramatic light, rich texture, high-end commercial grade." },
+  { label: "📸 قالب المنيو والتطبيقات", text: "Hyper-realistic high-key commercial product shot for food delivery menu app. Centered low minimalist matte white concrete podium with crisp geometric edges. The KUBE product placed naturally on top with crisp contact shadows, clean soft daylight from top-left, seamless studio background, pristine 4K commercial photography." },
+  { label: "🍵 كوب الماتشا البارد", text: "Ultra-crisp commercial product photograph of an iced Matcha latte in a signature transparent KUBE cup, vibrant natural green and milk layers, chilled condensation droplets on the cup, soft architectural side lighting, realistic ground contact shadow, luxury cafe aesthetic, 4K resolution." },
+  { label: "🍰 بوكس الحلا والكيك", text: "Commercial top-angle 45-degree food photography of premium KUBE sliced cake dessert box, perfectly textured cake layers, elegant minimalist presentation, soft warm directional daylight, matte concrete table surface, Scandinavian-Japanese cafe mood, clean and appetizing." },
+  { label: "☕ تصوير المشروب البارد (Ice Coffee)", text: "Crisp commercial studio shot of KUBE iced coffee in branded clear cup with clear ice cubes, condensation beads, dramatic rim lighting, clean subtle reflection on black or white glossy surface, modern editorial aesthetic." },
+  { label: "📱 ستوري سينمائي (9:16)", text: "Vertical 9:16 cinematic lifestyle photography featuring the KUBE cup in hand with modern cafe interior in background, beautiful shallow depth of field (f/1.8), warm natural daylight, candid editorial aesthetic." },
+  { label: "✨ مينيمال فاخر (Luxury Editorial)", text: "Luxury minimal composition with the KUBE cup, generous clean negative space, refined geometrical shadow play, sophisticated monochrome palette with a subtle touch of KUBE red, high-end design publication aesthetic." },
 ];
 
 function OptionRow({

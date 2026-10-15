@@ -76,9 +76,6 @@ function AccountantHome() {
           </Link>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground mt-6 text-center">
-        شاشات إنشاء الفواتير والمطابقة قيد الإنشاء وستُفعّل قريبًا.
-      </p>
     </AppShell>
   );
 }
