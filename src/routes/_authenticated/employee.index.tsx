@@ -48,37 +48,13 @@ function EmployeeHome() {
   return (
     <AppShell title="واجهة موظف الفرع" maxWidth="narrow">
       {isAdminOrManager && (
-        <div className="mb-4 p-3 bg-muted/70 border border-border rounded-xl flex items-center justify-between gap-3 text-xs">
-          <span className="text-muted-foreground">أنت مسجل بصلاحيات الإدارة والمالك.</span>
+        <div className="mb-4 p-2.5 bg-muted/60 border border-border/80 rounded-xl flex items-center justify-between gap-3 text-xs">
+          <span className="text-muted-foreground">وضع معاينة الفرع (صلاحية إدارة).</span>
           <Link to="/admin" className="font-bold text-primary hover:underline flex items-center gap-1">
-            الانتقال للوحة الإدارة ←
+            العودة للوحة الإدارة ←
           </Link>
         </div>
       )}
-
-      {/* Operational Photo Guidance Banner */}
-      <div className="mb-5 p-4 rounded-2xl bg-card border border-border/80 shadow-xs flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-primary text-primary-foreground shrink-0 shadow-xs">
-            <Camera className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="font-display font-bold text-xs sm:text-sm text-foreground flex items-center gap-2">
-              <span>توثيق استلامات الشحنات بالصور</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-bold">إلزامي</span>
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              يُلزم النظام تصوير كل صنف مستلم أو تالف لحفظ حقوق الفرع وضمان صحة الفوترة مع المورد.
-            </p>
-          </div>
-        </div>
-        <Link
-          to="/accountant/receipts"
-          className="kube-btn-secondary !min-h-0 !py-1.5 !px-3 text-xs font-bold shrink-0 hidden sm:flex items-center gap-1"
-        >
-          معرض الصور ←
-        </Link>
-      </div>
 
       <div className="grid grid-cols-2 gap-3.5 mb-7">
         <Can anyOf={["orders_create"]}>
@@ -110,17 +86,6 @@ function EmployeeHome() {
             <span className="font-display font-bold text-sm text-foreground">استلامات اليوم</span>
             <span className="text-[11px] text-muted-foreground leading-tight">مراجعة البضائع المستلمة اليوم وصورها</span>
             <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-display font-bold mt-0.5">{todayReceipts.data?.length ?? 0} مستلم</span>
-          </Link>
-        </Can>
-
-        <Can anyOf={["orders_receive", "orders_view", "orders_create"]}>
-          <Link to="/accountant/receipts" className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 flex flex-col items-center justify-center text-center gap-2 hover:border-foreground/30 hover:shadow-xs transition-all duration-150 active:scale-95 group">
-            <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-              <Camera className="w-6 h-6" />
-            </div>
-            <span className="font-display font-bold text-sm text-foreground">معرض صور الاستلامات</span>
-            <span className="text-[11px] text-muted-foreground leading-tight">استعراض وتدقيق كافة الصور الملتقطة للكاميرا</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold mt-0.5">سجل الصور</span>
           </Link>
         </Can>
 

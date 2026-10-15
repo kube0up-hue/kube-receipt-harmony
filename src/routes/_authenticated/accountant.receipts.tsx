@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/accountant/receipts")({
     ],
   }),
   component: () => (
-    <PermissionGuard anyOf={["orders_view", "orders_receive", "orders_create"]}>
+    <PermissionGuard anyOf={["receipt_photos_view", "invoices_view", "reports_dues"]}>
       <ReceiptsPage />
     </PermissionGuard>
   ),

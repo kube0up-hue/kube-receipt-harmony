@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { PermissionGuard, Can } from "@/components/permission-guard";
 import { useBranchFilter } from "@/lib/use-branches";
+import { useCurrentUser } from "@/lib/use-current-user";
 import { toast } from "sonner";
 import { ClipboardCheck, AlertTriangle, Plus, ChevronLeft } from "lucide-react";
 import { formatDateTimeAr } from "@/lib/format-date";
@@ -99,9 +100,13 @@ function CountsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const { data: cu } = useCurrentUser();
+  const isAdmin = cu?.roles?.some((r) => r === "admin" || r === "owner");
+  const backTarget = isAdmin ? "/admin" : "/employee";
+
   if (branchLoading) {
     return (
-      <AppShell title="الجرد" back={{ to: "/admin" }}>
+      <AppShell title="الجرد" back={{ to: backTarget }}>
         <div className="kube-card text-center text-muted-foreground">جارٍ التحميل...</div>
       </AppShell>
     );
@@ -109,7 +114,7 @@ function CountsPage() {
 
   if (!branchId) {
     return (
-      <AppShell title="الجرد" back={{ to: "/admin" }}>
+      <AppShell title="الجرد" back={{ to: backTarget }}>
         <div className="kube-card text-center space-y-2">
           <AlertTriangle className="w-6 h-6 mx-auto text-warning" />
           <p className="font-semibold">اختر فرعاً واحداً من الأعلى</p>
@@ -123,7 +128,7 @@ function CountsPage() {
   const hasOpen = rows.some((r) => ["open", "in_progress", "submitted", "reviewed"].includes(r.status));
 
   return (
-    <AppShell title={`الجرد — ${label}`} back={{ to: "/admin" }}>
+    <AppShell title={`الجرد — ${label}`} back={{ to: backTarget }}>
       <div className="space-y-4">
         <Can anyOf={["count_perform"]}>
           {creating ? (

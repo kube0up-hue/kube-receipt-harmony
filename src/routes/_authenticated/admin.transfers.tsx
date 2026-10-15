@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { PermissionGuard, Can } from "@/components/permission-guard";
 import { useBranchFilter } from "@/lib/use-branches";
+import { useCurrentUser } from "@/lib/use-current-user";
 import { toast } from "sonner";
 import { Plus, Send, X, PackageCheck, Trash2 } from "lucide-react";
 import { num, round2 } from "@/lib/money";
@@ -114,8 +115,13 @@ function TransfersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const { data: cu } = useCurrentUser();
+  const isAdmin = cu?.roles?.some((r) => r === "admin" || r === "owner");
+  const backTarget = isAdmin ? "/admin/inventory" : "/employee";
+  const backLabel = isAdmin ? "المخزون" : "شاشة الموظف";
+
   return (
-    <AppShell title={`التحويلات — ${label}`} back={{ to: "/admin/inventory", label: "المخزون" }}>
+    <AppShell title={`التحويلات — ${label}`} back={{ to: backTarget, label: backLabel }}>
       <div className="space-y-4">
         <Can anyOf={["inventory_transfer"]}>
           <button onClick={() => setCreating(true)} disabled={!branchId} className="kube-btn w-full inline-flex items-center justify-center gap-2 disabled:opacity-50">

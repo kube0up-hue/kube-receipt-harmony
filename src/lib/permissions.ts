@@ -164,26 +164,51 @@ export const EMPLOYEE_ASSIGNABLE_GROUPS: PermissionGroup[] = [
 /** حِزم جاهزة تُسند بضغطة واحدة ثم يمكن تعديلها. */
 export const EMPLOYEE_PRESETS: { title: string; permissions: Permission[] }[] = [
   {
-    title: "مدير فرع",
+    title: "مدير فرع (مثل: سلطان)",
     permissions: [
-      "orders_create", "orders_receive", "orders_view", "products_view",
-      "inventory_view", "inventory_transfer", "inventory_receive_transfer", "inventory_adjust",
-      "count_perform", "count_review", "waste_record", "waste_view",
-      "quality_record", "quality_view", "sales_record", "sales_review",
-      "schedules_manage", "reports_export",
+      "orders_create",
+      "orders_receive",
+      "orders_view",
+      "waste_record",
+      "waste_view",
+      "quality_record",
+      "quality_view",
     ],
   },
   {
-    title: "موظف جرد",
-    permissions: ["count_perform", "inventory_view", "products_view"],
+    title: "مشغل قهوة وتشغيل (مثل: وسيم)",
+    permissions: [
+      "orders_create",
+      "orders_receive",
+      "orders_view",
+      "products_view",
+      "inventory_view",
+      "inventory_transfer",
+      "inventory_receive_transfer",
+      "inventory_adjust",
+      "count_perform",
+      "count_review",
+      "waste_record",
+      "waste_view",
+      "quality_record",
+      "quality_view",
+      "recipes_manage",
+      "schedules_manage",
+      "ai_studio_use",
+      "reports_export",
+    ],
   },
   {
-    title: "موظف استلام",
-    permissions: ["orders_create", "orders_receive", "orders_view", "inventory_view"],
+    title: "فريق التسويق والذكاء الاصطناعي",
+    permissions: ["ai_studio_use", "reports_export", "products_view"],
   },
   {
-    title: "موظف جودة ومياه",
-    permissions: ["quality_record", "quality_view"],
+    title: "باريستا استلام وجودة",
+    permissions: ["orders_receive", "orders_view", "waste_record", "quality_record"],
+  },
+  {
+    title: "موظف جرد ومخزون",
+    permissions: ["count_perform", "inventory_view", "products_view", "inventory_receive_transfer"],
   },
 ];
 

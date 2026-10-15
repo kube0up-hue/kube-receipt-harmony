@@ -35,6 +35,8 @@ import {
   Layers,
   ArrowRight,
   Camera,
+  Megaphone,
+  Database,
 } from "lucide-react";
 import { formatDateAr, formatDateTimeAr } from "@/lib/format-date";
 import { ReceiptItemPhotos } from "@/features/receipt-photo-viewer";
@@ -458,6 +460,22 @@ function AdminHome() {
             color: "text-amber-400 bg-amber-400/10",
           },
           {
+            to: "/admin/marketing",
+            label: "مركز التسويق والذكاء الاصطناعي",
+            icon: Megaphone,
+            desc: "توليد المحتوى الإعلاني الذكي، جدولة الحملات، واستوديو السوشيال ميديا",
+            badge: "AI تسويق",
+            color: "text-rose-500 bg-rose-500/10",
+          },
+          {
+            to: "/admin/database",
+            label: "مستكشف قاعدة البيانات والاتصال المباشر",
+            icon: Database,
+            desc: "فحص الاتصال المباشر واستعراض وتدقيق كامل جداول وسجلات النظام الحية",
+            badge: "اتصال حي",
+            color: "text-sky-500 bg-sky-500/10",
+          },
+          {
             to: "/admin/reports",
             label: "التقارير المتقدمة والتصدير",
             icon: BarChart3,
@@ -650,6 +668,13 @@ function AdminHome() {
             >
               <FileText className="w-3.5 h-3.5 text-amber-500" />
               <span>مطابقة الفواتير</span>
+            </Link>
+            <Link
+              to="/admin/database"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border/80 bg-card px-3.5 py-2 text-xs font-display font-semibold text-foreground hover:bg-muted/70 hover:border-foreground/20 transition-all active:scale-[0.98]"
+            >
+              <Database className="w-3.5 h-3.5 text-sky-500" />
+              <span>مستكشف البيانات</span>
             </Link>
             <button
               type="button"

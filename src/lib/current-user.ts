@@ -7,7 +7,8 @@ export type AppRole =
   | "operations"
   | "branch_manager"
   | "accountant"
-  | "branch_employee";
+  | "branch_employee"
+  | "marketing";
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   admin: "مدير النظام",
@@ -16,6 +17,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   branch_manager: "مدير فرع",
   accountant: "محاسب",
   branch_employee: "موظف فرع",
+  marketing: "فريق التسويق",
 };
 
 /** الأدوار التي تملك لوحة الإدارة كاملة. */
@@ -52,6 +54,7 @@ export function primaryRoleHome(roles: AppRole[]): string {
   if (roles.includes("admin") || roles.includes("owner")) return "/admin";
   if (roles.includes("operations") || roles.includes("branch_manager")) return "/employee";
   if (roles.includes("accountant")) return "/accountant";
+  if (roles.includes("marketing")) return "/admin/marketing";
   if (roles.includes("branch_employee")) return "/employee";
   return "/auth";
 }

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useCurrentUser, signOutAndGo } from "@/lib/use-current-user";
 import { BranchSwitcher } from "@/components/branch-switcher";
@@ -19,6 +19,12 @@ export function AppShell({
 }) {
   const { data: cu } = useCurrentUser();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const homeTarget = pathname.startsWith("/employee")
+    ? "/employee"
+    : pathname.startsWith("/accountant")
+      ? "/accountant"
+      : "/";
 
   const containerWidth =
     variant === "studio"
@@ -64,7 +70,7 @@ export function AppShell({
                 <span>{back.label ?? "رجوع"}</span>
               </Link>
             ) : (
-              <Link to="/" className="flex items-center gap-2 shrink-0 group">
+              <Link to={homeTarget} className="flex items-center gap-2 shrink-0 group">
                 <img
                   src={"/kube-logo.png"}
                   alt="KUBE"
