@@ -31,6 +31,8 @@ import {
   Key,
   ExternalLink,
   ShieldCheck,
+  Home,
+  Sliders,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -293,7 +295,7 @@ const AI_PROVIDERS = [
   {
     id: "minimax",
     name: "MiniMax Hailuo (H3 & Video-01)",
-    purpose: "توليد سريع متعدد المراجع (صورة + فيديو + صوت)",
+    purpose: "توليد سريع متعدد المراجع (صورة + صوت + فيديو)",
     keyEnv: "MINIMAX_API_KEY",
     endpoint: "https://api.minimax.chat/v1/video_generation",
     docUrl: "https://api.minimax.chat",
@@ -469,50 +471,51 @@ function KubeAiMarketingPage() {
   return (
     <div
       dir="rtl"
-      className="w-full min-h-screen bg-black text-white selection:bg-[#ff2a4b] selection:text-white font-sans overflow-x-hidden antialiased"
+      className="w-full min-h-screen bg-black text-white selection:bg-[#ff2a4b] selection:text-white font-sans overflow-x-hidden antialiased pb-24 xl:pb-0"
       style={{
         backgroundColor: "#000000",
         fontFamily: '"IBM Plex Sans Arabic", "Alexandria", "Cairo", sans-serif',
       }}
     >
       {/* ============================================================== */}
-      {/* 1. FIXED TOPBAR (Exact Studio Header with Red Theme)            */}
+      {/* 1. FIXED TOPBAR (Optimized for Mobile & Desktop)                */}
       {/* ============================================================== */}
       <header
         data-app-topbar="true"
-        className="h-12 md:h-16 flex items-center justify-between px-3 md:px-8 shrink-0 z-[9999] w-full transition-all duration-300 fixed top-0 left-0 bg-black/75 backdrop-blur-xl border-b border-white/5"
+        className="h-14 md:h-16 flex items-center justify-between px-3 md:px-8 shrink-0 z-[9999] w-full transition-all duration-300 fixed top-0 left-0 bg-black/85 backdrop-blur-xl border-b border-white/5"
       >
         {/* Right Section: Mobile Menu + Logo + Desktop Nav */}
         <div className="flex items-center h-full gap-2 md:gap-5">
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Toggle Button (Touch Friendly 44x44px) */}
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="xl:hidden -ms-2.5 me-1.5 w-10 h-10 shrink-0 flex items-center justify-center rounded-lg text-white hover:bg-white/10 transition-colors"
+            aria-label="القائمة الجانبية"
+            onClick={() => setMobileMenuOpen(true)}
+            className="xl:hidden w-11 h-11 shrink-0 flex items-center justify-center rounded-xl text-white bg-white/5 hover:bg-white/10 border border-white/10 active:scale-95 transition-all"
           >
-            <MenuIcon className="w-5 h-5" />
+            <MenuIcon className="w-5 h-5 text-white" />
           </button>
 
           {/* KUBE AI Brand Logo */}
           <Link
             to="/admin/marketing"
-            className="h-8 md:h-12 flex items-center shrink-0 cursor-pointer hover:scale-105 transition-transform gap-2.5"
+            className="h-9 md:h-12 flex items-center shrink-0 cursor-pointer hover:scale-105 transition-transform gap-2 md:gap-2.5"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#ff334b] via-[#ef4444] to-[#991b1b] shadow-lg shadow-[#ff2a4b]/30 text-white font-black text-base border border-white/20">
+            <div className="flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#ff334b] via-[#ef4444] to-[#991b1b] shadow-lg shadow-[#ff2a4b]/30 text-white font-black text-sm md:text-base border border-white/20">
               K
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-base font-black tracking-wider text-white">KUBE</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff3b56] to-[#ff2a4b] font-black text-sm">
+              <span className="text-sm md:text-base font-black tracking-wider text-white">KUBE</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff3b56] to-[#ff2a4b] font-black text-xs md:text-sm">
                 AI
               </span>
-              <span className="rounded-full bg-[#ff2a4b]/20 border border-[#ff2a4b]/40 px-2 py-0.5 text-[9px] font-bold text-[#ff3b56] font-mono">
+              <span className="hidden sm:inline-block rounded-full bg-[#ff2a4b]/20 border border-[#ff2a4b]/40 px-2 py-0.5 text-[9px] font-bold text-[#ff3b56] font-mono">
                 STUDIO v2
               </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation Items */}
+          {/* Desktop Navigation Items (Hidden on Mobile) */}
           <nav className="hidden xl:flex items-center gap-0.5 h-full ms-3">
             <button
               onClick={() => setActiveStudioModal("product_3d")}
@@ -571,53 +574,47 @@ function KubeAiMarketingPage() {
           </nav>
         </div>
 
-        {/* Left Section: API Keys Report + Back to ERP + Library + Profile */}
-        <div className="flex items-center gap-2.5 md:gap-3.5">
+        {/* Left Section: Action Buttons */}
+        <div className="flex items-center gap-2 md:gap-3">
           {/* Provider API Keys Button */}
           <button
             onClick={() => setActiveStudioModal("providers_guide")}
-            className="flex items-center gap-1.5 h-8 px-2.5 rounded-[10px] bg-[#ff2a4b]/15 hover:bg-[#ff2a4b]/25 border border-[#ff2a4b]/40 text-[#ff3b56] text-xs font-bold transition-all shadow-sm"
+            className="flex items-center gap-1.5 h-8 md:h-9 px-2.5 rounded-xl bg-[#ff2a4b]/15 hover:bg-[#ff2a4b]/25 border border-[#ff2a4b]/40 text-[#ff3b56] text-xs font-bold transition-all shadow-sm active:scale-95"
+            title="دليل مفاتيح المزودين"
           >
             <Key className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">مفاتيح المزودين (API)</span>
           </button>
 
+          {/* ERP Dashboard Link */}
           <Link
             to={backHomeUrl}
-            className="flex items-center gap-1.5 h-8 ps-2 pe-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs md:text-sm font-medium transition-all"
+            className="flex items-center gap-1.5 h-8 md:h-9 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs md:text-sm font-medium transition-all active:scale-95"
             title="العودة لنظام إدارة كافيه KUBE"
           >
             <ChevronLeft className="w-4 h-4" />
             <span className="hidden sm:inline">لوحة KUBE</span>
           </Link>
 
-          <button
-            onClick={() => setActiveStudioModal("promlog")}
-            className="flex items-center gap-1.5 h-8 ps-2 pe-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs md:text-sm font-medium transition-all"
-          >
-            <FolderOpen className="w-4 h-4" />
-            <span className="hidden sm:inline">المكتبة</span>
-          </button>
-
           {/* User Profile Capsule with Signature KUBE Red Glowing Ring */}
           <div className="flex items-center gap-2 relative">
-            <div className="relative flex items-center justify-center w-[36px] h-[36px] md:w-[44px] md:h-[44px]">
-              <svg width="44" height="44" className="absolute inset-0 -rotate-90 pointer-events-none" viewBox="0 0 44 44">
-                <circle cx="22" cy="22" r="20" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
+            <div className="relative flex items-center justify-center w-[34px] h-[34px] md:w-[42px] md:h-[42px]">
+              <svg width="42" height="42" className="absolute inset-0 -rotate-90 pointer-events-none" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="19" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
                 <circle
-                  cx="22"
-                  cy="22"
-                  r="20"
+                  cx="21"
+                  cy="21"
+                  r="19"
                   fill="none"
                   strokeWidth="2.5"
-                  strokeDasharray="125"
+                  strokeDasharray="120"
                   strokeDashoffset="0"
                   strokeLinecap="round"
                   style={{ stroke: "#ff2a4b" }}
                 />
               </svg>
               <div
-                className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-zinc-900 border border-white/20 flex items-center justify-center text-white text-xs md:text-sm font-black shadow-lg overflow-hidden cursor-pointer"
+                className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-zinc-900 border border-white/20 flex items-center justify-center text-white text-xs md:text-sm font-black shadow-lg overflow-hidden cursor-pointer"
                 title="زياد عيسى • KUBE VIP"
               >
                 <span>ز</span>
@@ -632,9 +629,215 @@ function KubeAiMarketingPage() {
       </header>
 
       {/* ============================================================== */}
-      {/* 2. SECTION 1: HERO (100vh Full Screen Edge-to-Edge with Red)   */}
+      {/* 2. MOBILE SLIDE-OUT DRAWER (Full Menu for iPhone / Android)     */}
       {/* ============================================================== */}
-      <section className="relative h-[100vh] min-h-[700px] flex flex-col items-center justify-center text-center px-4 md:px-6 overflow-hidden shrink-0 pt-16">
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[10005] bg-black/80 backdrop-blur-md animate-in fade-in duration-200 xl:hidden">
+          <div className="fixed inset-y-0 start-0 z-[10006] w-[85vw] max-w-xs bg-[#121214] border-e border-white/10 p-5 flex flex-col justify-between overflow-y-auto shadow-2xl animate-in slide-in-from-start duration-300">
+            <div className="space-y-6">
+              {/* Drawer Topbar */}
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#ff334b] to-[#dc2626] text-white flex items-center justify-center font-black text-sm">
+                    K
+                  </div>
+                  <div>
+                    <span className="font-black text-sm text-white block">KUBE AI</span>
+                    <span className="text-[10px] text-[#ff3b56] font-mono block">الاستوديو الذكي</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center border border-white/10"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Navigation Items */}
+              <div className="space-y-1.5 text-xs font-medium">
+                <button
+                  onClick={() => {
+                    setActiveStudioModal("super_agent");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Bot className="w-4 h-4 text-[#ff2a4b]" />
+                    <span>سوبر ايجنت</span>
+                  </div>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#ff2a4b] text-white">جديد</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveStudioModal("product_3d");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Layers className="w-4 h-4 text-[#ff3b56]" />
+                    <span>استديو المنتجات 3D</span>
+                  </div>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-white/10 text-zinc-300">3D</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveStudioModal("ugc_studio");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Video className="w-4 h-4 text-amber-400" />
+                    <span>استديو UGC 2.0</span>
+                  </div>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300">
+                    شخصيات
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveStudioModal("ads_9x");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Sparkles className="w-4 h-4 text-[#ff2a4b]" />
+                    <span>استديو الإعلانات 9x</span>
+                  </div>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#ff2a4b]/20 text-[#ff3b56]">9x</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveStudioModal("models_api");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Cpu className="w-4 h-4 text-blue-400" />
+                    <span>كتالوج المحركات والـ API</span>
+                  </div>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500/20 text-blue-300">12+</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveStudioModal("providers_guide");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-[#ff2a4b]/15 text-[#ff3b56] font-bold border border-[#ff2a4b]/30"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Key className="w-4 h-4" />
+                    <span>دليل مفاتيح المزودين (API)</span>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveStudioModal("promlog");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                >
+                  <FolderOpen className="w-4 h-4 text-emerald-400" />
+                  <span>المكتبة وبروملوق (40+)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Drawer Bottom Actions */}
+            <div className="pt-4 border-t border-white/10 space-y-3">
+              <Link
+                to={backHomeUrl}
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>العودة للوحة تحكم KUBE</span>
+              </Link>
+
+              <div className="p-3 rounded-xl bg-black/60 border border-white/5 flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-[#ff2a4b] text-white flex items-center justify-center font-black text-xs shrink-0">
+                  ز
+                </div>
+                <div className="truncate">
+                  <span className="text-xs font-bold text-white block truncate">زياد عيسى</span>
+                  <span className="text-[10px] text-[#ff3b56] font-mono block">استخدام داخلي خاص • KUBE</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 3. MOBILE BOTTOM NAVIGATION BAR (iPhone Floating Dock)         */}
+      {/* ============================================================== */}
+      <nav className="xl:hidden fixed bottom-3 inset-x-3 z-[9990] rounded-2xl bg-zinc-950/95 backdrop-blur-2xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-1.5 flex items-center justify-around text-[10px]">
+        <button
+          onClick={() => setActiveStudioModal("super_agent")}
+          className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all active:scale-95 ${
+            activeStudioModal === "super_agent" ? "text-[#ff2a4b] bg-white/10 font-bold" : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          <Bot className="w-5 h-5 text-[#ff2a4b]" />
+          <span>ايجنت</span>
+        </button>
+
+        <button
+          onClick={() => setActiveStudioModal("product_3d")}
+          className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all active:scale-95 ${
+            activeStudioModal === "product_3d" ? "text-[#ff2a4b] bg-white/10 font-bold" : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          <Layers className="w-5 h-5" />
+          <span>استديو 3D</span>
+        </button>
+
+        <button
+          onClick={() => setActiveStudioModal("ugc_studio")}
+          className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all active:scale-95 ${
+            activeStudioModal === "ugc_studio" ? "text-[#ff2a4b] bg-white/10 font-bold" : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          <Video className="w-5 h-5" />
+          <span>UGC</span>
+        </button>
+
+        <button
+          onClick={() => setActiveStudioModal("ads_9x")}
+          className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all active:scale-95 ${
+            activeStudioModal === "ads_9x" ? "text-[#ff2a4b] bg-white/10 font-bold" : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          <Sparkles className="w-5 h-5" />
+          <span>إعلانات 9x</span>
+        </button>
+
+        <Link
+          to={backHomeUrl}
+          className="flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl text-zinc-400 hover:text-white transition-all active:scale-95"
+        >
+          <Home className="w-5 h-5" />
+          <span>الرئيسية</span>
+        </Link>
+      </nav>
+
+      {/* ============================================================== */}
+      {/* 4. SECTION 1: HERO (Mobile & Desktop Responsive)               */}
+      {/* ============================================================== */}
+      <section className="relative min-h-[580px] sm:min-h-[680px] md:min-h-[750px] lg:h-[100vh] flex flex-col items-center justify-center text-center px-4 md:px-6 overflow-hidden shrink-0 pt-20 md:pt-16">
         {/* Background Stream Loop */}
         <div className="absolute inset-0 w-full h-full pointer-events-none select-none">
           <img
@@ -646,15 +849,15 @@ function KubeAiMarketingPage() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-6xl w-full space-y-6 md:space-y-8 animate-in fade-in duration-1000 px-4">
-          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black uppercase text-white leading-[0.85] drop-shadow-[0_20px_50px_rgba(0,0,0,0.95)] tracking-tighter">
+        <div className="relative z-10 max-w-6xl w-full space-y-5 md:space-y-8 animate-in fade-in duration-1000 px-2 sm:px-4">
+          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black uppercase text-white leading-[0.88] drop-shadow-[0_20px_50px_rgba(0,0,0,0.95)] tracking-tighter">
             ابدع <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-br from-[#ff3b56] via-[#ff2a4b] to-[#b91c1c]">
               بلا حدود.
             </span>
           </h1>
 
-          {/* Floating Engine Logos Row */}
+          {/* Floating Engine Logos Row (Responsive Touch Friendly) */}
           <div className="flex items-center justify-center gap-1.5 md:gap-3 flex-wrap max-w-4xl mx-auto py-2">
             {ENGINE_LOGOS.map((eng, idx) => (
               <div
@@ -665,7 +868,7 @@ function KubeAiMarketingPage() {
                   setActiveStudioModal("super_agent");
                   toast.success(`تم اختيار محرك ${eng.name}`);
                 }}
-                className="w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center shrink-0 hover:bg-white/15 hover:scale-110 hover:border-[#ff2a4b]/60 transition-all duration-300 cursor-pointer shadow-lg"
+                className="w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center shrink-0 hover:bg-white/15 hover:scale-110 hover:border-[#ff2a4b]/60 active:scale-95 transition-all duration-300 cursor-pointer shadow-lg"
               >
                 <img
                   src={eng.icon}
@@ -676,15 +879,15 @@ function KubeAiMarketingPage() {
             ))}
           </div>
 
-          <p className="text-base sm:text-lg md:text-2xl text-zinc-300 font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md px-4">
+          <p className="text-sm sm:text-lg md:text-2xl text-zinc-300 font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md px-2">
             محركات توليدية مضبوطة بدقة للجيل القادم من المبدعين في كافيه ومطبخ KUBE.
           </p>
 
           {/* Quick Action Buttons */}
-          <div className="flex items-center justify-center gap-3 md:gap-4 flex-wrap pt-2">
+          <div className="flex items-center justify-center gap-2.5 md:gap-4 flex-wrap pt-2 w-full max-w-md mx-auto sm:max-w-none">
             <button
               onClick={() => setActiveStudioModal("super_agent")}
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-[14px] bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm md:text-base shadow-xl shadow-[#ff2a4b]/30 hover:scale-105 active:scale-95 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-[14px] bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm md:text-base shadow-xl shadow-[#ff2a4b]/30 active:scale-95 transition-all"
             >
               <Zap className="w-4 h-4 fill-current" />
               <span>أطلق سوبر ايجنت ▶</span>
@@ -692,29 +895,29 @@ function KubeAiMarketingPage() {
 
             <button
               onClick={() => setActiveStudioModal("product_3d")}
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-sm md:text-base backdrop-blur-md hover:scale-105 active:scale-95 transition-all"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs sm:text-sm md:text-base backdrop-blur-md active:scale-95 transition-all"
             >
               <Layers className="w-4 h-4 text-[#ff2a4b]" />
-              <span>استديو المنتجات 3D</span>
+              <span>استديو 3D</span>
             </button>
 
             <button
               onClick={() => setActiveStudioModal("ads_9x")}
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-[14px] bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-200 font-bold text-sm md:text-base backdrop-blur-md hover:scale-105 active:scale-95 transition-all"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[14px] bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-200 font-bold text-xs sm:text-sm md:text-base backdrop-blur-md active:scale-95 transition-all"
             >
               <Sparkles className="w-4 h-4 text-[#ff3b56]" />
-              <span>استديو الإعلانات 9x</span>
+              <span>إعلانات 9x</span>
             </button>
           </div>
         </div>
       </section>
 
       {/* ============================================================== */}
-      {/* 3. SECTION 2: SHOWCASE CARDS (Horizontal Scrollable Stream)     */}
+      {/* 5. SECTION 2: SHOWCASE CARDS (Touch Pan Horizontal Stream)      */}
       {/* ============================================================== */}
       <section className="pt-2 pb-16 w-full max-w-[1600px] mx-auto px-4 md:px-8">
         <div className="relative">
-          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory py-2 scrollbar-none">
+          <div className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory py-2 scrollbar-none touch-pan-x">
             {SHOWCASE_CARDS.map((card, idx) => (
               <div
                 key={idx}
@@ -725,25 +928,25 @@ function KubeAiMarketingPage() {
                   else if (card.action === "models") setActiveStudioModal("models_api");
                   else setActiveStudioModal("super_agent");
                 }}
-                className="group relative shrink-0 snap-start w-[82vw] sm:w-[50vw] md:w-[380px] lg:w-[420px] aspect-[16/10] rounded-[22px] overflow-hidden bg-zinc-900 text-right ring-1 ring-white/10 hover:ring-[#ff2a4b]/60 transition-all cursor-pointer shadow-2xl"
+                className="group relative shrink-0 snap-start w-[84vw] sm:w-[50vw] md:w-[380px] lg:w-[420px] aspect-[16/10] rounded-[22px] overflow-hidden bg-zinc-900 text-right ring-1 ring-white/10 hover:ring-[#ff2a4b]/60 active:scale-[0.98] transition-all cursor-pointer shadow-2xl"
               >
                 <div className="absolute inset-0 block transition-transform duration-700 group-hover:scale-105">
                   <img src={card.thumb} alt={card.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
-                {/* Badge Tag in Signature Red */}
-                <span className="absolute top-4 start-4 z-20 font-black text-xs uppercase px-2.5 py-1 rounded-sm -skew-x-12 shadow-xl bg-[#ff2a4b] text-white">
+                {/* Badge Tag */}
+                <span className="absolute top-3 sm:top-4 start-3 sm:start-4 z-20 font-black text-xs uppercase px-2.5 py-1 rounded-sm -skew-x-12 shadow-xl bg-[#ff2a4b] text-white">
                   {card.tag}
                 </span>
 
                 {/* Content */}
-                <div className="absolute inset-x-0 bottom-0 p-5 space-y-1.5">
-                  <span className="block text-xl md:text-2xl font-black uppercase tracking-tight text-white">
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 space-y-1.5">
+                  <span className="block text-lg md:text-2xl font-black uppercase tracking-tight text-white">
                     {card.title}
                   </span>
                   <p className="text-xs md:text-sm text-zinc-300 line-clamp-2 leading-relaxed">{card.desc}</p>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#ff3b56] pt-2">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#ff3b56] pt-1">
                     توليد فوري <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
@@ -754,11 +957,11 @@ function KubeAiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 4. SECTION 3: 3D PRODUCT STUDIO (30s Ad Showcase)               */}
+      {/* 6. SECTION 3: 3D PRODUCT STUDIO (30s Ad Showcase)               */}
       {/* ============================================================== */}
-      <section className="relative w-full overflow-hidden bg-black py-16 md:py-24 border-t border-white/5">
-        <div className="relative z-20 max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div className="flex flex-col items-center lg:items-start text-center lg:text-right gap-6">
+      <section className="relative w-full overflow-hidden bg-black py-12 md:py-24 border-t border-white/5">
+        <div className="relative z-20 max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10 items-center">
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-right gap-4 md:gap-6">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[#ff2a4b] animate-pulse" />
               <span className="text-xs font-bold text-[#ff3b56] font-mono uppercase tracking-wider">
@@ -766,18 +969,18 @@ function KubeAiMarketingPage() {
               </span>
             </div>
 
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black leading-[1.1] tracking-tight text-white">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-black leading-[1.1] tracking-tight text-white">
               حوّل أي منتج
               <span className="block text-[#a9a9b0]">إلى إعلان مدته 30 ثانية</span>
             </h2>
 
-            <p className="max-w-[520px] text-base md:text-lg leading-relaxed text-white/75">
+            <p className="max-w-[520px] text-sm sm:text-base md:text-lg leading-relaxed text-white/75">
               اكتب سطرًا واحدًا عن قهوة KUBE، ونكتب القصة مشهدًا بمشهد ونصوّرها لك بالصوت وإضاءة الاستديو ثلاثية الأبعاد.
             </p>
 
             <button
               onClick={() => setActiveStudioModal("product_3d")}
-              className="inline-flex items-center justify-center gap-2 px-9 h-12 rounded-[14px] bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm shadow-xl shadow-[#ff2a4b]/25 hover:scale-105 active:scale-95 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-9 h-12 rounded-[14px] bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm shadow-xl shadow-[#ff2a4b]/25 active:scale-95 transition-all"
             >
               <Layers className="w-4 h-4 fill-current" />
               <span>أنشئ إعلانًا ثلاثي الأبعاد</span>
@@ -785,8 +988,8 @@ function KubeAiMarketingPage() {
           </div>
 
           {/* Interactive Phone Mockup Carousel */}
-          <div className="relative mx-auto w-full max-w-[500px] flex items-center justify-center">
-            <div className="relative w-[260px] md:w-[280px] aspect-[9/16] rounded-[28px] overflow-hidden border-2 border-zinc-800 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)] bg-zinc-950 group">
+          <div className="relative mx-auto w-full max-w-[420px] flex items-center justify-center">
+            <div className="relative w-[240px] sm:w-[260px] md:w-[280px] aspect-[9/16] rounded-[28px] overflow-hidden border-2 border-zinc-800 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)] bg-zinc-950 group">
               <img
                 src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/68f99df1e137fb4eccb09a8fd2c8dd10/thumbnails/thumbnail.jpg?height=720"
                 alt="KUBE Specialty Coffee"
@@ -809,29 +1012,29 @@ function KubeAiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 5. SECTION 4: CHARACTER STUDIO (Saudi Personas)                */}
+      {/* 7. SECTION 4: CHARACTER STUDIO (Saudi Personas)                */}
       {/* ============================================================== */}
-      <section className="relative w-full overflow-hidden bg-black py-16 md:py-24 border-t border-white/5">
-        <div className="relative z-20 max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12 space-y-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-3">
+      <section className="relative w-full overflow-hidden bg-black py-12 md:py-24 border-t border-white/5">
+        <div className="relative z-20 max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12 space-y-8 md:space-y-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
+            <div className="space-y-2 md:space-y-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-[#ff3b56] font-mono">استوديو الشخصيات</span>
                 <span className="text-[9px] uppercase px-1.5 py-0.5 rounded-sm font-black bg-[#ff2a4b] text-white">
                   جديد
                 </span>
               </div>
-              <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white tracking-tight">
                 شخصيتك، نجم مقطعك القادم
               </h2>
-              <p className="text-base md:text-lg text-white/70 max-w-xl">
+              <p className="text-sm md:text-lg text-white/70 max-w-xl">
                 صمّم الشخصية مرة واحدة، ثم اجعل الوجه نفسه بطل كل فيديو وحملة لكافيه KUBE.
               </p>
             </div>
 
             <button
               onClick={() => setActiveStudioModal("ugc_studio")}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-sm transition-all self-start md:self-auto"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs md:text-sm active:scale-95 transition-all self-start md:self-auto"
             >
               <span>اصنع شخصيتك</span>
               <ArrowRight className="w-4 h-4" />
@@ -839,7 +1042,7 @@ function KubeAiMarketingPage() {
           </div>
 
           {/* Characters Avatar Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
             {SAUDI_CREATOR_PERSONAS.map((creator) => (
               <div
                 key={creator.id}
@@ -855,7 +1058,7 @@ function KubeAiMarketingPage() {
                   setActiveStudioModal("ugc_studio");
                   toast.success(`تم اختيار شخصية ${creator.name}`);
                 }}
-                className="group relative rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#ff2a4b] cursor-pointer transition-all shadow-xl"
+                className="group relative rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#ff2a4b] active:scale-95 cursor-pointer transition-all shadow-xl"
               >
                 <div className="aspect-[3/4] w-full overflow-hidden">
                   <img
@@ -877,21 +1080,21 @@ function KubeAiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 6. SECTION 5: SUPER AGENT (Creative Team)                      */}
+      {/* 8. SECTION 5: SUPER AGENT (Creative Team)                      */}
       {/* ============================================================== */}
-      <section className="px-4 sm:px-6 md:px-12 py-16 max-w-[1600px] mx-auto border-t border-white/5">
-        <div className="rounded-[32px] border border-white/10 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 sm:p-10 md:p-16 relative overflow-hidden shadow-2xl">
-          <div className="relative z-10 max-w-2xl space-y-6 text-right">
+      <section className="px-4 sm:px-6 md:px-12 py-12 md:py-16 max-w-[1600px] mx-auto border-t border-white/5">
+        <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 sm:p-10 md:p-16 relative overflow-hidden shadow-2xl">
+          <div className="relative z-10 max-w-2xl space-y-4 md:space-y-6 text-right">
             <span className="text-xs font-mono uppercase text-[#ff3b56] font-bold">فريقك الإبداعي</span>
-            <h2 className="text-4xl md:text-6xl font-black text-white leading-tight">سوبر ايجنت KUBE</h2>
-            <p className="text-base md:text-lg text-zinc-300 leading-relaxed">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white leading-tight">سوبر ايجنت KUBE</h2>
+            <p className="text-sm md:text-lg text-zinc-300 leading-relaxed">
               وكيل ذكاء اصطناعي سعودي فائق التطور، يكتب السكريبتات الإعلانية، يضبط إضاءة الكافيه، ويطلق الحملات في ثوانٍ.
             </p>
 
-            <div className="flex items-center gap-3 pt-4">
+            <div className="pt-2">
               <button
                 onClick={() => setActiveStudioModal("super_agent")}
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm shadow-xl shadow-[#ff2a4b]/30 hover:scale-105 transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm shadow-xl shadow-[#ff2a4b]/30 active:scale-95 transition-all"
               >
                 <Bot className="w-4 h-4 fill-current" />
                 <span>جرّب سوبر ايجنت الآن</span>
@@ -902,34 +1105,34 @@ function KubeAiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 7. SECTION 6: TEMPLATES (Ready Apps)                            */}
+      {/* 9. SECTION 6: TEMPLATES (Ready Apps)                            */}
       {/* ============================================================== */}
-      <section id="templates-section" className="relative py-16 md:py-24 w-full overflow-hidden border-t border-white/5">
-        <div className="relative z-20 max-w-[1600px] mx-auto px-4 md:px-8 space-y-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-3">
-              <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-none">
+      <section id="templates-section" className="relative py-12 md:py-24 w-full overflow-hidden border-t border-white/5">
+        <div className="relative z-20 max-w-[1600px] mx-auto px-4 md:px-8 space-y-6 md:space-y-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
+            <div className="space-y-2">
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight text-white leading-tight">
                 تطبيقات
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#ff3b56] to-[#ff2a4b]">
                   جاهزة للإبداع
                 </span>
               </h2>
-              <p className="text-base md:text-lg text-white/70 max-w-2xl">
+              <p className="text-xs sm:text-base md:text-lg text-white/70 max-w-2xl">
                 تخطى كتابة البرومت. استخدم قوالبنا المصممة باحترافية لإنشاء محتوى لكافيه KUBE في ثوانٍ.
               </p>
             </div>
 
             <button
               onClick={() => setActiveStudioModal("super_agent")}
-              className="group flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all self-start md:self-auto"
+              className="group flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all self-start md:self-auto text-xs font-bold"
             >
-              <span className="text-white font-bold text-xs">استكشف كل القوالب</span>
+              <span>استكشف كل القوالب</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* 6 Templates Cards Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
             {TEMPLATES_ITEMS.map((tmpl, idx) => (
               <div
                 key={idx}
@@ -937,7 +1140,7 @@ function KubeAiMarketingPage() {
                   toast.success(`تم اختيار قالب "${tmpl.title}" ونقله لسوبر ايجنت`);
                   setActiveStudioModal("super_agent");
                 }}
-                className="group relative rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#ff2a4b] transition-all cursor-pointer shadow-xl"
+                className="group relative rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#ff2a4b] active:scale-95 transition-all cursor-pointer shadow-xl"
               >
                 <div className="aspect-[3/4] w-full overflow-hidden">
                   <img
@@ -958,20 +1161,20 @@ function KubeAiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 8. SECTION 7: UGC 2.0 (High-Realism Videos)                     */}
+      {/* 10. SECTION 7: UGC 2.0 (High-Realism Videos)                    */}
       {/* ============================================================== */}
-      <section className="relative w-full overflow-hidden bg-black py-16 md:py-24 border-t border-white/5">
-        <div className="relative z-30 mx-auto max-w-[1600px] px-4 md:px-8 space-y-10">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
+      <section className="relative w-full overflow-hidden bg-black py-12 md:py-24 border-t border-white/5">
+        <div className="relative z-30 mx-auto max-w-[1600px] px-4 md:px-8 space-y-8">
+          <div className="text-center space-y-2 max-w-2xl mx-auto">
             <span className="text-xs font-bold font-mono text-[#ff3b56] uppercase">UGC Studio 2.0</span>
-            <h2 className="text-4xl md:text-6xl font-black text-white">أنشئ مقاطع يو جي سي عالية الواقعية</h2>
-            <p className="text-sm md:text-base text-zinc-400">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white">أنشئ مقاطع يو جي سي عالية الواقعية</h2>
+            <p className="text-xs sm:text-sm md:text-base text-zinc-400">
               أصوات سعودية ونبرات طبيعية تناسب إعلانات تيك توك وسناب شات وريلز.
             </p>
           </div>
 
           {/* Horizontal Video Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
             {UGC_CREATORS.map((item, idx) => (
               <div
                 key={idx}
@@ -979,7 +1182,7 @@ function KubeAiMarketingPage() {
                   setActiveCreator(item);
                   setActiveStudioModal("ugc_studio");
                 }}
-                className="group relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-pointer hover:border-[#ff2a4b] transition-all shadow-xl"
+                className="group relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-pointer hover:border-[#ff2a4b] active:scale-95 transition-all shadow-xl"
               >
                 <div className="aspect-[9/15] w-full relative overflow-hidden">
                   <img
@@ -1022,22 +1225,22 @@ function KubeAiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 9. SECTION 8: ADS STUDIO 9x (9-Pack Multi-Ratio)               */}
+      {/* 11. SECTION 8: ADS STUDIO 9x (9-Pack Multi-Ratio)              */}
       {/* ============================================================== */}
-      <section className="relative w-full overflow-hidden bg-black py-16 md:py-24 border-t border-white/5">
-        <div className="relative z-20 max-w-[1600px] mx-auto px-4 md:px-8 space-y-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-3">
+      <section className="relative w-full overflow-hidden bg-black py-12 md:py-24 border-t border-white/5">
+        <div className="relative z-20 max-w-[1600px] mx-auto px-4 md:px-8 space-y-6 md:space-y-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
+            <div className="space-y-2">
               <span className="text-xs font-bold font-mono text-[#ff3b56]">رائج</span>
-              <h2 className="text-4xl md:text-6xl font-black text-white">استديو الإعلانات — ٩ صور من لقطة واحدة</h2>
-              <p className="text-sm md:text-base text-zinc-400 max-w-xl">
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white">استديو الإعلانات — ٩ صور من لقطة واحدة</h2>
+              <p className="text-xs sm:text-sm md:text-base text-zinc-400 max-w-xl">
                 أنشئ صور إعلانية عالية التحويل. 9 صور احترافية تناسب كل أنواع الحملات وكل المقاسات.
               </p>
             </div>
 
             <button
               onClick={() => setActiveStudioModal("ads_9x")}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm shadow-xl shadow-[#ff2a4b]/30 hover:scale-105 transition-all self-start md:self-auto"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm shadow-xl shadow-[#ff2a4b]/30 active:scale-95 transition-all self-start md:self-auto"
             >
               <Sparkles className="w-4 h-4 fill-current" />
               <span>توليد الـ 9 إعلانات فوراً</span>
@@ -1047,14 +1250,14 @@ function KubeAiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 10. SECTION 9: MOTION LIVE (نسختك المُطابقة)                    */}
+      {/* 12. SECTION 9: MOTION LIVE (نسختك المُطابقة)                   */}
       {/* ============================================================== */}
-      <section className="relative py-20 bg-black border-t border-white/5 overflow-hidden">
+      <section className="relative py-16 md:py-20 bg-black border-t border-white/5 overflow-hidden">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+          <div className="flex flex-col lg:flex-row items-center gap-8 md:gap-12 lg:gap-20">
             {/* Mockup with live pulsing ring */}
             <div className="relative shrink-0">
-              <div className="w-[240px] md:w-[280px] aspect-[9/16] rounded-[2.5rem] overflow-hidden border-2 border-zinc-800 shadow-2xl bg-zinc-950 relative">
+              <div className="w-[220px] sm:w-[260px] md:w-[280px] aspect-[9/16] rounded-[2.5rem] overflow-hidden border-2 border-zinc-800 shadow-2xl bg-zinc-950 relative">
                 <img
                   src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/679f435913be72cd7135ad8fb2b4c880/thumbnails/thumbnail.jpg?height=720"
                   alt="Motion Control"
@@ -1067,24 +1270,24 @@ function KubeAiMarketingPage() {
               </div>
             </div>
 
-            <div className="space-y-6 text-center lg:text-right max-w-xl">
+            <div className="space-y-4 md:space-y-6 text-center lg:text-right max-w-xl">
               <span className="text-xs font-mono uppercase text-[#ff3b56] font-bold">LIVE</span>
-              <h2 className="text-4xl md:text-6xl font-black text-white leading-tight">نسختك المُطابقة</h2>
-              <p className="text-base text-zinc-300 leading-relaxed">
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white leading-tight">نسختك المُطابقة</h2>
+              <p className="text-sm md:text-base text-zinc-300 leading-relaxed">
                 انقل الحركة الحقيقية إلى أي شخصية أو فنجان قهوة. ارفع مشية، تلويحة، أو سكب — وشاهد إبداعك يتحرك تماماً مثلك.
               </p>
 
-              <div className="grid grid-cols-3 gap-3 pt-2 text-center font-mono">
+              <div className="grid grid-cols-3 gap-2.5 md:gap-3 pt-2 text-center font-mono">
                 <div className="p-3 rounded-xl bg-zinc-900/80 border border-white/10">
-                  <span className="text-lg font-black text-white block">30s</span>
+                  <span className="text-base sm:text-lg font-black text-white block">30s</span>
                   <span className="text-[10px] text-zinc-400">أقصى مدة</span>
                 </div>
                 <div className="p-3 rounded-xl bg-zinc-900/80 border border-white/10">
-                  <span className="text-lg font-black text-white block">4K</span>
+                  <span className="text-base sm:text-lg font-black text-white block">4K</span>
                   <span className="text-[10px] text-zinc-400">أعلى دقة</span>
                 </div>
                 <div className="p-3 rounded-xl bg-zinc-900/80 border border-white/10">
-                  <span className="text-lg font-black text-[#ff3b56] block">Pro</span>
+                  <span className="text-base sm:text-lg font-black text-[#ff3b56] block">Pro</span>
                   <span className="text-[10px] text-zinc-400">مطابقة الحركة</span>
                 </div>
               </div>
@@ -1094,13 +1297,13 @@ function KubeAiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 11. SECTION 10: MODELS & API CATALOG                            */}
+      {/* 13. SECTION 10: MODELS & API CATALOG                           */}
       {/* ============================================================== */}
-      <section className="py-16 md:py-24 max-w-[1600px] mx-auto px-4 md:px-8 border-t border-white/5 space-y-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <section className="py-12 md:py-24 max-w-[1600px] mx-auto px-4 md:px-8 border-t border-white/5 space-y-6 md:space-y-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
           <div className="space-y-2">
             <span className="text-xs font-bold font-mono text-[#ff3b56]">المحركات ونماذج الـ API</span>
-            <h2 className="text-3xl md:text-5xl font-black text-white">كتالوج النماذج العالمية للربط البرمجي</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white">كتالوج النماذج العالمية للربط البرمجي</h2>
             <p className="text-xs md:text-sm text-zinc-400">
               حصر شامل لمحركات Kling, Veo, WanX, Flux, Grok, Omni مع وثائق الـ Endpoints الجاهزة للربط مع سيرفرات KUBE.
             </p>
@@ -1108,14 +1311,14 @@ function KubeAiMarketingPage() {
 
           <button
             onClick={() => setActiveStudioModal("models_api")}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs transition-all self-start md:self-auto"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs active:scale-95 transition-all self-start md:self-auto"
           >
             <Code className="w-4 h-4 text-[#ff3b56]" />
             <span>عرض وثائق الـ API كاملة</span>
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {HALAI_AI_MODELS_CATALOG.slice(0, 8).map((model) => (
             <div
               key={model.id}
@@ -1123,7 +1326,7 @@ function KubeAiMarketingPage() {
                 setSelectedModelForApi(model);
                 setActiveStudioModal("models_api");
               }}
-              className="rounded-2xl border border-white/10 bg-zinc-900/70 p-5 space-y-3 hover:border-[#ff2a4b] cursor-pointer transition-all flex flex-col justify-between"
+              className="rounded-2xl border border-white/10 bg-zinc-900/70 p-4 sm:p-5 space-y-3 hover:border-[#ff2a4b] active:scale-[0.98] cursor-pointer transition-all flex flex-col justify-between"
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -1145,34 +1348,34 @@ function KubeAiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 12. SECTION 11: MCP INTEGRATIONS (Salla & Zid & POS)           */}
+      {/* 14. SECTION 11: MCP INTEGRATIONS (Salla & Zid & POS)          */}
       {/* ============================================================== */}
-      <section id="mcp-section" className="py-16 max-w-[1600px] mx-auto px-4 md:px-8 border-t border-white/5 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 to-black p-8 space-y-4">
+      <section id="mcp-section" className="py-12 md:py-16 max-w-[1600px] mx-auto px-4 md:px-8 border-t border-white/5 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 to-black p-6 sm:p-8 space-y-4">
             <span className="text-xs font-mono text-[#ff3b56]">متوفر في متجر تطبيقات سلة</span>
-            <h3 className="text-2xl font-black text-white">عزّز متجرك في سلة</h3>
+            <h3 className="text-xl sm:text-2xl font-black text-white">عزّز متجرك في سلة</h3>
             <p className="text-xs md:text-sm text-zinc-400 leading-relaxed">
               أنشئ صور منتجاتك وفيديوهاتها وإعلاناتها من لوحة تحكم سلة مباشرة وبمزامنة فورية مع كاشير KUBE.
             </p>
             <button
               onClick={() => toast.success("تم تفعيل موصّل سلة مع KUBE POS بنجاح")}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs active:scale-95"
             >
               <span>اتصال سلة MCP</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 to-black p-8 space-y-4">
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 to-black p-6 sm:p-8 space-y-4">
             <span className="text-xs font-mono text-[#ff3b56]">متوفر في متجر تطبيقات زد</span>
-            <h3 className="text-2xl font-black text-white">عزّز متجرك في زد</h3>
+            <h3 className="text-xl sm:text-2xl font-black text-white">عزّز متجرك في زد</h3>
             <p className="text-xs md:text-sm text-zinc-400 leading-relaxed">
               أنشئ صور منتجاتك وفيديوهاتها وإعلاناتها من لوحة تحكم زد مباشرة وبمزامنة فورية مع نظام KUBE ERP.
             </p>
             <button
               onClick={() => toast.success("تم تفعيل موصّل زد مع KUBE ERP بنجاح")}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs active:scale-95"
             >
               <span>اتصال زد MCP</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -1182,13 +1385,13 @@ function KubeAiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 13. SECTION 12: PROMLOG (Prompt Library Bank)                   */}
+      {/* 15. SECTION 12: PROMLOG (Prompt Library Bank)                  */}
       {/* ============================================================== */}
-      <section className="py-16 max-w-[1600px] mx-auto px-4 md:px-8 border-t border-white/5 space-y-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <section className="py-12 md:py-16 max-w-[1600px] mx-auto px-4 md:px-8 border-t border-white/5 space-y-6 md:space-y-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
           <div className="space-y-2">
             <span className="text-xs font-bold font-mono text-[#ff3b56]">وصول مجاني داخلي</span>
-            <h2 className="text-3xl md:text-5xl font-black text-white">بروملوق — بنك برومبتات القهوة</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white">بروملوق — بنك برومبتات القهوة</h2>
             <p className="text-xs md:text-sm text-zinc-400">
               مكتبة خاصة من البرومتات الجاهزة للتنفيذ، احصل عليها فوراً وانشر إبداعك.
             </p>
@@ -1196,7 +1399,7 @@ function KubeAiMarketingPage() {
 
           <button
             onClick={() => setActiveStudioModal("promlog")}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs transition-all self-start md:self-auto"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs active:scale-95 transition-all self-start md:self-auto"
           >
             <FolderOpen className="w-4 h-4 text-[#ff3b56]" />
             <span>عرض كل البرومبتات (40+)</span>
@@ -1207,7 +1410,7 @@ function KubeAiMarketingPage() {
           {SAUDI_VISUAL_PROMPTS.slice(0, 3).map((vp) => (
             <div
               key={vp.id}
-              className="rounded-2xl border border-white/10 bg-zinc-900/60 p-5 space-y-3 flex flex-col justify-between hover:border-[#ff2a4b]/50 transition-all"
+              className="rounded-2xl border border-white/10 bg-zinc-900/60 p-4 sm:p-5 space-y-3 flex flex-col justify-between hover:border-[#ff2a4b]/50 transition-all"
             >
               <div className="space-y-2 text-right">
                 <span className="text-[10px] font-mono text-[#ff3b56] uppercase block">{vp.category}</span>
@@ -1220,7 +1423,7 @@ function KubeAiMarketingPage() {
 
               <button
                 onClick={() => handleCopy(vp.englishPrompt, vp.title)}
-                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-zinc-200 font-bold text-xs transition-colors"
+                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-zinc-200 font-bold text-xs active:scale-95 transition-colors"
               >
                 <Copy className="w-3.5 h-3.5" />
                 <span>نسخ البرومبت بالإنجليزية</span>
@@ -1231,7 +1434,7 @@ function KubeAiMarketingPage() {
       </section>
 
       {/* ============================================================== */}
-      {/* 14. FOOTER (Studio Footer)                                      */}
+      {/* 16. FOOTER (Studio Footer)                                     */}
       {/* ============================================================== */}
       <footer className="w-full border-t border-white/10 bg-black py-12 px-4 md:px-8 text-zinc-400 text-xs">
         <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
@@ -1243,7 +1446,7 @@ function KubeAiMarketingPage() {
             <span>— منظومة الذكاء الاصطناعي التوليدي الخاصة بكافيه ومطبخ KUBE</span>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
             <Link to={backHomeUrl} className="hover:text-white transition-colors">
               لوحة التحكم الرئيسية
             </Link>
@@ -1253,7 +1456,10 @@ function KubeAiMarketingPage() {
             <button onClick={() => setActiveStudioModal("product_3d")} className="hover:text-white transition-colors">
               استديو المنتجات 3D
             </button>
-            <button onClick={() => setActiveStudioModal("providers_guide")} className="hover:text-white transition-colors text-[#ff3b56]">
+            <button
+              onClick={() => setActiveStudioModal("providers_guide")}
+              className="hover:text-white transition-colors text-[#ff3b56] font-bold"
+            >
               دليل مفاتيح المزودين (API)
             </button>
           </div>
@@ -1265,18 +1471,18 @@ function KubeAiMarketingPage() {
       </footer>
 
       {/* ============================================================== */}
-      {/* 15. INTERACTIVE WORKSPACE MODAL OVERLAY                        */}
+      {/* 17. INTERACTIVE WORKSPACE MODAL OVERLAY (iPhone & Full Screen) */}
       {/* ============================================================== */}
       {activeStudioModal !== "none" && (
-        <div className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-2 sm:p-4 md:p-6 animate-in fade-in duration-200">
-          <div className="w-full max-w-6xl h-[92vh] rounded-[28px] border border-white/15 bg-[#121212] flex flex-col overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 z-[10010] bg-black/95 sm:bg-black/90 backdrop-blur-2xl flex items-center justify-center p-0 sm:p-4 md:p-6 animate-in fade-in duration-200">
+          <div className="w-full h-full sm:h-[92vh] sm:max-w-6xl sm:rounded-[28px] border-0 sm:border sm:border-white/15 bg-[#121212] flex flex-col overflow-hidden shadow-2xl">
             {/* Modal Topbar */}
-            <div className="h-14 px-5 border-b border-white/10 flex items-center justify-between bg-zinc-950/80 shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="w-6 h-6 rounded-lg bg-[#ff2a4b] text-white flex items-center justify-center font-black text-xs">
+            <div className="h-14 px-4 sm:px-5 border-b border-white/10 flex items-center justify-between bg-zinc-950/90 shrink-0">
+              <div className="flex items-center gap-2.5 truncate">
+                <div className="w-6 h-6 rounded-lg bg-[#ff2a4b] text-white flex items-center justify-center font-black text-xs shrink-0">
                   ⚡️
                 </div>
-                <span className="text-sm font-black text-white">
+                <span className="text-xs sm:text-sm font-black text-white truncate">
                   {activeStudioModal === "super_agent" && "سوبر ايجنت KUBE — محادثة فورية وتوليد إعلانات"}
                   {activeStudioModal === "product_3d" && "استديو المنتجات 3D — إضاءة وزوايا ثلاثية الأبعاد"}
                   {activeStudioModal === "ugc_studio" && "استديو UGC 2.0 — الشخصيات والسكريبتات"}
@@ -1289,15 +1495,15 @@ function KubeAiMarketingPage() {
 
               <button
                 onClick={() => setActiveStudioModal("none")}
-                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-white flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition-colors shrink-0"
                 title="إغلاق النافذة"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 pb-20 sm:pb-6">
               {/* MODAL: PROVIDERS API KEYS GUIDE (New Report) */}
               {activeStudioModal === "providers_guide" && (
                 <div className="space-y-6 text-right">
@@ -1317,7 +1523,7 @@ function KubeAiMarketingPage() {
                     {AI_PROVIDERS.map((prov) => (
                       <div
                         key={prov.id}
-                        className="rounded-2xl border border-white/10 bg-zinc-900/80 p-5 space-y-3 flex flex-col justify-between hover:border-[#ff2a4b]/50 transition-colors"
+                        className="rounded-2xl border border-white/10 bg-zinc-900/80 p-4 sm:p-5 space-y-3 flex flex-col justify-between hover:border-[#ff2a4b]/50 transition-colors"
                       >
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
@@ -1343,14 +1549,14 @@ function KubeAiMarketingPage() {
                             href={prov.docUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs transition-colors"
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs transition-colors"
                           >
                             <span>لوحة المطورين</span>
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                           <button
                             onClick={() => handleCopy(prov.keyEnv, "اسم المتغير")}
-                            className="px-3 py-2 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-zinc-300 font-bold text-xs transition-colors"
+                            className="px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-zinc-300 font-bold text-xs active:scale-95 transition-colors"
                             title="نسخ اسم المتغير"
                           >
                             <Copy className="w-3.5 h-3.5" />
@@ -1380,7 +1586,7 @@ function KubeAiMarketingPage() {
                           {msg.sender === "user" ? "ز" : "K"}
                         </div>
                         <div
-                          className={`max-w-[80%] rounded-2xl p-4 text-xs md:text-sm leading-relaxed whitespace-pre-wrap ${
+                          className={`max-w-[85%] rounded-2xl p-3.5 sm:p-4 text-xs md:text-sm leading-relaxed whitespace-pre-wrap ${
                             msg.sender === "user"
                               ? "bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-medium"
                               : "bg-zinc-900 border border-white/10 text-white"
@@ -1401,7 +1607,7 @@ function KubeAiMarketingPage() {
 
                   {/* Input Capsule with Format Quick Chips */}
                   <div className="space-y-3 pt-3 border-t border-white/10 shrink-0">
-                    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs touch-pan-x">
                       {SAUDI_UGC_FORMATS.slice(0, 6).map((fmt) => (
                         <button
                           key={fmt.id}
@@ -1409,7 +1615,7 @@ function KubeAiMarketingPage() {
                             setSelectedUgcFormat(fmt);
                             handleSendAgent(`اكتب لي إعلان بصيغة: ${fmt.nameAr}`);
                           }}
-                          className={`px-3 py-1.5 rounded-full font-bold whitespace-nowrap transition-all ${
+                          className={`px-3 py-1.5 rounded-full font-bold whitespace-nowrap active:scale-95 transition-all ${
                             selectedUgcFormat.id === fmt.id
                               ? "bg-[#ff2a4b] text-white"
                               : "bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white"
@@ -1420,13 +1626,13 @@ function KubeAiMarketingPage() {
                       ))}
                     </div>
 
-                    <div className="relative flex items-center gap-2 rounded-2xl bg-zinc-900 border border-white/15 p-2">
+                    <div className="relative flex items-center gap-2 rounded-2xl bg-zinc-900 border border-white/15 p-1.5 sm:p-2">
                       <input
                         type="text"
                         value={agentInputText}
                         onChange={(e) => setAgentInputText(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSendAgent()}
-                        placeholder="...اطلب من سوبر ايجنت أي إعلان، سكريبت، أو جلسة تصوير لقهوة KUBE"
+                        placeholder="...اطلب من سوبر ايجنت أي إعلان لقهوة KUBE"
                         className="flex-1 bg-transparent px-3 py-2 text-xs md:text-sm text-white placeholder:text-zinc-500 focus:outline-none"
                       />
                       <button
@@ -1442,10 +1648,10 @@ function KubeAiMarketingPage() {
 
               {/* MODAL: 3D PRODUCT STUDIO WORKSPACE */}
               {activeStudioModal === "product_3d" && (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+                <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full">
                   {/* Left: 4K Preview Stage */}
-                  <div className="lg:col-span-8 rounded-2xl border border-white/10 bg-zinc-950 p-6 flex flex-col justify-between items-center relative overflow-hidden">
-                    <div className="relative aspect-[9/16] w-full max-w-[320px] rounded-2xl overflow-hidden shadow-2xl bg-black">
+                  <div className="lg:col-span-8 rounded-2xl border border-white/10 bg-zinc-950 p-4 sm:p-6 flex flex-col justify-between items-center relative overflow-hidden">
+                    <div className="relative aspect-[9/16] w-full max-w-[240px] sm:max-w-[300px] rounded-2xl overflow-hidden shadow-2xl bg-black">
                       <img
                         src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/68f99df1e137fb4eccb09a8fd2c8dd10/thumbnails/thumbnail.jpg?height=720"
                         alt="3D Coffee"
@@ -1456,14 +1662,14 @@ function KubeAiMarketingPage() {
                       </div>
                     </div>
 
-                    <div className="w-full flex items-center justify-between text-xs pt-4 border-t border-white/10">
+                    <div className="w-full flex items-center justify-between text-xs pt-4 border-t border-white/10 mt-4">
                       <div>
                         <span className="font-bold text-white block">كوب KUBE الأسود المطفي — رخام نيرو</span>
                         <span className="text-[10px] text-zinc-400 font-mono">Hasselblad 85mm f/1.4 • 8K Cinema</span>
                       </div>
                       <button
                         onClick={() => toast.success("جاري تحميل الصورة الأصلية بدقة 4K")}
-                        className="rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black px-4 py-2 hover:from-[#ff4d64] hover:to-[#ef4444]"
+                        className="rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black px-4 py-2 hover:from-[#ff4d64] hover:to-[#ef4444] active:scale-95"
                       >
                         تحميل 4K
                       </button>
@@ -1471,7 +1677,7 @@ function KubeAiMarketingPage() {
                   </div>
 
                   {/* Right: Controls Console */}
-                  <div className="lg:col-span-4 rounded-2xl border border-white/10 bg-zinc-900 p-5 space-y-5 text-xs text-right">
+                  <div className="lg:col-span-4 rounded-2xl border border-white/10 bg-zinc-900 p-4 sm:p-5 space-y-4 sm:space-y-5 text-xs text-right">
                     <h3 className="font-black text-sm text-white">إعدادات الإضاءة ثلاثية الأبعاد</h3>
 
                     {/* Lighting 6 Axis */}
@@ -1489,7 +1695,7 @@ function KubeAiMarketingPage() {
                           <button
                             key={btn.id}
                             onClick={() => setLightingDirection(btn.id as any)}
-                            className={`py-2 rounded-lg font-bold text-xs transition-all ${
+                            className={`py-2 rounded-lg font-bold text-xs transition-all active:scale-95 ${
                               lightingDirection === btn.id
                                 ? "bg-[#ff2a4b] text-white shadow-md shadow-[#ff2a4b]/30"
                                 : "bg-black/60 border border-white/10 text-zinc-300 hover:text-white"
@@ -1503,17 +1709,17 @@ function KubeAiMarketingPage() {
 
                     {/* Interactive 3D Sphere */}
                     <div className="rounded-xl border border-white/10 bg-black/60 p-4 text-center space-y-2">
-                      <div className="w-20 h-20 rounded-full border-2 border-dashed border-[#ff2a4b]/40 mx-auto flex items-center justify-center relative shadow-inner">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-dashed border-[#ff2a4b]/40 mx-auto flex items-center justify-center relative shadow-inner">
                         <div
                           className={`w-5 h-5 rounded-full bg-[#ff2a4b] shadow-lg shadow-[#ff2a4b]/60 transition-transform duration-300 ${
                             lightingDirection === "top"
-                              ? "-translate-y-5"
+                              ? "-translate-y-4 sm:-translate-y-5"
                               : lightingDirection === "bottom"
-                              ? "translate-y-5"
+                              ? "translate-y-4 sm:translate-y-5"
                               : lightingDirection === "left"
-                              ? "-translate-x-5"
+                              ? "-translate-x-4 sm:-translate-x-5"
                               : lightingDirection === "right"
-                              ? "translate-x-5"
+                              ? "translate-x-4 sm:translate-x-5"
                               : "scale-125"
                           }`}
                         />
@@ -1529,7 +1735,7 @@ function KubeAiMarketingPage() {
                           <button
                             key={ratio}
                             onClick={() => setAspectRatio(ratio)}
-                            className={`py-1.5 rounded-lg font-mono text-xs font-bold transition-all ${
+                            className={`py-1.5 rounded-lg font-mono text-xs font-bold transition-all active:scale-95 ${
                               aspectRatio === ratio
                                 ? "bg-white text-black"
                                 : "bg-black/60 border border-white/10 text-zinc-400 hover:text-white"
@@ -1546,7 +1752,7 @@ function KubeAiMarketingPage() {
                         toast.info("جاري ريندر المشهد ثلاثي الأبعاد...");
                         setTimeout(() => toast.success("تم تحديث الريندر بنجاح!"), 700);
                       }}
-                      className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black text-xs shadow-lg shadow-[#ff2a4b]/30"
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black text-xs shadow-lg shadow-[#ff2a4b]/30 active:scale-95"
                     >
                       توليد الريندر فوراً
                     </button>
@@ -1565,7 +1771,7 @@ function KubeAiMarketingPage() {
                     <span className="text-xs font-mono text-[#ff3b56]">الشخصية الحالية: {activeCreator.name}</span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                     {UGC_CREATORS.map((c, idx) => (
                       <div
                         key={idx}
@@ -1575,7 +1781,7 @@ function KubeAiMarketingPage() {
                             `🎬 سكريبت إعلاني احترافي لـ (${c.name})\n📍 المكان: فرع KUBE طريق تركي الأول\n\n[المشهد 1 - Hook]:\nيدخل وهو لابس الشماغ بكشخة خفيفة ومعه اللابتوب: "يا جماعة، تدرون وش الفرق بين يوم يمر عادي ويوم يبدأ صح؟"\n\n[المشهد 2 - السكب والتذوق]:\nيقرب الكوب، وصوت كسر الثلج واضح مع رغوة الفلات وايت: "هنا في KUBE، النغمات الإثيوبية صريحة. حلاوة طبيعية بدون أي سكر زائد."\n\n[المشهد 3 - CTA]:\n"مر عليهم اليوم، أو اطلب من التطبيق وخل مزاجك يسبق دوامك!"`,
                           );
                         }}
-                        className={`rounded-2xl border p-3 flex items-center gap-3 cursor-pointer transition-all ${
+                        className={`rounded-2xl border p-3 flex items-center gap-3 cursor-pointer active:scale-95 transition-all ${
                           activeCreator.name === c.name
                             ? "border-[#ff2a4b] bg-[#ff2a4b]/10"
                             : "border-white/10 bg-zinc-900/60 hover:border-white/20"
@@ -1591,12 +1797,12 @@ function KubeAiMarketingPage() {
                   </div>
 
                   {ugcScriptOutput && (
-                    <div className="p-5 rounded-2xl bg-zinc-900 border border-white/10 space-y-3">
+                    <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900 border border-white/10 space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-[#ff3b56]">السكريبت الإعلاني المقترح:</span>
                         <button
                           onClick={() => handleCopy(ugcScriptOutput, "السكريبت")}
-                          className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
+                          className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-xs active:scale-95"
                         >
                           نسخ السكريبت
                         </button>
@@ -1619,13 +1825,13 @@ function KubeAiMarketingPage() {
                     </div>
                     <button
                       onClick={handleGenerate9Pack}
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-xs shadow-lg shadow-[#ff2a4b]/30"
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-xs shadow-lg shadow-[#ff2a4b]/30 active:scale-95"
                     >
                       توليد الـ 9 إعلانات فوراً
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <label className="text-xs font-bold text-zinc-300">اسم المنتج أو المشروب:</label>
                     <input
                       type="text"
@@ -1636,7 +1842,7 @@ function KubeAiMarketingPage() {
                   </div>
 
                   {generated9Pack && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-2">
                       {generated9Pack.map((item, idx) => (
                         <div
                           key={idx}
@@ -1655,7 +1861,7 @@ function KubeAiMarketingPage() {
                           </div>
                           <button
                             onClick={() => handleCopy(item.prompt, item.title)}
-                            className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-xs font-bold transition-colors"
+                            className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-xs font-bold active:scale-95 transition-colors"
                           >
                             نسخ البرومبت
                           </button>
@@ -1669,7 +1875,7 @@ function KubeAiMarketingPage() {
               {/* MODAL: MODELS API CATALOG */}
               {activeStudioModal === "models_api" && (
                 <div className="space-y-6 text-right">
-                  <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
                     <div>
                       <h3 className="font-black text-base text-white">وثائق الـ API ونماذج التوليد العالمية</h3>
                       <p className="text-xs text-zinc-400">
@@ -1678,7 +1884,7 @@ function KubeAiMarketingPage() {
                     </div>
                     <button
                       onClick={() => handleCopy(JSON.stringify(selectedModelForApi.samplePayload, null, 2), "الـ Payload")}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black text-xs shadow-md shadow-[#ff2a4b]/30"
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black text-xs shadow-md shadow-[#ff2a4b]/30 active:scale-95"
                     >
                       نسخ JSON Payload
                     </button>
@@ -1744,7 +1950,7 @@ function KubeAiMarketingPage() {
 
                         <button
                           onClick={() => handleCopy(p.englishPrompt, p.title)}
-                          className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-xs font-bold transition-colors"
+                          className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-xs font-bold active:scale-95 transition-colors"
                         >
                           نسخ البرومبت بالإنجليزية
                         </button>
