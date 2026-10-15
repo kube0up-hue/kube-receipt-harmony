@@ -210,9 +210,9 @@ function MarketingHubPage() {
       if (selectedChannel !== "all" && post.suggestedChannel !== selectedChannel) return false;
       if (socialSearch.trim()) {
         const query = socialSearch.toLowerCase();
-        const matchText = post.text.toLowerCase().includes(query);
-        const matchHook = post.hookHeadline.toLowerCase().includes(query);
-        const matchTags = post.hashtags.some((h) => h.toLowerCase().includes(query));
+        const matchText = (post.text ?? "").toLowerCase().includes(query);
+        const matchHook = (post.hookHeadline ?? "").toLowerCase().includes(query);
+        const matchTags = (post.hashtags ?? []).some((h) => (h ?? "").toLowerCase().includes(query));
         if (!matchText && !matchHook && !matchTags) return false;
       }
       return true;
@@ -225,10 +225,10 @@ function MarketingHubPage() {
       if (selectedVisualCategory !== "all" && item.category !== selectedVisualCategory) return false;
       if (visualSearch.trim()) {
         const query = visualSearch.toLowerCase();
-        const matchTitle = item.title.toLowerCase().includes(query);
-        const matchAr = item.arabicPrompt.toLowerCase().includes(query);
-        const matchEn = item.englishPrompt.toLowerCase().includes(query);
-        const matchBrand = item.brandInspiration.toLowerCase().includes(query);
+        const matchTitle = (item.title ?? "").toLowerCase().includes(query);
+        const matchAr = (item.arabicPrompt ?? "").toLowerCase().includes(query);
+        const matchEn = (item.englishPrompt ?? "").toLowerCase().includes(query);
+        const matchBrand = (item.brandInspiration ?? "").toLowerCase().includes(query);
         if (!matchTitle && !matchAr && !matchEn && !matchBrand) return false;
       }
       return true;
