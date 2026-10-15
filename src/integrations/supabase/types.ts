@@ -806,21 +806,24 @@ export type Database = {
           created_at: string
           id: string
           ip: string
-          reason: string | null
+          pin_hash: string | null
+          reason: string
           success: boolean
         }
         Insert: {
           created_at?: string
           id?: string
-          ip: string
-          reason?: string | null
+          ip?: string
+          pin_hash?: string | null
+          reason?: string
           success?: boolean
         }
         Update: {
           created_at?: string
           id?: string
           ip?: string
-          reason?: string | null
+          pin_hash?: string | null
+          reason?: string
           success?: boolean
         }
         Relationships: []

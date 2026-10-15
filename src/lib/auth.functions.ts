@@ -18,8 +18,10 @@ function empEmail(employeeId: string) {
 // حماية دخول PIN من التخمين — المحاولات تُسجَّل في pin_login_attempts.
 // إذا لم يكن الجدول موجوداً بعد، يستمر الدخول بدون حد (لا نكسر دخول الموظفين).
 const PIN_WINDOW_MINUTES = 15;
-const PIN_MAX_FAILS_PER_IP = 5;
-const PIN_MAX_FAILS_GLOBAL = 50;
+// الحد الأساسي لكل رقم PIN (موظف) وليس لكل شبكة — حتى لا يتأثر زملاء نفس الفرع.
+const PIN_MAX_FAILS_PER_PIN = 5;
+// حد عام مرتفع كحماية من التخمين الواسع فقط.
+const PIN_MAX_FAILS_GLOBAL = 200;
 
 function requestIp(): string {
   try {
@@ -50,28 +52,32 @@ export const signInWithPin = createServerFn({ method: "POST" })
     const { createClient } = await import("@supabase/supabase-js");
 
     const ip = requestIp();
+    // بصمة الرقم السري المُدخَل (لا يُخزَّن الرقم نفسه) — يُقفَل الحساب المقصود فقط.
+    const pinHash = createHash("sha256").update(`pinlock:${PIN_PEPPER}:${data.pin}`).digest("hex");
     const since = new Date(Date.now() - PIN_WINDOW_MINUTES * 60_000).toISOString();
-    const [ipFails, allFails] = await Promise.all([
+    // لا نحتسب محاولات "locked" ولا نسجّلها — حتى لا تُطيل المحاولات أثناء القفل مدّته.
+    const [pinFails, allFails] = await Promise.all([
       supabaseAdmin
         .from("pin_login_attempts")
         .select("id", { count: "exact", head: true })
-        .eq("ip", ip)
+        .eq("pin_hash", pinHash)
         .eq("success", false)
+        .neq("reason", "locked")
         .gte("created_at", since),
       supabaseAdmin
         .from("pin_login_attempts")
         .select("id", { count: "exact", head: true })
         .eq("success", false)
+        .neq("reason", "locked")
         .gte("created_at", since),
     ]);
     const logAttempt = async (success: boolean, reason: string) => {
-      await supabaseAdmin.from("pin_login_attempts").insert({ ip, success, reason });
+      await supabaseAdmin.from("pin_login_attempts").insert({ ip, pin_hash: pinHash, success, reason });
     };
     if (
-      (!ipFails.error && (ipFails.count ?? 0) >= PIN_MAX_FAILS_PER_IP) ||
+      (!pinFails.error && (pinFails.count ?? 0) >= PIN_MAX_FAILS_PER_PIN) ||
       (!allFails.error && (allFails.count ?? 0) >= PIN_MAX_FAILS_GLOBAL)
     ) {
-      await logAttempt(false, "locked");
       throw new Error("محاولات كثيرة، حاول بعد 15 دقيقة");
     }
 
