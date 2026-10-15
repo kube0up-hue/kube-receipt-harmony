@@ -66,3 +66,15 @@ export interface TrendCampaignPlaybook {
 export { SAUDI_SOCIAL_POSTS } from "./datasets/social-posts";
 export { SAUDI_VISUAL_PROMPTS } from "./datasets/visual-prompts";
 export { SAUDI_TREND_PLAYBOOKS } from "./datasets/trend-playbooks";
+export {
+  SAUDI_UGC_FORMATS,
+  SAUDI_CREATOR_PERSONAS,
+  KUBE_PRODUCT_STUDIO_PRESETS,
+  KUBE_VIDEO_SCRIPTS,
+  KUBE_BRAND_KIT,
+  type UgcFormat,
+  type SaudiCreatorPersona,
+  type ProductStudioPreset,
+  type VideoScriptTemplate,
+} from "./datasets/halai-engine";
+
