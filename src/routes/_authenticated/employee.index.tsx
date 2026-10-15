@@ -56,92 +56,114 @@ function EmployeeHome() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-3.5 mb-7">
         <Can anyOf={["orders_create"]}>
-          <Link to="/employee/new-order" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <PlusCircle className="w-8 h-8 text-primary" />
-            <span className="font-bold text-center">تسجيل طلب جديد</span>
+          <Link to="/employee/new-order" className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col items-center justify-center gap-2.5 hover:border-foreground/30 hover:shadow-xs transition-all duration-150 active:scale-95 group">
+            <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+              <PlusCircle className="w-6 h-6" />
+            </div>
+            <span className="font-display font-bold text-sm text-foreground text-center">تسجيل طلب جديد</span>
           </Link>
         </Can>
         <Can anyOf={["orders_receive", "orders_view", "orders_create"]}>
-          <Link to="/employee/pending" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <Clock className="w-8 h-8 text-amber-500" />
-            <span className="font-bold text-center">بانتظار الاستلام</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-muted font-bold">{pending.data?.length ?? 0}</span>
+          <Link to="/employee/pending" className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col items-center justify-center gap-2.5 hover:border-foreground/30 hover:shadow-xs transition-all duration-150 active:scale-95 group">
+            <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all">
+              <Clock className="w-6 h-6" />
+            </div>
+            <span className="font-display font-bold text-sm text-foreground text-center">بانتظار الاستلام</span>
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-muted font-display font-bold text-muted-foreground">{pending.data?.length ?? 0} معلق</span>
           </Link>
         </Can>
         <Can anyOf={["orders_receive", "orders_view", "orders_create"]}>
-          <Link to="/employee/today" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <PackageCheck className="w-8 h-8 text-success" />
-            <span className="font-bold text-center">استلامات اليوم</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-muted font-bold">{todayReceipts.data?.length ?? 0}</span>
+          <Link to="/employee/today" className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col items-center justify-center gap-2.5 hover:border-foreground/30 hover:shadow-xs transition-all duration-150 active:scale-95 group">
+            <div className="p-3 rounded-2xl bg-success/10 text-success group-hover:bg-success group-hover:text-white transition-all">
+              <PackageCheck className="w-6 h-6" />
+            </div>
+            <span className="font-display font-bold text-sm text-foreground text-center">استلامات اليوم</span>
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-muted font-display font-bold text-muted-foreground">{todayReceipts.data?.length ?? 0} مستلم</span>
           </Link>
         </Can>
         <Can anyOf={["orders_receive", "orders_view", "orders_create"]}>
-          <Link to="/employee/history" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <History className="w-8 h-8 text-muted-foreground" />
-            <span className="font-bold text-center">سجل آخر 7 أيام</span>
+          <Link to="/employee/history" className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col items-center justify-center gap-2.5 hover:border-foreground/30 hover:shadow-xs transition-all duration-150 active:scale-95 group">
+            <div className="p-3 rounded-2xl bg-muted/60 text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+              <History className="w-6 h-6" />
+            </div>
+            <span className="font-display font-bold text-sm text-foreground text-center">سجل آخر 7 أيام</span>
           </Link>
         </Can>
         <Can anyOf={["waste_record"]}>
-          <Link to="/employee/waste" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <Trash2 className="w-8 h-8 text-muted-foreground" />
-            <span className="font-bold text-center">تسجيل الهدر</span>
+          <Link to="/employee/waste" className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col items-center justify-center gap-2.5 hover:border-foreground/30 hover:shadow-xs transition-all duration-150 active:scale-95 group">
+            <div className="p-3 rounded-2xl bg-muted/60 text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <span className="font-display font-bold text-sm text-foreground text-center">تسجيل الهدر</span>
           </Link>
         </Can>
         <Can anyOf={["quality_record"]}>
-          <Link to="/employee/quality" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <Droplets className="w-8 h-8 text-muted-foreground" />
-            <span className="font-bold text-center">قياسات المياه والجودة</span>
+          <Link to="/employee/quality" className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col items-center justify-center gap-2.5 hover:border-foreground/30 hover:shadow-xs transition-all duration-150 active:scale-95 group">
+            <div className="p-3 rounded-2xl bg-muted/60 text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+              <Droplets className="w-6 h-6" />
+            </div>
+            <span className="font-display font-bold text-sm text-foreground text-center">قياسات المياه والجودة</span>
           </Link>
         </Can>
         <Can anyOf={["sales_record"]}>
-          <Link to="/employee/sales" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <BadgeDollarSign className="w-8 h-8 text-muted-foreground" />
-            <span className="font-bold text-center">المبيعات اليومية</span>
+          <Link to="/employee/sales" className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col items-center justify-center gap-2.5 hover:border-foreground/30 hover:shadow-xs transition-all duration-150 active:scale-95 group">
+            <div className="p-3 rounded-2xl bg-muted/60 text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+              <BadgeDollarSign className="w-6 h-6" />
+            </div>
+            <span className="font-display font-bold text-sm text-foreground text-center">المبيعات اليومية</span>
           </Link>
         </Can>
         <Can anyOf={["count_perform"]}>
-          <Link to="/admin/counts" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <ClipboardCheck className="w-8 h-8 text-muted-foreground" />
-            <span className="font-bold text-center">الجرد</span>
+          <Link to="/admin/counts" className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col items-center justify-center gap-2.5 hover:border-foreground/30 hover:shadow-xs transition-all duration-150 active:scale-95 group">
+            <div className="p-3 rounded-2xl bg-muted/60 text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+              <ClipboardCheck className="w-6 h-6" />
+            </div>
+            <span className="font-display font-bold text-sm text-foreground text-center">الجرد الدوري</span>
           </Link>
         </Can>
         <Can anyOf={["inventory_receive_transfer"]}>
-          <Link to="/admin/transfers" className="kube-card flex flex-col items-center gap-2 py-6 hover:border-primary transition">
-            <ArrowLeftRight className="w-8 h-8 text-muted-foreground" />
-            <span className="font-bold text-center">استلام تحويل</span>
+          <Link to="/admin/transfers" className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col items-center justify-center gap-2.5 hover:border-foreground/30 hover:shadow-xs transition-all duration-150 active:scale-95 group">
+            <div className="p-3 rounded-2xl bg-muted/60 text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+              <ArrowLeftRight className="w-6 h-6" />
+            </div>
+            <span className="font-display font-bold text-sm text-foreground text-center">استلام تحويل</span>
           </Link>
         </Can>
       </div>
 
-
       <Can anyOf={["orders_receive", "orders_view", "orders_create"]}>
-        <section>
-          <h2 className="font-bold mb-3 flex items-center justify-between">
-            <span>أحدث الطلبات بانتظار الاستلام</span>
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-3.5 rounded-full bg-primary" />
+              <h2 className="font-display font-bold text-sm text-foreground">أحدث الطلبات بانتظار الاستلام</h2>
+            </div>
             <Can anyOf={["orders_receive"]}>
-              <Link to="/employee/no-delivery" className="text-xs kube-btn-outline !min-h-0 !py-1 !px-3">
-                <CalendarX className="w-4 h-4" />
+              <Link to="/employee/no-delivery" className="text-xs font-display font-semibold kube-btn-outline !min-h-0 !py-1.5 !px-3 rounded-xl">
+                <CalendarX className="w-3.5 h-3.5" />
                 لا يوجد استلام اليوم
               </Link>
             </Can>
-          </h2>
+          </div>
           {pending.isLoading ? (
-            <div className="text-sm text-muted-foreground">جارٍ التحميل...</div>
+            <div className="text-xs text-muted-foreground py-4 text-center">جارٍ تحميل الطلبات…</div>
           ) : (pending.data?.length ?? 0) === 0 ? (
-            <div className="kube-card text-center text-muted-foreground">لا توجد طلبات معلقة.</div>
+            <div className="rounded-2xl border border-border/80 bg-card p-8 text-center text-xs text-muted-foreground">
+              لا توجد طلبات معلقة لهذا الفرع اليوم.
+            </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {pending.data!.map((o) => (
                 <Link
                   key={o.id}
                   to="/employee/receive/$orderId"
                   params={{ orderId: o.id }}
-                  className="kube-card flex items-center justify-between hover:border-primary transition"
+                  className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between hover:border-foreground/30 hover:shadow-xs transition-all duration-150 active:scale-[0.99]"
                 >
                   <div className="min-w-0">
-                    <div className="font-bold truncate">{o.supplier?.name ?? "—"}</div>
+                    <div className="font-display font-bold text-sm text-foreground truncate">{o.supplier?.name ?? "—"}</div>
                     <div className="text-xs text-muted-foreground mt-1">
                       {o.order_number} · طلب {o.order_date ? formatDateAr(`${o.order_date}T12:00:00+03:00`) : "—"}
                       {o.expected_delivery_date && <> · متوقع {formatDateAr(`${o.expected_delivery_date}T12:00:00+03:00`)}</>}
