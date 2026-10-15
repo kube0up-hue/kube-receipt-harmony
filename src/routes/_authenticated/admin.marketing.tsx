@@ -19,6 +19,7 @@ import {
   Plus,
   ExternalLink,
   ChevronLeft,
+  ChevronRight,
   Filter,
   Search,
   SlidersHorizontal,
@@ -60,6 +61,8 @@ import {
   ShoppingBag,
   Cpu,
   Share,
+  SlidersVertical,
+  SlidersHorizontal as SlidersH,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -91,13 +94,13 @@ import { primaryRoleHome } from "@/lib/current-user";
 export const Route = createFileRoute("/_authenticated/admin/marketing")({
   head: () => ({
     meta: [
-      { title: "KUBE AI Studio — مركز التسويق والذكاء الاصطناعي (نمط هلاي)" },
+      { title: "KUBE هلاي AI — مركز التسويق والذكاء الاصطناعي التوليدي" },
       {
         name: "description",
         content:
-          "استوديو الذكاء الاصطناعي التوليدي لكافيه KUBE المطابق لمنصة هلاي (Hallah.ai): سوبر ايجنت، استوديو منتجات ثلاثي الأبعاد، شخصيات UGC، وكتالوج نماذج Kling, Veo, WanX, Flux.",
+          "واجهة استوديو الذكاء الاصطناعي التوليدي المطابقة لمنصة هلاي (Hallah.ai): سوبر ايجنت، استوديو المنتجات ثلاثي الأبعاد، شخصيات UGC، وكتالوج نماذج Kling, Veo, WanX, Flux.",
       },
-      { property: "og:title", content: "KUBE AI Studio — مركز التسويق والذكاء الاصطناعي" },
+      { property: "og:title", content: "KUBE هلاي AI — مركز التسويق والذكاء الاصطناعي" },
       { property: "og:description", content: "استوديو توليد المحتوى والإعلانات البصرية والترندات بالذكاء الاصطناعي." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -121,54 +124,6 @@ type TabType =
   | "library"
   | "campaigns";
 
-interface CampaignItem {
-  id: string;
-  name: string;
-  platform: string;
-  discount: string;
-  startDate: string;
-  endDate: string;
-  status: "active" | "scheduled" | "draft";
-  budget?: string;
-  target?: string;
-}
-
-const INITIAL_CAMPAIGNS: CampaignItem[] = [
-  {
-    id: "c-1",
-    name: "عرض الصباح الباكر — فلات وايت مع كرواسون لوز",
-    platform: "إنستغرام + X",
-    discount: "كومبو 18 ريال حتى 11 ص",
-    startDate: "2026-10-15",
-    endDate: "2026-10-31",
-    status: "active",
-    budget: "1,500 ريال",
-    target: "موظفو المكاتب في شمال الرياض",
-  },
-  {
-    id: "c-2",
-    name: "إطلاق محصول إثيوبيا قوجي V60 الفاخر",
-    platform: "تيك توك + سناب شات",
-    discount: "كوب تذوق مجاني مع كل باقة بن",
-    startDate: "2026-10-18",
-    endDate: "2026-10-25",
-    status: "scheduled",
-    budget: "2,200 ريال",
-    target: "متذوقو القهوة المختصة",
-  },
-  {
-    id: "c-3",
-    name: "رسائل ولاء عملاء KUBE المميزين",
-    platform: "SMS & Push Notifications",
-    discount: "كود: KUBELOVE (خصم 20%)",
-    startDate: "2026-10-12",
-    endDate: "2026-10-22",
-    status: "active",
-    budget: "800 ريال",
-    target: "العملاء الذين سجلوا أكثر من 5 زيارات",
-  },
-];
-
 interface ChatMessage {
   id: string;
   sender: "user" | "agent";
@@ -176,6 +131,22 @@ interface ChatMessage {
   timestamp: string;
   formatTag?: string;
 }
+
+// Global AI Engine Logos from Halai CDN
+const ENGINE_LOGOS = [
+  { name: "Kling", icon: "https://hallah.ai/icons/kling.svg", invert: false },
+  { name: "Gemini", icon: "https://hallah.ai/icons/gemini.svg", invert: false },
+  { name: "ByteDance", icon: "https://hallah.ai/icons/bytedance.svg", invert: false },
+  { name: "Qwen", icon: "https://hallah.ai/icons/qwen.svg", invert: false },
+  { name: "Flux", icon: "https://hallah.ai/icons/flux.svg", invert: true },
+  { name: "Grok", icon: "https://hallah.ai/icons/grok.svg", invert: true },
+  { name: "DALL·E", icon: "https://hallah.ai/icons/dalle.svg", invert: false },
+  { name: "Nano", icon: "https://hallah.ai/icons/nanobanana-color.svg", invert: false },
+  { name: "Ideogram", icon: "https://hallah.ai/icons/ideogram.svg", invert: true },
+  { name: "Veed", icon: "https://hallah.ai/icons/veed.svg", invert: true },
+  { name: "Pruna", icon: "https://hallah.ai/icons/prunaai-color.svg", invert: false },
+  { name: "Krea", icon: "https://hallah.ai/icons/krea.svg", invert: true },
+];
 
 function MarketingHubPage() {
   const navigate = useNavigate();
@@ -193,7 +164,7 @@ function MarketingHubPage() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   // ==========================================
-  // Tab 1: Super Agent States (Hallah Layout)
+  // Tab 1: Super Agent States
   // ==========================================
   const [selectedUgcFormat, setSelectedUgcFormat] = useState<UgcFormat | null>(SAUDI_UGC_FORMATS[0]);
   const [agentInputText, setAgentInputText] = useState("");
@@ -202,7 +173,7 @@ function MarketingHubPage() {
     {
       id: "msg-0",
       sender: "agent",
-      text: "أهلاً بك زياد في سوبر ايجنت KUBE! ☕️⚡️\nأنا وكيلك الذكي المدرب على ثقافة الرياض، نبرة برق و STC، وأناقة القهوة المختصة. اختر أي صيغة UGC أو اطلب ما تريد وسأصيغ لك محتوى إعلاني جاهز للإنتاج فوراً.",
+      text: "أهلاً بك زياد في سوبر ايجنت KUBE! ☕️⚡️\nنظام توليد إعلانات واستوديوهات ذكية مدرب على لهجة الرياض، نبرة برق و STC، وأناقة القهوة المختصة. اختر أي صيغة UGC أو اطلب ما تريد وسأصيغ لك محتوى إعلاني جاهز للإنتاج فوراً.",
       timestamp: "الآن",
     },
   ]);
@@ -212,7 +183,7 @@ function MarketingHubPage() {
   const [superAgentSection, setSuperAgentSection] = useState<"chat" | "skills" | "connectors" | "identity">("chat");
 
   // ==========================================
-  // Tab 2: 3D Product Studio States (Hallah Layout)
+  // Tab 2: 3D Product Studio States
   // ==========================================
   const [selectedStudioPreset, setSelectedStudioPreset] = useState<ProductStudioPreset>(
     KUBE_PRODUCT_STUDIO_PRESETS[0],
@@ -229,7 +200,7 @@ function MarketingHubPage() {
   const [isGeneratingProduct, setIsGeneratingProduct] = useState(false);
 
   // ==========================================
-  // Tab 3: UGC 2.0 Studio States (Hallah 3-Step)
+  // Tab 3: UGC 2.0 Studio States
   // ==========================================
   const [ugcStep, setUgcStep] = useState<1 | 2 | 3>(1);
   const [selectedCreator, setSelectedCreator] = useState<SaudiCreatorPersona>(SAUDI_CREATOR_PERSONAS[0]);
@@ -237,7 +208,6 @@ function MarketingHubPage() {
   const [ugcEmotion, setUgcEmotion] = useState("روقان وهدوء مع لمسة ذكاء");
   const [ugcDialect, setUgcDialect] = useState("لهجة نجدية سريعة ومحببة (الرياض)");
   const [activeScriptTemplate, setActiveScriptTemplate] = useState<VideoScriptTemplate>(KUBE_VIDEO_SCRIPTS[0]);
-  const [customScriptGoal, setCustomScriptGoal] = useState("إبراز نكهة الفلات وايت والكرواسون في الصباح الباكر");
   const [generatedScriptOutput, setGeneratedScriptOutput] = useState<string | null>(null);
   const [isGeneratingUgc, setIsGeneratingUgc] = useState(false);
 
@@ -252,16 +222,14 @@ function MarketingHubPage() {
   const [isGenerating9Pack, setIsGenerating9Pack] = useState(false);
 
   // ==========================================
-  // Tab 5: Templates (Hallah Templates Layout)
+  // Tab 5: Templates
   // ==========================================
   const [templateFilter, setTemplateFilter] = useState("الكل");
-  const [templateSearch, setTemplateSearch] = useState("");
 
   // ==========================================
   // Tab 6: AI Models API Hub
   // ==========================================
   const [selectedModelForApi, setSelectedModelForApi] = useState<AiModelEngine>(HALAI_AI_MODELS_CATALOG[0]);
-  const [copiedCodeSnippet, setCopiedCodeSnippet] = useState(false);
 
   // ==========================================
   // Tab 7: MCP Connectors States
@@ -278,32 +246,11 @@ function MarketingHubPage() {
   // ==========================================
   const [librarySubTab, setLibrarySubTab] = useState<"posts" | "prompts" | "playbooks">("posts");
   const [librarySearch, setLibrarySearch] = useState("");
-  const [copiedLibraryId, setCopiedLibraryId] = useState<string | null>(null);
-
-  // ==========================================
-  // Tab 9: Campaigns Tracker States
-  // ==========================================
-  const [campaigns, setCampaigns] = useState<CampaignItem[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("kube_marketing_campaigns");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {}
-      }
-    }
-    return INITIAL_CAMPAIGNS;
-  });
-  const [showAddCampModal, setShowAddCampModal] = useState(false);
-  const [newCampName, setNewCampName] = useState("");
-  const [newCampDiscount, setNewCampDiscount] = useState("");
 
   // Copy helper
   const handleCopy = (text: string, id: string, label = "المحتوى") => {
     navigator.clipboard.writeText(text);
     toast.success(`تم نسخ ${label} بنجاح!`);
-    setCopiedLibraryId(id);
-    setTimeout(() => setCopiedLibraryId(null), 2500);
   };
 
   // Filtered Creators
@@ -434,7 +381,7 @@ function MarketingHubPage() {
 
       setGenerated9Pack(pack);
       setIsGenerating9Pack(false);
-      toast.success("تم توليد باقة الـ 9 صور إعلانية عالية التحويل بنجاح!");
+      toast.success("تم توليد باقة الـ 9 صور إعلانية بنجاح!");
     }, 800);
   };
 
@@ -443,7 +390,7 @@ function MarketingHubPage() {
     setIsGeneratingUgc(true);
     setTimeout(() => {
       const creator = selectedCreator.name;
-      const script = `🎬 [سكريبت فيديو UGC مدته 30 ثانية — تم إنتاجه بواسطة KUBE Studio]:
+      const script = `🎬 [سكريبت فيديو UGC مدته 30 ثانية — تم إنتاجه بواسطة KUBE هلاي ستوديو]:
 
 👤 صانع المحتوى المختار: ${creator} (${selectedCreator.role})
 ☕️ المنتج المستهدف: ${selectedCreator.favoriteKubeDrink}
@@ -492,15 +439,15 @@ function MarketingHubPage() {
       {/* Studio Master Container - Dark Studio Canvas like Hallah.ai */}
       <div className="min-h-screen bg-[#121212] text-zinc-100 font-sans -m-4 md:-m-6 p-3 md:p-6 space-y-4">
         {/* ============================================================== */}
-        {/* 1. TOP PROMOTIONAL BANNER (Like Hallah.ai Green Top Banner)     */}
+        {/* 1. TOP ANNOUNCEMENT BANNER                                     */}
         {/* ============================================================== */}
         {showTopDiscountBanner && (
           <div className="relative rounded-xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 px-4 py-2 text-black font-semibold text-xs flex items-center justify-between shadow-md">
             <div className="flex items-center gap-2">
               <span className="rounded-md bg-black px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
-                AGENT
+                ENTERPRISE
               </span>
-              <span>خصم -١٥٪ على باقات KUBE AI السنوية للشركات وكافيهات الرياض</span>
+              <span>منظومة KUBE AI الاستوديو الخاص — استخدام داخلي غير محدود لكافيه ومطبخ KUBE</span>
             </div>
             <button
               onClick={() => setShowTopDiscountBanner(false)}
@@ -515,7 +462,7 @@ function MarketingHubPage() {
         {/* ============================================================== */}
         {/* 2. HALLAH-STYLE STUDIO HEADER & NAVBAR                          */}
         {/* ============================================================== */}
-        <header className="rounded-2xl border border-zinc-800 bg-[#18181b]/90 backdrop-blur-xl p-3 md:p-4 shadow-xl">
+        <header className="rounded-2xl border border-zinc-800 bg-[#18181b]/95 backdrop-blur-xl p-3 md:p-4 shadow-xl">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             {/* Right: Brand Logo & ERP Navigation */}
             <div className="flex items-center justify-between lg:justify-start gap-3">
@@ -647,18 +594,6 @@ function MarketingHubPage() {
                 <Folder className="h-3.5 w-3.5" />
                 المكتبة والبرومبت
               </button>
-
-              <button
-                onClick={() => setActiveTab("campaigns")}
-                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 font-bold whitespace-nowrap transition-all ${
-                  activeTab === "campaigns"
-                    ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/30"
-                    : "bg-zinc-800/50 text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                }`}
-              >
-                <Calendar className="h-3.5 w-3.5" />
-                الحملات ({campaigns.length})
-              </button>
             </nav>
 
             {/* Left: User Profile & Quick Actions */}
@@ -678,12 +613,34 @@ function MarketingHubPage() {
                 </div>
                 <div className="text-right">
                   <span className="text-[11px] font-bold text-white block">زياد عيسى</span>
-                  <span className="text-[9px] font-mono text-emerald-400 block font-semibold">غير محدود • Enterprise</span>
+                  <span className="text-[9px] font-mono text-emerald-400 block font-semibold">استخدام داخلي • VIP</span>
                 </div>
               </div>
             </div>
           </div>
         </header>
+
+        {/* ============================================================== */}
+        {/* ENGINE LOGOS BANNER (Hallah-Style Scrolling Engines Bar)       */}
+        {/* ============================================================== */}
+        <div className="rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-2.5 flex items-center justify-between overflow-x-auto scrollbar-none gap-6 text-xs">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[11px] font-bold text-zinc-400">محركات التوليد المضبوطة بدقة:</span>
+          </div>
+          <div className="flex items-center gap-6 shrink-0 opacity-80 hover:opacity-100 transition-opacity">
+            {ENGINE_LOGOS.map((eng, idx) => (
+              <div key={idx} className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-400 hover:text-white transition-colors cursor-pointer">
+                <img
+                  src={eng.icon}
+                  alt={eng.name}
+                  className={`h-4 w-4 object-contain ${eng.invert ? "brightness-0 invert" : ""}`}
+                />
+                <span>{eng.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* ============================================================== */}
         {/* VIEW 1: SUPER AGENT (1:1 Exact Match with Hallah Super Agent)   */}
@@ -741,21 +698,23 @@ function MarketingHubPage() {
                 <div className="space-y-1 pt-2">
                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-2 block">إنشاء</span>
                   <button
-                    onClick={() => setSuperAgentSection("skills")}
+                    onClick={() => setActiveTab("ugc_studio")}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-300 hover:bg-zinc-800/80 hover:text-white transition-colors"
                   >
                     <Zap className="h-4 w-4 text-emerald-400" />
                     المهارات (15 صيغة UGC)
                   </button>
                   <button
-                    onClick={() => setSuperAgentSection("connectors")}
+                    onClick={() => setActiveTab("mcp_connectors")}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-300 hover:bg-zinc-800/80 hover:text-white transition-colors"
                   >
                     <Radio className="h-4 w-4 text-purple-400" />
                     الموصّلات (سلة، زد، POS)
                   </button>
                   <button
-                    onClick={() => setSuperAgentSection("identity")}
+                    onClick={() => {
+                      toast.info("الهوية التجارية لـ KUBE مثبتة ونشطة في المحرك");
+                    }}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-300 hover:bg-zinc-800/80 hover:text-white transition-colors"
                   >
                     <Palette className="h-4 w-4 text-amber-400" />
@@ -773,22 +732,6 @@ function MarketingHubPage() {
                     <FolderOpen className="h-4 w-4 text-blue-400" />
                     الملفات والبرومبتات
                   </button>
-                  <button
-                    onClick={() => toast.info("ذاكرة الوكيل نشطة ومحفوظة سحابياً")}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-300 hover:bg-zinc-800/80 hover:text-white transition-colors"
-                  >
-                    <Sparkles className="h-4 w-4 text-teal-400" />
-                    الذاكرة (KUBE Memory)
-                  </button>
-                </div>
-
-                {/* Section: Recent Chats */}
-                <div className="space-y-1 pt-2">
-                  <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-2 block">المحادثات</span>
-                  <div className="rounded-xl border border-dashed border-zinc-800 p-3 text-center space-y-1">
-                    <span className="text-[11px] font-bold text-zinc-400 block">حملة الصباح والفاينلز</span>
-                    <span className="text-[9px] text-zinc-600 block">آخر تحديث: قبل قليل</span>
-                  </div>
                 </div>
               </div>
 
@@ -809,10 +752,10 @@ function MarketingHubPage() {
                     </div>
                     <div>
                       <span className="text-xs font-bold text-white block">زياد عيسى</span>
-                      <span className="text-[9px] text-emerald-400 font-mono block">7 رصيد متاح</span>
+                      <span className="text-[9px] text-emerald-400 font-mono block">استخدام داخلي خاص</span>
                     </div>
                   </div>
-                  <span className="text-[10px] text-zinc-500 font-bold">PRO</span>
+                  <span className="text-[10px] text-zinc-500 font-bold">KUBE</span>
                 </div>
               </div>
             </aside>
@@ -823,7 +766,7 @@ function MarketingHubPage() {
               {showMimicBanner && (
                 <div className="mb-4 inline-flex items-center gap-2 self-center rounded-full bg-zinc-800/80 border border-zinc-700/60 px-4 py-1.5 text-xs text-zinc-300 backdrop-blur-md">
                   <span className="rounded-full bg-emerald-500 text-black font-black text-[9px] px-2 py-0.2">جديد</span>
-                  <span>اطلب من الوكيل فيديو هلاي ميميك لتحريك منتجاتك مع الصوت</span>
+                  <span>اطلب من الوكيل فيديو هلاي ميميك لتحريك منتجاتك مع الصوت الأصلي</span>
                   <button onClick={() => setShowMimicBanner(false)} className="text-zinc-500 hover:text-white mr-2">
                     <X className="h-3 w-3" />
                   </button>
@@ -839,7 +782,7 @@ function MarketingHubPage() {
                 </div>
                 <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">صباح الخير، زياد</h1>
                 <p className="text-sm text-zinc-400 max-w-lg mx-auto">
-                  حوّل محادثة بسيطة إلى محتوى إعلاني وتسويقي جاهز للإنتاج فوراً.
+                  حوّل محادثة بسيطة إلى محتوى إعلاني وتسويقي جاهز للإنتاج فوراً لكافيه ومطبخ KUBE.
                 </p>
               </div>
 
@@ -980,12 +923,12 @@ function MarketingHubPage() {
                       {
                         title: "مستخدمون وضيوف سعداء",
                         query: "سو لي محتوى مستخدمون سعداء مع كوب KUBE بالرياض",
-                        img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80",
+                        img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/995e69701ebb8aad38cbf398244a9a55/thumbnails/thumbnail.jpg?time=0&height=1000",
                       },
                       {
                         title: "نمط وأسلوب المنتج",
                         query: "سو لي نمط المنتج السينمائي لكولد برو KUBE",
-                        img: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=400&auto=format&fit=crop&q=80",
+                        img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/596cd3d2de2560a3bf2c9a12c7e9bef7/thumbnails/thumbnail.jpg?height=720",
                       },
                     ].map((card, i) => (
                       <button
@@ -1026,7 +969,7 @@ function MarketingHubPage() {
               <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
                 <div className="flex items-center gap-2">
                   <Layers className="h-5 w-5 text-emerald-400" />
-                  <h2 className="text-sm font-bold text-white">استديو المنتجات — مساحة العمل التوليدية</h2>
+                  <h2 className="text-sm font-bold text-white">استديو المنتجات — مساحة العمل التوليدية ثلاثية الأبعاد</h2>
                 </div>
                 <span className="rounded-full bg-zinc-900 border border-zinc-800 px-3 py-1 text-[11px] font-mono text-zinc-400">
                   نسبة العرض: {productAspectRatio}
@@ -1042,7 +985,7 @@ function MarketingHubPage() {
                     </div>
                     <h3 className="text-base font-bold text-white">لا توجد منتجات بعد</h3>
                     <p className="text-xs text-zinc-400">
-                      ابدأ بتوليد أو استيراد أول منتج لك لكافيه ومطبخ KUBE ليظهر هنا.
+                      ابدأ بتوليد أو استيراد أول منتج لك لكافيه ومطبخ KUBE ليظهر هنا في البيئة ثلاثية الأبعاد.
                     </p>
                     <button
                       onClick={handleProductStudioGenerate}
@@ -1056,7 +999,7 @@ function MarketingHubPage() {
                   <div className="w-full max-w-lg rounded-2xl overflow-hidden border border-zinc-700 bg-zinc-900 shadow-2xl space-y-3 p-4 animate-in fade-in duration-300">
                     <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-black flex items-center justify-center">
                       <img
-                        src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80"
+                        src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/68f99df1e137fb4eccb09a8fd2c8dd10/thumbnails/thumbnail.jpg?height=720"
                         alt="KUBE Specialty Coffee"
                         className="h-full w-full object-cover"
                       />
@@ -1094,7 +1037,7 @@ function MarketingHubPage() {
               {/* Bottom Info bar */}
               <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-[11px] text-zinc-500">
                 <span>محرك المعالجة: Flux Max 2 & Kling 3 Engine</span>
-                <span>متوافق مع متاجر سلة وزد وتطبيقات التوصيل</span>
+                <span>متوافق مع نقاط بيع KUBE ومتاجر سلة وزد وتطبيقات التوصيل</span>
               </div>
             </div>
 
@@ -1250,30 +1193,6 @@ function MarketingHubPage() {
                 </div>
               </div>
 
-              {/* Language Selection */}
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-zinc-400 block">لغة المخرجات والبرومبت:</label>
-                <div className="flex gap-2">
-                  {[
-                    { id: "ar", label: "العربية" },
-                    { id: "en", label: "English" },
-                    { id: "both", label: "كلاهما" },
-                  ].map((l) => (
-                    <button
-                      key={l.id}
-                      onClick={() => setOutputLanguage(l.id as any)}
-                      className={`flex-1 py-1.5 rounded-lg text-center font-bold ${
-                        outputLanguage === l.id
-                          ? "bg-zinc-700 text-white"
-                          : "bg-zinc-900 border border-zinc-800 text-zinc-400"
-                      }`}
-                    >
-                      {l.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Big Bottom Generate Button (Like Hallah) */}
               <button
                 onClick={handleProductStudioGenerate}
@@ -1297,242 +1216,145 @@ function MarketingHubPage() {
         )}
 
         {/* ============================================================== */}
-        {/* VIEW 3: UGC STUDIO 2.0 (Exact 3-Step Wizard from Hallah)        */}
+        {/* VIEW 3: UGC STUDIO 2.0 (With Real Cloudflare Thumbnails)        */}
         {/* ============================================================== */}
         {activeTab === "ugc_studio" && (
           <div className="rounded-2xl border border-zinc-800 bg-[#161618] p-5 md:p-8 shadow-2xl space-y-6">
-            {/* Steps Navigation Bar */}
-            <div className="flex items-center justify-between max-w-xl mx-auto border-b border-zinc-800 pb-4 text-xs">
-              <button
-                onClick={() => setUgcStep(1)}
-                className={`flex items-center gap-2 font-bold ${ugcStep === 1 ? "text-emerald-400" : "text-zinc-500"}`}
-              >
-                <span
-                  className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${
-                    ugcStep === 1 ? "bg-emerald-500 text-black" : "bg-zinc-800 text-zinc-400"
-                  }`}
-                >
-                  1
+            {/* Live Video Showcase Carousel (Exact Halai Sultan, Noura, Nada, Reema) */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <Video className="h-5 w-5 text-emerald-400" />
+                    أنشئ مقاطع يو جي سي عالية الواقعية في ثوانٍ
+                  </h3>
+                  <p className="text-xs text-zinc-400 mt-0.5">
+                    اختر صانع المحتوى السعودي بملامح وصوت أصلي، أو أنشئ سكريبت إعلاني مخصص لكافيه KUBE.
+                  </p>
+                </div>
+                <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-mono font-bold text-emerald-400">
+                  UGC 2.0 جديد
                 </span>
-                الصور والشخصية والمنتج
-              </button>
+              </div>
 
-              <button
-                onClick={() => setUgcStep(2)}
-                className={`flex items-center gap-2 font-bold ${ugcStep === 2 ? "text-emerald-400" : "text-zinc-500"}`}
-              >
-                <span
-                  className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${
-                    ugcStep === 2 ? "bg-emerald-500 text-black" : "bg-zinc-800 text-zinc-400"
-                  }`}
-                >
-                  2
-                </span>
-                اللغة واللهجة والمشاعر
-              </button>
+              {/* Live Video Thumbnails Grid with Metrics */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 pt-2">
+                {[
+                  {
+                    name: "سلطان | Sultan",
+                    views: "128K",
+                    likes: "12K",
+                    thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/995e69701ebb8aad38cbf398244a9a55/thumbnails/thumbnail.jpg?time=0&height=1000",
+                    avatar: "https://media.hallah.ai/cdn-cgi/image/width=400,format=auto/cms/studios/ugc-2/characters/male/sultan.png",
+                    role: "رياضي وتقني",
+                  },
+                  {
+                    name: "نورة | Noura",
+                    views: "45.2K",
+                    likes: "3.1K",
+                    thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/e979b81d089e42e710e17fab3b3bbde5/thumbnails/thumbnail.jpg?time=0&height=1000",
+                    avatar: "https://media.hallah.ai/cdn-cgi/image/width=400,format=auto/cms/studios/ugc-2/characters/female/olivia.png",
+                    role: "طالبة عمارة",
+                  },
+                  {
+                    name: "ندى | Nada",
+                    views: "34.5K",
+                    likes: "1.5K",
+                    thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/c0f730d37d2ed4bb3317d72b0fa90d3d/thumbnails/thumbnail.jpg?time=0&height=1000",
+                    avatar: "https://media.hallah.ai/cdn-cgi/image/width=400,format=auto/cms/studios/ugc-2/characters/female/hessa.png",
+                    role: "خبيرة حلى",
+                  },
+                  {
+                    name: "ريما | Reema",
+                    views: "89.1K",
+                    likes: "3.1K",
+                    thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/39f9db1609f3f361a19305ba50055c8c/thumbnails/thumbnail.jpg?time=0&height=1000",
+                    avatar: "https://media.hallah.ai/cdn-cgi/image/width=400,format=auto/cms/studios/ugc-2/characters/female/reema.png",
+                    role: "لايف ستايل",
+                  },
+                  {
+                    name: "أحمد | Ahmed",
+                    views: "210K",
+                    likes: "42K",
+                    thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/2a49a2d7160ede172fb4b0e6f4756a33/thumbnails/thumbnail.jpg?time=0&height=1000",
+                    avatar: "https://media.hallah.ai/cdn-cgi/image/width=400,format=auto/cms/studios/ugc-2/characters/male/faisal.png",
+                    role: "مستشار مالي",
+                  },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      const creatorMatch = SAUDI_CREATOR_PERSONAS.find((c) => c.name.includes(item.name.split(" ")[0]));
+                      if (creatorMatch) setSelectedCreator(creatorMatch);
+                      handleGenerateUgcScript();
+                    }}
+                    className="group relative rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 cursor-pointer hover:border-emerald-500 transition-all shadow-lg"
+                  >
+                    <div className="aspect-[9/14] w-full overflow-hidden relative">
+                      <img
+                        src={item.thumb}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <span className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
-              <button
-                onClick={() => setUgcStep(3)}
-                className={`flex items-center gap-2 font-bold ${ugcStep === 3 ? "text-emerald-400" : "text-zinc-500"}`}
-              >
-                <span
-                  className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${
-                    ugcStep === 3 ? "bg-emerald-500 text-black" : "bg-zinc-800 text-zinc-400"
-                  }`}
-                >
-                  3
-                </span>
-                السكريبت والمشاهد
-              </button>
+                      {/* Top Metrics Badge */}
+                      <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 text-[9px] font-mono text-white">
+                        <span>▶ {item.views}</span>
+                        <span>♥ {item.likes}</span>
+                      </div>
+
+                      {/* Play Button Icon */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="h-10 w-10 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-xl">
+                          <Play className="h-5 w-5 fill-current mr-0.5" />
+                        </div>
+                      </div>
+
+                      {/* Bottom Creator Info */}
+                      <div className="absolute bottom-3 right-3 left-3 flex items-center gap-2">
+                        <img
+                          src={item.avatar}
+                          alt={item.name}
+                          className="h-7 w-7 rounded-full object-cover border border-white/40 shrink-0"
+                        />
+                        <div className="truncate">
+                          <span className="text-[11px] font-bold text-white block truncate">{item.name}</span>
+                          <span className="text-[9px] text-zinc-400 block truncate">{item.role}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Step 1: Character & Product Picker */}
-            {ugcStep === 1 && (
-              <div className="space-y-5 animate-in fade-in duration-200">
+            {/* Generated Script Display */}
+            {generatedScriptOutput && (
+              <div className="pt-4 border-t border-zinc-800 space-y-3 animate-in fade-in duration-300">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-base font-bold text-white">اختر شخصية صانع المحتوى السعودي:</h3>
-                    <p className="text-xs text-zinc-400">الوجوه الافتراضية المدربة على ملامح وستايل الشباب السعودي.</p>
-                  </div>
-
-                  <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-xl border border-zinc-800 text-xs">
-                    <button
-                      onClick={() => setCreatorGenderFilter("all")}
-                      className={`px-3 py-1 rounded-lg font-bold ${
-                        creatorGenderFilter === "all" ? "bg-white text-black" : "text-zinc-400"
-                      }`}
-                    >
-                      الكل ({SAUDI_CREATOR_PERSONAS.length})
-                    </button>
-                    <button
-                      onClick={() => setCreatorGenderFilter("male")}
-                      className={`px-3 py-1 rounded-lg font-bold ${
-                        creatorGenderFilter === "male" ? "bg-white text-black" : "text-zinc-400"
-                      }`}
-                    >
-                      ذكور
-                    </button>
-                    <button
-                      onClick={() => setCreatorGenderFilter("female")}
-                      className={`px-3 py-1 rounded-lg font-bold ${
-                        creatorGenderFilter === "female" ? "bg-white text-black" : "text-zinc-400"
-                      }`}
-                    >
-                      إناث
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-                  {filteredCreators.map((creator) => {
-                    const isSelected = selectedCreator.id === creator.id;
-                    return (
-                      <button
-                        key={creator.id}
-                        onClick={() => setSelectedCreator(creator)}
-                        className={`p-3 rounded-2xl border text-center transition-all ${
-                          isSelected
-                            ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/10"
-                            : "border-zinc-800 bg-zinc-900 hover:border-zinc-700"
-                        }`}
-                      >
-                        <div className="relative mb-2 mx-auto w-16 h-16">
-                          <img
-                            src={creator.avatarUrl}
-                            alt={creator.name}
-                            className="w-full h-full object-cover rounded-full border-2 border-zinc-700"
-                          />
-                          {isSelected && (
-                            <span className="absolute -top-1 -right-1 h-5 w-5 bg-emerald-500 text-black rounded-full flex items-center justify-center font-bold text-xs">
-                              ✓
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-bold text-xs text-white block">{creator.name}</span>
-                        <span className="text-[10px] text-zinc-400 block truncate">{creator.role}</span>
-                        <span className="text-[9px] text-emerald-400 font-mono block mt-1">
-                          {creator.city.split("—")[1] || creator.city}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="flex justify-end pt-4">
+                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                    <Sparkles className="h-4 w-4" />
+                    السكريبت الإعلاني المجهز لـ ({selectedCreator.name})
+                  </span>
                   <button
-                    onClick={() => setUgcStep(2)}
-                    className="rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs px-6 py-2.5 transition-all shadow-md"
-                  >
-                    متابعة إلى خيارات اللهجة والمشاعر ←
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2: Language, Dialect, Emotion */}
-            {ugcStep === 2 && (
-              <div className="space-y-5 animate-in fade-in duration-200">
-                <div>
-                  <h3 className="text-base font-bold text-white">خيارات اللهجة والمشاعر لـ ({selectedCreator.name})</h3>
-                  <p className="text-xs text-zinc-400">توجيه أسلوب النطق والطاقة لنماذج الصوت والفيديو.</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  <div className="space-y-2">
-                    <label className="font-bold text-zinc-400 block">اللهجة الموصى بها:</label>
-                    <select
-                      value={ugcDialect}
-                      onChange={(e) => setUgcDialect(e.target.value)}
-                      className="w-full rounded-xl bg-zinc-900 border border-zinc-800 p-3 text-white focus:outline-none focus:border-emerald-500"
-                    >
-                      <option value="لهجة نجدية سريعة ومحببة (الرياض)">لهجة نجدية سريعة ومحببة (الرياض)</option>
-                      <option value="لهجة بيضاء تفاعلية شبابية">لهجة بيضاء تفاعلية شبابية</option>
-                      <option value="لهجة حجازية عفوية ودافئة">لهجة حجازية عفوية ودافئة</option>
-                      <option value="لهجة سعودية رسمية ومهنية (للشركات)">لهجة سعودية رسمية ومهنية (للشركات)</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="font-bold text-zinc-400 block">المشاعر وحالة الأداء:</label>
-                    <select
-                      value={ugcEmotion}
-                      onChange={(e) => setUgcEmotion(e.target.value)}
-                      className="w-full rounded-xl bg-zinc-900 border border-zinc-800 p-3 text-white focus:outline-none focus:border-emerald-500"
-                    >
-                      <option value="روقان وهدوء مع لمسة ذكاء">روقان وهدوء مع لمسة ذكاء (Specialty Coffee)</option>
-                      <option value="حماس وطاقة وسرعة دوام">حماس وطاقة وسرعة دوام (Morning Hustle)</option>
-                      <option value="عفوي ومرح وميمز شبابية">عفوي ومرح وميمز شبابية (Barq/STC Style)</option>
-                      <option value="فخامة واعتزاز بالأصالة">فخامة واعتزاز بالأصالة (Luxury Heritage)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex justify-between pt-4">
-                  <button
-                    onClick={() => setUgcStep(1)}
-                    className="rounded-xl bg-zinc-800 text-zinc-300 font-bold text-xs px-5 py-2.5"
-                  >
-                    → السابق
-                  </button>
-                  <button
-                    onClick={handleGenerateUgcScript}
-                    disabled={isGeneratingUgc}
-                    className="rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs px-6 py-2.5 transition-all shadow-md disabled:opacity-50"
-                  >
-                    {isGeneratingUgc ? "جاري توليد السكريبت..." : "توليد سكريبت الـ 3 مشاهد ←"}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Script & Scene Breakdown */}
-            {ugcStep === 3 && (
-              <div className="space-y-5 animate-in fade-in duration-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-base font-bold text-white">سكريبت الفيديو الإعلاني المجهز</h3>
-                    <p className="text-xs text-zinc-400">
-                      مقسم مشهداً بمشهد (Hook، تجربة المنتج، والـ CTA) جاهز للتصوير أو التوليد.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => handleCopy(generatedScriptOutput || "", "ugc-res", "السكريبت الكامل")}
+                    onClick={() => handleCopy(generatedScriptOutput, "ugc-gen-script", "السكريبت الإعلاني")}
                     className="rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs px-4 py-2 flex items-center gap-1.5"
                   >
                     <Copy className="h-3.5 w-3.5" />
                     نسخ السكريبت
                   </button>
                 </div>
-
-                {generatedScriptOutput && (
-                  <pre className="whitespace-pre-wrap font-sans text-xs text-zinc-200 leading-relaxed bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
-                    {generatedScriptOutput}
-                  </pre>
-                )}
-
-                <div className="flex justify-between pt-4">
-                  <button
-                    onClick={() => setUgcStep(2)}
-                    className="rounded-xl bg-zinc-800 text-zinc-300 font-bold text-xs px-5 py-2.5"
-                  >
-                    → تعديل المشاعر
-                  </button>
-                  <button
-                    onClick={() => {
-                      toast.success("تم إرسال السكريبت لمحرك Kling 3 لتوليد الفيديو التلقائي");
-                    }}
-                    className="rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs px-6 py-2.5 transition-all shadow-md"
-                  >
-                    إرسال لتوليد الفيديو بمحرك Kling 3 ▶
-                  </button>
-                </div>
+                <pre className="whitespace-pre-wrap font-sans text-xs text-zinc-200 leading-relaxed bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
+                  {generatedScriptOutput}
+                </pre>
               </div>
             )}
           </div>
         )}
 
         {/* ============================================================== */}
-        {/* VIEW 4: ADS STUDIO (Hallah 9-Pack Ads Studio)                  */}
+        {/* VIEW 4: ADS STUDIO 9x                                          */}
         {/* ============================================================== */}
         {activeTab === "ads_studio" && (
           <div className="space-y-6">
@@ -1674,38 +1496,38 @@ function MarketingHubPage() {
               ))}
             </div>
 
-            {/* Templates Cards Grid */}
+            {/* Templates Cards Grid with Real Cloudflare CDN Images */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-4">
               {[
                 {
                   title: "اليوم الوطني السعودي",
                   badge: "جديد",
-                  img: "https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400&auto=format&fit=crop&q=80",
+                  img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/27ad80f674f0cd970046d7985749890a/thumbnails/thumbnail.jpg?height=720",
                 },
                 {
                   title: "التحكم بالحركة",
                   badge: "المفضل",
-                  img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+                  img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/40dba6a71d8013595711298206cc8d48/thumbnails/thumbnail.jpg?height=720",
                 },
                 {
                   title: "سيلفي سيارة فاخرة مع قهوة",
                   badge: "جديد",
-                  img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80",
+                  img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/28344dc091e4acf786c7622ad1fdeb10/thumbnails/thumbnail.jpg?height=720",
                 },
                 {
                   title: "ريلز المنتج والسكب",
                   badge: "المفضل",
-                  img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&auto=format&fit=crop&q=80",
+                  img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/596cd3d2de2560a3bf2c9a12c7e9bef7/thumbnails/thumbnail.jpg?height=720",
                 },
                 {
                   title: "جلسة تصوير أزياء ومقهى",
                   badge: "جديد",
-                  img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop&q=80",
+                  img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/e437e1ee09c9818b4b1370de1f8e92cf/thumbnails/thumbnail.jpg?height=720",
                 },
                 {
-                  title: "صورة احترافية مع العلم",
+                  title: "وصول المشاهير بالأضواء",
                   badge: "جديد",
-                  img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80",
+                  img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/2bd5a81ba7055b5e5d434e3926a8945f/thumbnails/thumbnail.jpg?height=720",
                 },
               ].map((tmpl, idx) => (
                 <div
@@ -2026,64 +1848,6 @@ function MarketingHubPage() {
                 ))}
               </div>
             )}
-          </div>
-        )}
-
-        {/* ============================================================== */}
-        {/* VIEW 9: CAMPAIGNS TRACKER                                      */}
-        {/* ============================================================== */}
-        {activeTab === "campaigns" && (
-          <div className="rounded-2xl border border-zinc-800 bg-[#161618] p-5 md:p-8 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-emerald-400" />
-                  متتبع الحملات التسويقية لكافيه ومطبخ KUBE
-                </h2>
-                <p className="text-xs text-zinc-400">إدارة التواريخ والميزانيات والعروض الترويجية النشطة.</p>
-              </div>
-
-              <button
-                onClick={() => setShowAddCampModal(true)}
-                className="rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs px-4 py-2 flex items-center gap-1.5"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                حملة جديدة
-              </button>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-right text-xs">
-                <thead className="bg-zinc-900/80 border-b border-zinc-800 text-zinc-400 font-bold">
-                  <tr>
-                    <th className="py-3 px-4">الحملة</th>
-                    <th className="py-3 px-4">المنصات</th>
-                    <th className="py-3 px-4">الخصم</th>
-                    <th className="py-3 px-4">الميزانية</th>
-                    <th className="py-3 px-4">الفترة</th>
-                    <th className="py-3 px-4">الحالة</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800/60">
-                  {campaigns.map((camp) => (
-                    <tr key={camp.id} className="hover:bg-zinc-900/40">
-                      <td className="py-3 px-4 font-bold text-white">{camp.name}</td>
-                      <td className="py-3 px-4 text-zinc-300">{camp.platform}</td>
-                      <td className="py-3 px-4 text-emerald-400 font-bold">{camp.discount}</td>
-                      <td className="py-3 px-4 font-mono text-zinc-400">{camp.budget}</td>
-                      <td className="py-3 px-4 font-mono text-[11px] text-zinc-500">
-                        {camp.startDate} إلى {camp.endDate}
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 text-[9px] font-bold">
-                          {camp.status === "active" ? "نشط" : "مجدول"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
         )}
       </div>
