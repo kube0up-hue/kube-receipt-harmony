@@ -632,8 +632,14 @@ function KubeAiMarketingPage() {
       {/* 2. MOBILE SLIDE-OUT DRAWER (Full Menu for iPhone / Android)     */}
       {/* ============================================================== */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[10005] bg-black/80 backdrop-blur-md animate-in fade-in duration-200 xl:hidden">
-          <div className="fixed inset-y-0 start-0 z-[10006] w-[85vw] max-w-xs bg-[#121214] border-e border-white/10 p-5 flex flex-col justify-between overflow-y-auto shadow-2xl animate-in slide-in-from-start duration-300">
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 z-[10005] bg-black/80 backdrop-blur-md animate-in fade-in duration-200 xl:hidden select-none"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-y-0 start-0 z-[10006] w-[85vw] max-w-xs bg-[#121214] border-e border-white/10 p-5 flex flex-col justify-between overflow-y-auto shadow-2xl animate-in slide-in-from-start duration-300 select-text"
+          >
             <div className="space-y-6">
               {/* Drawer Topbar */}
               <div className="flex items-center justify-between pb-4 border-b border-white/10">
@@ -784,7 +790,10 @@ function KubeAiMarketingPage() {
       {/* ============================================================== */}
       {/* 3. MOBILE BOTTOM NAVIGATION BAR (iPhone Floating Dock)         */}
       {/* ============================================================== */}
-      <nav className="xl:hidden fixed bottom-3 inset-x-3 z-[9990] rounded-2xl bg-zinc-950/95 backdrop-blur-2xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-1.5 flex items-center justify-around text-[10px]">
+      <nav
+        style={{ bottom: "max(12px, env(safe-area-inset-bottom, 12px))" }}
+        className="xl:hidden fixed inset-x-3 z-[9990] rounded-2xl bg-zinc-950/95 backdrop-blur-2xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-1.5 flex items-center justify-around text-[10px] select-none touch-manipulation"
+      >
         <button
           onClick={() => setActiveStudioModal("super_agent")}
           className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all active:scale-95 ${
@@ -1474,8 +1483,14 @@ function KubeAiMarketingPage() {
       {/* 17. INTERACTIVE WORKSPACE MODAL OVERLAY (iPhone & Full Screen) */}
       {/* ============================================================== */}
       {activeStudioModal !== "none" && (
-        <div className="fixed inset-0 z-[10010] bg-black/95 sm:bg-black/90 backdrop-blur-2xl flex items-center justify-center p-0 sm:p-4 md:p-6 animate-in fade-in duration-200">
-          <div className="w-full h-full sm:h-[92vh] sm:max-w-6xl sm:rounded-[28px] border-0 sm:border sm:border-white/15 bg-[#121212] flex flex-col overflow-hidden shadow-2xl">
+        <div
+          onClick={() => setActiveStudioModal("none")}
+          className="fixed inset-0 z-[10010] bg-black/95 sm:bg-black/90 backdrop-blur-2xl flex items-center justify-center p-0 sm:p-4 md:p-6 animate-in fade-in duration-200 select-none touch-manipulation"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full h-full sm:h-[92vh] sm:max-w-6xl sm:rounded-[28px] border-0 sm:border sm:border-white/15 bg-[#121212] flex flex-col overflow-hidden shadow-2xl select-text"
+          >
             {/* Modal Topbar */}
             <div className="h-14 px-4 sm:px-5 border-b border-white/10 flex items-center justify-between bg-zinc-950/90 shrink-0">
               <div className="flex items-center gap-2.5 truncate">
