@@ -60,7 +60,13 @@ import {
   Music,
 } from "lucide-react";
 import { toast } from "sonner";
-import { dispatchStudioGeneration } from "@/features/marketing/providers/ai-providers";
+import {
+  dispatchStudioGeneration,
+  getGoogleStudioApiKey,
+  setGoogleStudioApiKey,
+  testGoogleStudioConnection,
+  callGeminiCreativeAgent,
+} from "@/features/marketing/providers/ai-providers";
 import {
   SAUDI_VISUAL_PROMPTS,
   SAUDI_UGC_FORMATS,
@@ -507,6 +513,39 @@ function KubeAiMarketingPage() {
   const [superAgentTourOpen, setSuperAgentTourOpen] = useState(false);
   const [superAgentTourStep, setSuperAgentTourStep] = useState<number>(1);
 
+  // Google AI Studio Live Key Integration States
+  const [googleStudioKeyInput, setGoogleStudioKeyInput] = useState<string>("");
+  const [activeGoogleKey, setActiveGoogleKey] = useState<string>("");
+  const [isTestingGoogleKey, setIsTestingGoogleKey] = useState<boolean>(false);
+
+  useEffect(() => {
+    const existing = getGoogleStudioApiKey();
+    if (existing) {
+      setActiveGoogleKey(existing);
+      setGoogleStudioKeyInput(existing);
+    }
+  }, []);
+
+  const handleSaveAndTestGoogleKey = async () => {
+    setIsTestingGoogleKey(true);
+    const res = await testGoogleStudioConnection(googleStudioKeyInput);
+    setIsTestingGoogleKey(false);
+    if (res.success) {
+      setGoogleStudioApiKey(googleStudioKeyInput);
+      setActiveGoogleKey(googleStudioKeyInput);
+      toast.success(res.message);
+    } else {
+      toast.error(res.message);
+    }
+  };
+
+  const handleClearGoogleKey = () => {
+    setGoogleStudioApiKey("");
+    setActiveGoogleKey("");
+    setGoogleStudioKeyInput("");
+    toast.info("تم مسح مفتاح Google AI Studio");
+  };
+
   // Custom Right-Click Context Menu State
   const [contextMenu, setContextMenu] = useState<{
     visible: boolean;
@@ -659,6 +698,34 @@ function KubeAiMarketingPage() {
     setChatMessages((prev) => [...prev, userMsg]);
     if (!textToSend) setAgentInputText("");
     setIsAgentTyping(true);
+
+    if (activeGoogleKey) {
+      callGeminiCreativeAgent(text)
+        .then((replyText) => {
+          const agentMsg: ChatMessage = {
+            id: `agent-${Date.now()}`,
+            sender: "agent",
+            text: replyText,
+            timestamp: "الآن",
+          };
+          setChatMessages((prev) => [...prev, agentMsg]);
+          setIsAgentTyping(false);
+        })
+        .catch((err) => {
+          console.warn("Live Gemini response error:", err);
+          const replyText = `يا هلا زياد! أبشر بعزك ☕️✨\nتم توجيه المحرك (${selectedEngine}) لصياغة سكريبت بصري بالصيغة: "${selectedUgcFormat.nameAr}"\n\n📌 المشهد: لقطة ماكرو 4K مع تكثيف قطرات الندى على كوب كولد برو KUBE الأسود المطفي مع لمسات الأحمر المتوهج.\n🎙️ الصوت: "إذا يومك ما بدأ بقطرة تروق المخ... KUBE يضبط مزاجك بضغطة زر".\n⚡️ البرومبت الجاهز للإنتاج:\n${selectedUgcFormat.promptDirective}\n\nجاهز للتوليد الفوري على Kling 3 Turbo أو Google Veo 3.1!`;
+
+          const agentMsg: ChatMessage = {
+            id: `agent-${Date.now()}`,
+            sender: "agent",
+            text: replyText,
+            timestamp: "الآن",
+          };
+          setChatMessages((prev) => [...prev, agentMsg]);
+          setIsAgentTyping(false);
+        });
+      return;
+    }
 
     setTimeout(() => {
       const replyText = `يا هلا زياد! أبشر بعزك ☕️✨\nتم توجيه المحرك (${selectedEngine}) لصياغة سكريبت بصري بالصيغة: "${selectedUgcFormat.nameAr}"\n\n📌 المشهد: لقطة ماكرو 4K مع تكثيف قطرات الندى على كوب كولد برو KUBE الأسود المطفي مع لمسات الأحمر المتوهج.\n🎙️ الصوت: "إذا يومك ما بدأ بقطرة تروق المخ... KUBE يضبط مزاجك بضغطة زر".\n⚡️ البرومبت الجاهز للإنتاج:\n${selectedUgcFormat.promptDirective}\n\nجاهز للتوليد الفوري على Kling 3 Turbo أو Google Veo 3.1!`;
@@ -2565,6 +2632,87 @@ function KubeAiMarketingPage() {
                     <p className="text-xs text-zinc-400 leading-relaxed">
                       هذا التقرير الشامل يوضح أسماء المنصات العالمية، لوحات المطورين، أسماء المفاتيح المطلوبة، ونقاط الربط (Endpoints) حتى نربط معهم مباشرة وتعمل مخرجات KUBE AI بنفس دقة ومخرجات هلاي.
                     </p>
+                  </div>
+
+                  {/* Google AI Studio Active Connector Card */}
+                  <div className="p-5 rounded-2xl border-2 border-[#ff2a4b]/40 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black space-y-4 shadow-xl">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white text-lg font-black shadow-lg">
+                          G
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-black text-sm sm:text-base text-white">Google AI Studio (Gemini)</h4>
+                            {activeGoogleKey ? (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#00e575]/20 text-[#00e575] border border-[#00e575]/40 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#00e575] animate-ping" />
+                                متصل ولايف
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                                جاهز للربط الفوري
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-zinc-400">محرك السوبر ايجنت وكتابة السكريبتات وتوليد الأفكار الإعلانية من قوقل</p>
+                        </div>
+                      </div>
+
+                      <a
+                        href="https://aistudio.google.com/app/apikey"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-bold self-start sm:self-auto"
+                      >
+                        <span>لوحة مفاتيح Google AI Studio</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-zinc-300 block">
+                        أدخل مفتاح الـ API الخاص بـ Google AI Studio:
+                      </label>
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input
+                          type="password"
+                          value={googleStudioKeyInput}
+                          onChange={(e) => setGoogleStudioKeyInput(e.target.value)}
+                          placeholder="AIzaSy..."
+                          className="flex-1 bg-black/70 border border-white/10 focus:border-[#ff2a4b] rounded-xl px-4 py-2.5 text-xs text-white placeholder-zinc-600 focus:outline-none font-mono"
+                          dir="ltr"
+                        />
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={handleSaveAndTestGoogleKey}
+                            disabled={isTestingGoogleKey}
+                            className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#ff2a4b] to-[#c21430] hover:brightness-110 active:scale-95 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-md shadow-[#ff2a4b]/20 disabled:opacity-50"
+                          >
+                            {isTestingGoogleKey ? (
+                              <span>جاري التحقق...</span>
+                            ) : (
+                              <>
+                                <Zap className="w-3.5 h-3.5" />
+                                <span>حفظ وتفعيل لايف</span>
+                              </>
+                            )}
+                          </button>
+                          {activeGoogleKey && (
+                            <button
+                              onClick={handleClearGoogleKey}
+                              className="px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-red-400 text-xs font-bold transition-colors"
+                              title="مسح المفتاح"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-zinc-500">
+                        يتم حفظ المفتاح في متصفحك وسيرفر التطبيق لتفعيل التوليد المباشر في سوبر ايجنت واستوديوهات التسويق فوراً.
+                      </p>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

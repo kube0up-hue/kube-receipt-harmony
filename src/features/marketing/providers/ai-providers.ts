@@ -184,3 +184,90 @@ export async function dispatchStudioGeneration(payload: StudioGenerationPayload)
     },
   };
 }
+
+/**
+ * Google AI Studio (Gemini) Key Management & Live API Dispatch
+ */
+export function getGoogleStudioApiKey(): string {
+  if (typeof window !== "undefined") {
+    const local = localStorage.getItem("KUBE_GEMINI_API_KEY");
+    if (local && local.trim().length > 0) return local.trim();
+    const env = (import.meta as any).env?.VITE_GEMINI_API_KEY;
+    if (env && env.trim().length > 0) return env.trim();
+  }
+  return "";
+}
+
+export function setGoogleStudioApiKey(key: string): void {
+  if (typeof window !== "undefined") {
+    if (key.trim()) {
+      localStorage.setItem("KUBE_GEMINI_API_KEY", key.trim());
+    } else {
+      localStorage.removeItem("KUBE_GEMINI_API_KEY");
+    }
+  }
+}
+
+export async function testGoogleStudioConnection(key: string): Promise<{ success: boolean; message: string; modelsCount?: number }> {
+  const cleanKey = key.trim();
+  if (!cleanKey) {
+    return { success: false, message: "يرجى إدخال مفتاح API أولاً" };
+  }
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${cleanKey}`);
+    if (res.ok) {
+      const data = await res.json();
+      const count = data.models?.length || 0;
+      return { success: true, message: `تم التحقق بنجاح! متصل بـ ${count} نموذج ذكاء اصطناعي من قوقل`, modelsCount: count };
+    }
+    const errData = await res.json().catch(() => ({}));
+    return { success: false, message: errData.error?.message || `خطأ في الاتصال (${res.status})` };
+  } catch (err: any) {
+    return { success: false, message: err.message || "تعذر الوصول لخوادم Google AI Studio" };
+  }
+}
+
+export async function callGeminiCreativeAgent(userPrompt: string, systemContext?: string): Promise<string> {
+  const apiKey = getGoogleStudioApiKey();
+  if (!apiKey) {
+    throw new Error("مفتاح Google AI Studio غير متصل بعد");
+  }
+
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const systemInstructionText = systemContext || 
+    "أنت المساعد الإبداعي وكبير المخرجين الإعلانيين لكافيه ومطبخ KUBE في الرياض. تتحدث بالعامية السعودية النجدية الذكية والمحترفة. تصيغ سيناريوهات إعلانية تسويقية جذابة للمشروبات والقهوة المختصة (V60, Cold Brew, Flat White) والحلويات مع توجيهات كاميرا 4K واقعية وإضاءة استوديو.";
+
+  const body = {
+    contents: [
+      {
+        parts: [{ text: userPrompt }]
+      }
+    ],
+    systemInstruction: {
+      parts: [{ text: systemInstructionText }]
+    },
+    generationConfig: {
+      temperature: 0.8,
+      maxOutputTokens: 1024,
+    }
+  };
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `فشل استدعاء Gemini (${res.status})`);
+  }
+
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) {
+    throw new Error("لم يتم استلام رد من النموذج");
+  }
+  return text;
+}
+
