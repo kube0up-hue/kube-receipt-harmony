@@ -254,7 +254,7 @@ export async function callGeminiCreativeAgent(userPrompt: string, systemContext?
     throw new Error("مفتاح Google AI Studio غير متصل بعد");
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
   const systemInstructionText = systemContext || HALAI_TRAINED_SYSTEM_INSTRUCTION;
 
   const body = {
