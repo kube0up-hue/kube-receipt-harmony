@@ -81,4 +81,8 @@ export {
   HALAI_AI_MODELS_CATALOG,
   type AiModelEngine,
 } from "./datasets/ai-models-catalog";
+export {
+  KUBE_MARKETING_SUBTYPES,
+  type MarketingAdSubtype,
+} from "./datasets/halai-subtypes";
 
