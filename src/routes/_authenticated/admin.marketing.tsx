@@ -97,6 +97,10 @@ const ENGINE_LOGOS = [
   { name: "Grok", icon: "https://hallah.ai/icons/grok.svg", invert: true },
   { name: "Nano", icon: "https://hallah.ai/icons/nanobanana-color.svg", invert: false },
   { name: "Ideogram", icon: "https://hallah.ai/icons/ideogram.svg", invert: true },
+  { name: "Claude", icon: "https://hallah.ai/icons/claude-color.svg", invert: false },
+  { name: "Cursor", icon: "https://hallah.ai/icons/cursor.svg", invert: true },
+  { name: "OpenAI", icon: "https://hallah.ai/icons/openai.svg", invert: false },
+  { name: "Nvidia", icon: "https://hallah.ai/icons/nvidia-color.svg", invert: false },
 ];
 
 // Horizontal Showcase Stream (Section 2)
@@ -549,6 +553,23 @@ function KubeAiMarketingPage() {
   // ==========================================
   const [selectedModelForApi, setSelectedModelForApi] = useState<AiModelEngine>(HALAI_AI_MODELS_CATALOG[0]);
 
+  // ==========================================
+  // Before / After Comparison Slider State
+  // ==========================================
+  const [sliderPos, setSliderPos] = useState<number>(50);
+
+  // ==========================================
+  // Lightbox Image Fullscreen Modal State
+  // ==========================================
+  const [lightboxItem, setLightboxItem] = useState<{
+    isOpen: boolean;
+    imgUrl: string;
+    title: string;
+    prompt?: string;
+    aspectRatio?: string;
+    specs?: string;
+  } | null>(null);
+
 
   // Copy helper
   const handleCopy = (text: string, label = "المحتوى") => {
@@ -647,7 +668,7 @@ function KubeAiMarketingPage() {
       className="w-full min-h-screen bg-black text-white selection:bg-[#ff2a4b] selection:text-white font-sans overflow-x-hidden antialiased pb-24 xl:pb-0"
       style={{
         backgroundColor: "#000000",
-        fontFamily: '"IBM Plex Sans Arabic", "Alexandria", "Cairo", sans-serif',
+        fontFamily: '"PingARLT", "IBM Plex Sans Arabic", "Rubik", "Archivo", system-ui, -apple-system, sans-serif',
       }}
     >
       {/* ============================================================== */}
@@ -1194,6 +1215,91 @@ function KubeAiMarketingPage() {
                 <span className="text-[11px] text-zinc-300 block">إضاءة أمامية ناعمة • جودة 4K</span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* 6.5. SECTION 3.5: BEFORE & AFTER COMPARISON (مقارنة قبل وبعد)    */}
+      {/* ============================================================== */}
+      <section className="relative w-full overflow-hidden bg-black py-12 md:py-20 border-t border-white/5">
+        <div className="relative z-20 max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 space-y-6 md:space-y-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-2 text-right">
+              <span className="text-xs font-bold font-mono text-[#ff3b56]">مقارنة التحويل البصري</span>
+              <h3 className="text-2xl sm:text-4xl md:text-5xl font-black text-white">
+                قبل وبعد الريندر التجاري
+              </h3>
+              <p className="text-xs sm:text-sm text-zinc-400 max-w-xl">
+                اسحب المؤشر وشاهد كيف يحول الذكاء الاصطناعي لقطة الجوال العادية إلى تحفة إعلانية بدقة 4K مع إضاءة استوديو وانعكاسات طبيعية.
+              </p>
+            </div>
+
+            {/* Quick Percentage Presets */}
+            <div className="flex items-center gap-2 self-start md:self-auto">
+              {[0, 25, 50, 75, 100].map((pct) => (
+                <button
+                  key={pct}
+                  onClick={() => setSliderPos(pct)}
+                  className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all active:scale-95 ${
+                    sliderPos === pct
+                      ? "bg-[#ff2a4b] text-white shadow-md shadow-[#ff2a4b]/30"
+                      : "bg-zinc-900 border border-white/10 text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  {pct}%
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Interactive Split View Container */}
+          <div className="relative w-full max-w-4xl mx-auto aspect-[16/9] sm:aspect-[21/9] rounded-3xl overflow-hidden border border-white/10 select-none shadow-2xl bg-zinc-950">
+            {/* Background After Image (Rendered 4K) */}
+            <img
+              src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/68f99df1e137fb4eccb09a8fd2c8dd10/thumbnails/thumbnail.jpg?height=720"
+              alt="After 4K Render"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute top-4 left-4 z-20 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md text-[10px] font-mono text-[#ff3b56] border border-[#ff2a4b]/40 font-bold">
+              بعد (KUBE AI 4K Cinema)
+            </div>
+
+            {/* Foreground Before Image (Raw Clip Path) */}
+            <div
+              className="absolute inset-0 overflow-hidden"
+              style={{ clipPath: `inset(0 0 0 ${100 - sliderPos}%)` }}
+            >
+              <img
+                src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/47e6fccb610688b7c7eb8c091577872a/thumbnails/thumbnail.jpg?height=720"
+                alt="Before Raw Photo"
+                className="absolute inset-0 w-full h-full object-cover filter brightness-90"
+              />
+              <div className="absolute top-4 right-4 z-20 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md text-[10px] font-mono text-zinc-300 border border-white/20 font-bold">
+                قبل (صورة جوال عادية)
+              </div>
+            </div>
+
+            {/* Slider Divider Line & Knob */}
+            <div
+              className="absolute top-0 bottom-0 z-30 w-1 bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)] cursor-ew-resize flex items-center justify-center"
+              style={{ right: `${sliderPos}%` }}
+            >
+              <div className="w-8 h-8 rounded-full bg-[#ff2a4b] text-white flex items-center justify-center shadow-lg shadow-[#ff2a4b]/60 border-2 border-white text-xs font-bold -translate-x-0.5">
+                ↔
+              </div>
+            </div>
+
+            {/* Slider Range Input (Invisible overlay for drag) */}
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={sliderPos}
+              onChange={(e) => setSliderPos(Number(e.target.value))}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-40"
+              aria-label="مؤشر مقارنة قبل وبعد"
+            />
           </div>
         </div>
       </section>
@@ -3406,6 +3512,91 @@ function KubeAiMarketingPage() {
           <span>شخصيات</span>
         </button>
       </div>
+
+      {/* ============================================================== */}
+      {/* 20. LIGHTBOX FULLSCREEN IMAGE VIEWER MODAL                     */}
+      {/* ============================================================== */}
+      {lightboxItem && lightboxItem.isOpen && (
+        <div
+          onClick={() => setLightboxItem(null)}
+          className="fixed inset-0 z-[10060] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-3 sm:p-6 animate-in fade-in zoom-in-95 duration-200 select-none touch-manipulation"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-5xl w-full max-h-[92vh] rounded-3xl bg-zinc-950 border border-white/15 overflow-hidden flex flex-col md:flex-row shadow-2xl"
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setLightboxItem(null)}
+              className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-black/70 hover:bg-white/20 text-white flex items-center justify-center backdrop-blur-md active:scale-95 transition-all"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Image Preview Area */}
+            <div className="flex-1 bg-black flex items-center justify-center p-4 relative min-h-[300px] sm:min-h-[480px]">
+              <img
+                src={lightboxItem.imgUrl}
+                alt={lightboxItem.title}
+                className="max-h-[80vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl"
+              />
+              <span className="absolute bottom-4 right-4 text-[10px] font-mono text-[#ff3b56] bg-black/80 px-2.5 py-1 rounded-full border border-[#ff2a4b]/30">
+                4K Cinema Master
+              </span>
+            </div>
+
+            {/* Sidebar Details */}
+            <div className="w-full md:w-80 p-5 md:p-6 space-y-4 text-right bg-zinc-900/90 border-t md:border-t-0 md:border-r border-white/10 flex flex-col justify-between shrink-0">
+              <div className="space-y-3">
+                <span className="text-[10px] font-mono text-[#ff3b56] uppercase tracking-wider block">
+                  KUBE AI Studio Lightbox
+                </span>
+                <h4 className="text-base sm:text-lg font-black text-white">{lightboxItem.title}</h4>
+
+                {lightboxItem.aspectRatio && (
+                  <div className="text-xs font-mono text-zinc-400">
+                    المقاس: <span className="text-white font-bold">{lightboxItem.aspectRatio}</span>
+                  </div>
+                )}
+
+                {lightboxItem.specs && (
+                  <div className="text-xs font-mono text-zinc-400">
+                    المواصفات: <span className="text-white font-bold">{lightboxItem.specs}</span>
+                  </div>
+                )}
+
+                {lightboxItem.prompt && (
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold text-zinc-400 block">البرومبت الإخراجي:</span>
+                    <p className="text-[11px] font-mono text-zinc-300 bg-black/60 p-3 rounded-xl border border-white/5 line-clamp-6 select-all">
+                      {lightboxItem.prompt}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-3 border-t border-white/10">
+                {lightboxItem.prompt && (
+                  <button
+                    onClick={() => handleCopy(lightboxItem.prompt!, lightboxItem.title)}
+                    className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/15 text-white font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>نسخ البرومبت بالإنجليزية</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => toast.success(`تم بدء تحميل الصورة بدقة 4K: ${lightboxItem.title}`)}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black text-xs active:scale-95 shadow-md shadow-[#ff2a4b]/30 transition-all text-center"
+                >
+                  تحميل بدقة 4K كاملة
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
