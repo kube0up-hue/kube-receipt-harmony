@@ -1125,15 +1125,16 @@ function KubeAiMarketingPage() {
         </div>
 
         {/* Left Section: Action Buttons */}
-        <div className="flex items-center gap-2 md:gap-3">
-          {/* Provider API Keys Button (Visible on sm & above to maintain sleek mobile header) */}
+        <div className="flex items-center gap-2 md:gap-3 shrink-0">
+          {/* Provider API Keys Button */}
           <button
             onClick={() => setActiveStudioModal("providers_guide")}
-            className="hidden sm:flex items-center gap-1.5 h-8 md:h-9 px-2.5 rounded-xl bg-[#ff2a4b]/15 hover:bg-[#ff2a4b]/25 border border-[#ff2a4b]/40 text-[#ff3b56] text-xs font-bold transition-all shadow-sm active:scale-95"
-            title="دليل مفاتيح المزودين"
+            className="hidden sm:flex items-center gap-1.5 h-8 md:h-9 px-2.5 rounded-xl bg-[#ff2a4b]/15 hover:bg-[#ff2a4b]/25 border border-[#ff2a4b]/40 text-[#ff3b56] text-xs font-bold transition-all shadow-sm active:scale-95 shrink-0"
+            title="دليل مفاتيح المزودين (API)"
           >
             <Key className="w-3.5 h-3.5" />
-            <span>مفاتيح المزودين (API)</span>
+            <span className="hidden 2xl:inline">مفاتيح المزودين</span>
+            <span className="2xl:hidden">API</span>
           </button>
 
           {/* ERP Dashboard Link */}

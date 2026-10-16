@@ -475,7 +475,7 @@ export function HeaderNavDropdowns({
         {openMenu === "photos" && (
           <div className="absolute top-full pt-2 z-50 animate-in fade-in slide-in-from-top-1 duration-200 right-0">
             <div
-              className="relative grid grid-cols-[minmax(17rem,1fr)_minmax(17rem,1fr)] p-2 rounded-2xl border bg-[#141416]/95 backdrop-blur-2xl border-white/10 shadow-2xl overflow-y-auto no-scrollbar"
+              className="relative grid grid-cols-[minmax(17rem,1fr)_minmax(17rem,1fr)] p-2 rounded-2xl border bg-[#141416] border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.98)] overflow-y-auto no-scrollbar"
               dir="rtl"
               style={{ maxHeight: "calc(100dvh - 100px)" }}
             >
@@ -547,7 +547,7 @@ export function HeaderNavDropdowns({
         {openMenu === "videos" && (
           <div className="absolute top-full pt-2 z-50 animate-in fade-in slide-in-from-top-1 duration-200 right-0">
             <div
-              className="relative grid grid-cols-[minmax(17rem,1fr)_minmax(17rem,1fr)] p-2 rounded-2xl border bg-[#141416]/95 backdrop-blur-2xl border-white/10 shadow-2xl overflow-y-auto no-scrollbar"
+              className="relative grid grid-cols-[minmax(17rem,1fr)_minmax(17rem,1fr)] p-2 rounded-2xl border bg-[#141416] border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.98)] overflow-y-auto no-scrollbar"
               dir="rtl"
               style={{ maxHeight: "calc(100dvh - 100px)" }}
             >
@@ -614,7 +614,7 @@ export function HeaderNavDropdowns({
         {openMenu === "apps" && (
           <div className="absolute top-full pt-2 z-50 animate-in fade-in slide-in-from-top-1 duration-200 right-0">
             <div
-              className="relative w-80 p-2 rounded-2xl border bg-[#141416]/95 backdrop-blur-2xl border-white/10 shadow-2xl overflow-y-auto no-scrollbar"
+              className="relative w-80 p-2 rounded-2xl border bg-[#141416] border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.98)] overflow-y-auto no-scrollbar"
               dir="rtl"
             >
               {CREATIVE_APPS_LIST.map((app) => {
@@ -680,7 +680,7 @@ export function HeaderNavDropdowns({
         {openMenu === "studios" && (
           <div className="absolute top-full pt-2 z-50 animate-in fade-in slide-in-from-top-1 duration-200 right-0">
             <div
-              className="relative w-88 p-2 rounded-2xl border bg-[#141416]/95 backdrop-blur-2xl border-white/10 shadow-2xl overflow-y-auto no-scrollbar"
+              className="relative w-88 p-2 rounded-2xl border bg-[#141416] border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.98)] overflow-y-auto no-scrollbar"
               dir="rtl"
             >
               <div className="px-3 py-2 border-b border-white/5 mb-1 flex items-center justify-between">
