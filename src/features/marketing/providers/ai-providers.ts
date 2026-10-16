@@ -254,41 +254,109 @@ export async function callGeminiCreativeAgent(userPrompt: string, systemContext?
     throw new Error("مفتاح Google AI Studio غير متصل بعد");
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
   const systemInstructionText = systemContext || HALAI_TRAINED_SYSTEM_INSTRUCTION;
 
-  const body = {
-    contents: [
-      {
-        parts: [{ text: userPrompt }]
-      }
-    ],
-    systemInstruction: {
-      parts: [{ text: systemInstructionText }]
-    },
-    generationConfig: {
-      temperature: 0.8,
-      maxOutputTokens: 1024,
-    }
-  };
+  // Try gemini-3.5-flash first, then fallback to gemini-flash-latest
+  const modelsToTry = ["gemini-3.5-flash", "gemini-flash-latest"];
+  let lastError: any = null;
 
-  const res = await fetch(endpoint, {
+  for (const model of modelsToTry) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const body = {
+        contents: [{ parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemInstructionText }] },
+        generationConfig: {
+          temperature: 0.8,
+          maxOutputTokens: 1024,
+        },
+      };
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text;
+      } else {
+        const err = await res.json().catch(() => ({}));
+        lastError = new Error(err.error?.message || `فشل استدعاء Gemini (${res.status})`);
+      }
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error("فشل استدعاء نماذج Google AI Studio");
+}
+
+export async function callOpenAiCreativeAgent(userPrompt: string, systemContext?: string): Promise<string> {
+  const apiKey = getOpenAiApiKey();
+  if (!apiKey) {
+    throw new Error("مفتاح OpenAI غير متصل بعد");
+  }
+
+  const systemInstructionText = systemContext || HALAI_TRAINED_SYSTEM_INSTRUCTION;
+
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: systemInstructionText },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 1024,
+    }),
   });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || `فشل استدعاء Gemini (${res.status})`);
+    throw new Error(err.error?.message || `فشل استدعاء OpenAI (${res.status})`);
   }
 
   const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = data.choices?.[0]?.message?.content;
   if (!text) {
-    throw new Error("لم يتم استلام رد من النموذج");
+    throw new Error("لم يتم استلام رد من نموذج OpenAI");
   }
   return text;
+}
+
+/**
+ * Universal Creative Agent: Automatically uses OpenAI or Gemini depending on connection & availability
+ */
+export async function callUniversalCreativeAgent(userPrompt: string, systemContext?: string): Promise<{ text: string; providerUsed: string }> {
+  // Try OpenAI first if key exists (fastest & rock solid)
+  if (getOpenAiApiKey()) {
+    try {
+      const text = await callOpenAiCreativeAgent(userPrompt, systemContext);
+      return { text, providerUsed: "OpenAI GPT-4o (محرك تايبوجرافي هلاي)" };
+    } catch (e) {
+      console.warn("OpenAI call failed, attempting Gemini fallback...", e);
+    }
+  }
+
+  // Fallback to Gemini
+  if (getGoogleStudioApiKey()) {
+    try {
+      const text = await callGeminiCreativeAgent(userPrompt, systemContext);
+      return { text, providerUsed: "Google AI Studio (Gemini Flash)" };
+    } catch (e) {
+      console.warn("Gemini call failed:", e);
+    }
+  }
+
+  throw new Error("يرجى التأكد من ربط مفتاح OpenAI أو Google AI Studio في الإعدادات");
 }
 
 /**

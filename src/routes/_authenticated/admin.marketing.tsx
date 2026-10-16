@@ -66,6 +66,7 @@ import {
   setGoogleStudioApiKey,
   testGoogleStudioConnection,
   callGeminiCreativeAgent,
+  callUniversalCreativeAgent,
   getOpenAiApiKey,
   setOpenAiApiKey,
   testOpenAiConnection,
@@ -780,20 +781,20 @@ function KubeAiMarketingPage() {
     if (!textToSend) setAgentInputText("");
     setIsAgentTyping(true);
 
-    if (activeGoogleKey) {
-      callGeminiCreativeAgent(text)
-        .then((replyText) => {
+    if (activeGoogleKey || activeOpenAiKey) {
+      callUniversalCreativeAgent(text)
+        .then(({ text: replyText, providerUsed }) => {
           const agentMsg: ChatMessage = {
             id: `agent-${Date.now()}`,
             sender: "agent",
-            text: replyText,
+            text: `${replyText}\n\n⚡️ [تم الإخراج والتوليد المباشر عبر: ${providerUsed}]`,
             timestamp: "الآن",
           };
           setChatMessages((prev) => [...prev, agentMsg]);
           setIsAgentTyping(false);
         })
         .catch((err) => {
-          console.warn("Live Gemini response error:", err);
+          console.warn("Creative agent error:", err);
           const replyText = `يا هلا زياد! أبشر بعزك ☕️✨\nتم توجيه المحرك (${selectedEngine}) لصياغة سكريبت بصري بالصيغة: "${selectedUgcFormat.nameAr}"\n\n📌 المشهد: لقطة ماكرو 4K مع تكثيف قطرات الندى على كوب كولد برو KUBE الأسود المطفي مع لمسات الأحمر المتوهج.\n🎙️ الصوت: "إذا يومك ما بدأ بقطرة تروق المخ... KUBE يضبط مزاجك بضغطة زر".\n⚡️ البرومبت الجاهز للإنتاج:\n${selectedUgcFormat.promptDirective}\n\nجاهز للتوليد الفوري على Kling 3 Turbo أو Google Veo 3.1!`;
 
           const agentMsg: ChatMessage = {
@@ -880,7 +881,7 @@ function KubeAiMarketingPage() {
   return (
     <div
       dir="rtl"
-      className="w-full min-h-screen bg-black text-white selection:bg-[#ff2a4b] selection:text-white font-sans overflow-x-hidden antialiased pb-24 xl:pb-0"
+      className="w-full min-h-screen bg-black text-white selection:bg-[#ff2a4b] selection:text-white font-sans overflow-x-hidden antialiased pb-12 xl:pb-0"
       style={{
         backgroundColor: "#000000",
         fontFamily: '"PingARLT", "IBM Plex Sans Arabic", "Rubik", "Archivo", system-ui, -apple-system, sans-serif',
@@ -900,7 +901,7 @@ function KubeAiMarketingPage() {
             type="button"
             aria-label="القائمة الجانبية"
             onClick={() => setMobileMenuOpen(true)}
-            className="xl:hidden w-11 h-11 shrink-0 flex items-center justify-center rounded-xl text-white bg-white/5 hover:bg-white/10 border border-white/10 active:scale-95 transition-all"
+            className="xl:hidden w-10 h-10 shrink-0 flex items-center justify-center rounded-xl text-white bg-white/5 hover:bg-white/10 border border-white/10 active:scale-95 transition-all"
           >
             <MenuIcon className="w-5 h-5 text-white" />
           </button>
@@ -985,14 +986,14 @@ function KubeAiMarketingPage() {
 
         {/* Left Section: Action Buttons */}
         <div className="flex items-center gap-2 md:gap-3">
-          {/* Provider API Keys Button */}
+          {/* Provider API Keys Button (Visible on sm & above to maintain sleek mobile header) */}
           <button
             onClick={() => setActiveStudioModal("providers_guide")}
-            className="flex items-center gap-1.5 h-8 md:h-9 px-2.5 rounded-xl bg-[#ff2a4b]/15 hover:bg-[#ff2a4b]/25 border border-[#ff2a4b]/40 text-[#ff3b56] text-xs font-bold transition-all shadow-sm active:scale-95"
+            className="hidden sm:flex items-center gap-1.5 h-8 md:h-9 px-2.5 rounded-xl bg-[#ff2a4b]/15 hover:bg-[#ff2a4b]/25 border border-[#ff2a4b]/40 text-[#ff3b56] text-xs font-bold transition-all shadow-sm active:scale-95"
             title="دليل مفاتيح المزودين"
           >
             <Key className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">مفاتيح المزودين (API)</span>
+            <span>مفاتيح المزودين (API)</span>
           </button>
 
           {/* ERP Dashboard Link */}
@@ -1005,8 +1006,8 @@ function KubeAiMarketingPage() {
             <span className="hidden sm:inline">لوحة KUBE</span>
           </Link>
 
-          {/* User Profile Capsule with Signature KUBE Red Glowing Ring */}
-          <div className="flex items-center gap-2 relative">
+          {/* User Profile Capsule with Signature KUBE Red Glowing Ring (Desktop only; on mobile, profile is in drawer to avoid stray clutter) */}
+          <div className="hidden md:flex items-center gap-2 relative">
             <div className="relative flex items-center justify-center w-[34px] h-[34px] md:w-[42px] md:h-[42px]">
               <svg width="42" height="42" className="absolute inset-0 -rotate-90 pointer-events-none" viewBox="0 0 42 42">
                 <circle cx="21" cy="21" r="19" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
@@ -1595,7 +1596,7 @@ function KubeAiMarketingPage() {
             </div>
 
             {/* 3 Upload / Select Slots (Product *, Character, Scene) */}
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {/* Slot 1: Scene (المشهد) */}
               <button
                 type="button"
@@ -1603,18 +1604,18 @@ function KubeAiMarketingPage() {
                   toast.info("تم تفعيل إضاءة استوديو كافيه KUBE التلقائية للمشهد");
                   setHeroScene("استوديو رخام أسود ونيون");
                 }}
-                className={`relative aspect-square sm:aspect-[4/3] rounded-2xl border p-2 flex flex-col items-center justify-center gap-1.5 transition-all active:scale-95 ${
+                className={`relative h-16 sm:h-20 rounded-2xl border p-1.5 sm:p-2 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${
                   heroScene
                     ? "border-[#00e575] bg-[#00e575]/10 text-white"
                     : "border-white/10 bg-black/40 hover:bg-white/5 text-zinc-400"
                 }`}
               >
-                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#00e575]/20 text-[#00e575] flex items-center justify-center text-xs font-bold border border-[#00e575]/40">
+                <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#00e575]/20 text-[#00e575] flex items-center justify-center text-[10px] sm:text-xs font-bold border border-[#00e575]/40">
                   +
                 </div>
-                <ImageIcon className="w-5 h-5 text-zinc-300" />
-                <span className="text-[11px] font-bold text-zinc-300">
-                  {heroScene ? "تم اختيار المشهد" : "المشهد"}
+                <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-300" />
+                <span className="text-[10px] sm:text-[11px] font-bold text-zinc-300">
+                  {heroScene ? "تم المشهد" : "المشهد"}
                 </span>
               </button>
 
@@ -1624,17 +1625,17 @@ function KubeAiMarketingPage() {
                 onClick={() => {
                   setActiveStudioModal("ugc_studio");
                 }}
-                className={`relative aspect-square sm:aspect-[4/3] rounded-2xl border p-2 flex flex-col items-center justify-center gap-1.5 transition-all active:scale-95 ${
+                className={`relative h-16 sm:h-20 rounded-2xl border p-1.5 sm:p-2 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${
                   heroPersona
                     ? "border-[#00e575] bg-[#00e575]/10 text-white"
                     : "border-white/10 bg-black/40 hover:bg-white/5 text-zinc-400"
                 }`}
               >
-                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#00e575]/20 text-[#00e575] flex items-center justify-center text-xs font-bold border border-[#00e575]/40">
+                <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#00e575]/20 text-[#00e575] flex items-center justify-center text-[10px] sm:text-xs font-bold border border-[#00e575]/40">
                   +
                 </div>
-                <Users className="w-5 h-5 text-zinc-300" />
-                <span className="text-[11px] font-bold text-zinc-300 truncate max-w-full px-1">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-300" />
+                <span className="text-[10px] sm:text-[11px] font-bold text-zinc-300 truncate max-w-full px-1">
                   {heroPersona ? heroPersona.name.split(" ")[0] : "الشخصية"}
                 </span>
               </button>
@@ -1645,22 +1646,22 @@ function KubeAiMarketingPage() {
                 onClick={() => {
                   setActiveStudioModal("product_3d");
                 }}
-                className={`relative aspect-square sm:aspect-[4/3] rounded-2xl border p-2 flex flex-col items-center justify-center gap-1.5 transition-all active:scale-95 ${
+                className={`relative h-16 sm:h-20 rounded-2xl border p-1.5 sm:p-2 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${
                   heroProduct
                     ? "border-[#00e575] bg-[#00e575]/10 text-white shadow-sm shadow-[#00e575]/20"
                     : "border-red-500/50 bg-red-500/10 text-white animate-need"
                 }`}
               >
-                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#00e575] text-black flex items-center justify-center text-xs font-black shadow-md">
+                <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#00e575] text-black flex items-center justify-center text-[10px] sm:text-xs font-black shadow-md">
                   +
                 </div>
-                <Coffee className="w-5 h-5 text-[#00e575]" />
-                <div className="text-center px-1">
-                  <span className="text-[11px] font-bold text-white block truncate">
+                <Coffee className="w-4 h-4 sm:w-5 sm:h-5 text-[#00e575]" />
+                <div className="text-center px-0.5">
+                  <span className="text-[10px] sm:text-[11px] font-bold text-white block truncate">
                     {heroProduct ? heroProduct.name : "المنتج *"}
                   </span>
                   {!heroProduct && (
-                    <span className="text-[9px] text-red-400 font-mono block">إلزامي *</span>
+                    <span className="text-[8px] sm:text-[9px] text-red-400 font-mono block">إلزامي *</span>
                   )}
                 </div>
               </button>
@@ -2699,7 +2700,7 @@ function KubeAiMarketingPage() {
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 pb-20 sm:pb-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 pb-6 sm:pb-8">
               {/* MODAL: PROVIDERS API KEYS GUIDE (New Report) */}
               {activeStudioModal === "providers_guide" && (
                 <div className="space-y-6 text-right">
@@ -4492,22 +4493,23 @@ function KubeAiMarketingPage() {
               {/* MODAL: STORYBOARD STUDIO WORKSPACE (Multi-Scene Sequence)     */}
               {/* ============================================================== */}
               {activeStudioModal === "storyboard_studio" && (
-                <div className="space-y-6 text-right">
-                  <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div className="space-y-5 text-right">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
                     <div>
-                      <h4 className="font-black text-base text-white">استديو الستوري بورد (Storyboard) — إخراج إعلاني من ٤ مشاهد</h4>
-                      <p className="text-xs text-zinc-400">تسلسل إعلاني سينمائي متكامل مبني على هيكل التحويل السريع (Hook &rarr; Need &rarr; Craft &rarr; CTA)</p>
+                      <h4 className="font-black text-sm sm:text-base text-white">إخراج إعلاني متكامل من ٤ مشاهد</h4>
+                      <p className="text-xs text-zinc-400">تسلسل سينمائي مبني على هيكل التحويل السريع (Hook &rarr; Need &rarr; Craft &rarr; CTA)</p>
                     </div>
                     <button
                       onClick={() => handleCopy(JSON.stringify(selectedScript, null, 2), "السيناريو")}
-                      className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs active:scale-95 transition-all"
+                      className="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs active:scale-95 transition-all flex items-center gap-1.5 shrink-0"
                     >
-                      نسخ تفاصيل الإخراج
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>نسخ تفاصيل الإخراج</span>
                     </button>
                   </div>
 
                   {/* 4 Sequential Scenes Breakdown */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     {[
                       {
                         sceneNum: 1,
@@ -4859,25 +4861,25 @@ function KubeAiMarketingPage() {
 
               {/* MODAL: CHARACTER CREATOR (استوديو الشخصيات) */}
               {activeStudioModal === "character_creator" && (
-                <div className="space-y-6 text-right">
-                  <div className="pb-4 border-b border-white/10">
-                    <h3 className="text-lg font-black text-white">صمّم شخصيتك الإعلانية الافتراضية</h3>
+                <div className="space-y-5 text-right">
+                  <div className="pb-3 border-b border-white/10">
+                    <h3 className="text-base sm:text-lg font-black text-white">صمّم شخصيتك الإعلانية الافتراضية</h3>
                     <p className="text-xs text-zinc-400">اجعل الوجه نفسه بطل كل حملات وفيديوهات كافيه KUBE القادمة</p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-white block">اسم الشخصية:</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-3.5">
+                      <div className="space-y-1">
+                        <label className="text-[11px] sm:text-xs font-bold text-zinc-300 block">اسم الشخصية:</label>
                         <input
                           type="text"
                           defaultValue="سفير KUBE الجديد"
-                          className="w-full rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-xs text-white"
+                          className="w-full h-10 px-3.5 text-xs bg-zinc-900/90 border border-white/10 rounded-xl focus:border-[#00e575] focus:ring-1 focus:ring-[#00e575] text-white transition-all outline-none"
                         />
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-white block">الزي والمظهر:</label>
-                        <select className="w-full rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-xs text-white">
+                      <div className="space-y-1">
+                        <label className="text-[11px] sm:text-xs font-bold text-zinc-300 block">الزي والمظهر:</label>
+                        <select className="w-full h-10 px-3.5 text-xs bg-zinc-900/90 border border-white/10 rounded-xl focus:border-[#00e575] text-white transition-all outline-none cursor-pointer">
                           <option>ثوب سعودي عصري وشماغ أنيق</option>
                           <option>عباية وبشت مطرز فاخر</option>
                           <option>كاجوال شبابي وهودي KUBE أسود</option>
@@ -4888,19 +4890,20 @@ function KubeAiMarketingPage() {
                           toast.success("تم تثبيت ملامح الشخصية بنجاح ونقلها للاستوديو!");
                           setActiveStudioModal("ugc_studio");
                         }}
-                        className="w-full py-3 rounded-xl bg-[#00e575] text-black font-black text-xs active:scale-95"
+                        className="w-full h-10 sm:h-11 rounded-xl bg-[#00e575] hover:bg-[#00c966] text-black font-black text-xs transition-all shadow-md shadow-[#00e575]/20 active:scale-95 flex items-center justify-center gap-1.5"
                       >
-                        حفظ واستخدام الشخصية
+                        <span>حفظ واستخدام الشخصية</span>
+                        <Sparkles className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
-                    <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-black border border-white/10 flex items-center justify-center relative">
+                    <div className="max-h-60 sm:max-h-none aspect-[4/3] sm:aspect-[3/4] rounded-2xl overflow-hidden bg-black border border-white/10 flex items-center justify-center relative">
                       <img
                         src="https://media.hallah.ai/cdn-cgi/image/width=400,format=auto/cms/studios/ugc-2/characters/male/sultan.png"
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
-                      <span className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-black/75 text-[10px] text-white font-mono">
+                      <span className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-full bg-black/80 backdrop-blur-md text-[10px] text-zinc-300 font-mono">
                         معاينة الملامح الثابتة
                       </span>
                     </div>
@@ -5228,61 +5231,6 @@ function KubeAiMarketingPage() {
           </div>
         </div>
       )}
-
-      {/* ============================================================== */}
-      {/* 19. MOBILE BOTTOM DOCK (شريط الإجراءات السريعة للجوال)          */}
-      {/* ============================================================== */}
-      <div className="xl:hidden fixed bottom-0 left-0 right-0 z-[9990] bg-black/90 backdrop-blur-2xl border-t border-white/10 px-2 py-2 flex items-center justify-around text-[10px] font-bold shadow-2xl safe-area-bottom">
-        <button
-          onClick={() => setActiveStudioModal("super_agent")}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all active:scale-90 ${
-            activeStudioModal === "super_agent" ? "text-[#ff2a4b]" : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          <Bot className="w-5 h-5" />
-          <span>إيجنت</span>
-        </button>
-
-        <button
-          onClick={() => setActiveStudioModal("product_3d")}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all active:scale-90 ${
-            activeStudioModal === "product_3d" ? "text-[#ff2a4b]" : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          <Layers className="w-5 h-5" />
-          <span>3D ستوديو</span>
-        </button>
-
-        <button
-          onClick={() => setActiveStudioModal("mimic_motion")}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all active:scale-90 ${
-            activeStudioModal === "mimic_motion" ? "text-[#ff2a4b]" : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          <Film className="w-5 h-5" />
-          <span>موشن</span>
-        </button>
-
-        <button
-          onClick={() => setActiveStudioModal("ads_9x")}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all active:scale-90 ${
-            activeStudioModal === "ads_9x" ? "text-[#ff2a4b]" : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          <Sparkles className="w-5 h-5" />
-          <span>9 إعلانات</span>
-        </button>
-
-        <button
-          onClick={() => setActiveStudioModal("ugc_studio")}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all active:scale-90 ${
-            activeStudioModal === "ugc_studio" ? "text-[#ff2a4b]" : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          <Video className="w-5 h-5" />
-          <span>شخصيات</span>
-        </button>
-      </div>
 
       {/* ============================================================== */}
       {/* 20. LIGHTBOX FULLSCREEN IMAGE VIEWER MODAL                     */}
