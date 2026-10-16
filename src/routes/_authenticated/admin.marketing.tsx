@@ -95,6 +95,14 @@ import { useCurrentUser } from "@/lib/use-current-user";
 import { primaryRoleHome } from "@/lib/current-user";
 import { KubeMcpHubSection, KubeMcpModalContent } from "@/features/marketing/mcp/KubeMcpHubSection";
 import { HeaderNavDropdowns } from "@/features/marketing/components/HeaderNavDropdowns";
+import { HalaiImageGenerateSection } from "@/features/marketing/components/HalaiImageGenerateSection";
+import { HalaiVideoGenerateSection } from "@/features/marketing/components/HalaiVideoGenerateSection";
+import { HalaiCharactersSection } from "@/features/marketing/components/HalaiCharactersSection";
+import { HalaiStoryboardSection } from "@/features/marketing/components/HalaiStoryboardSection";
+import { HalaiAdsStudioSection } from "@/features/marketing/components/HalaiAdsStudioSection";
+import { HalaiLibrarySection } from "@/features/marketing/components/HalaiLibrarySection";
+import { HalaiCinemaSection } from "@/features/marketing/components/HalaiCinemaSection";
+import { HalaiPricingSection } from "@/features/marketing/components/HalaiPricingSection";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing")({
   head: () => ({
@@ -708,16 +716,22 @@ interface ChatMessage {
 
 export type StudioPageKey =
   | "studio_2"
+  | "image_generate"
+  | "video_generate"
   | "storyboard"
   | "ugc_studio"
   | "ads_9x"
+  | "ads_studio"
   | "product_3d"
+  | "characters"
   | "character_creator"
   | "shots_studio"
   | "mimic_motion"
+  | "cinema"
   | "super_agent"
   | "mcp_hub"
   | "templates"
+  | "library"
   | "promlog"
   | "tutorials"
   | "pricing_plans"
@@ -728,16 +742,22 @@ export type StudioPageKey =
 
 const VALID_STUDIO_KEYS: StudioPageKey[] = [
   "studio_2",
+  "image_generate",
+  "video_generate",
   "storyboard",
   "ugc_studio",
   "ads_9x",
+  "ads_studio",
   "product_3d",
+  "characters",
   "character_creator",
   "shots_studio",
   "mimic_motion",
+  "cinema",
   "super_agent",
   "mcp_hub",
   "templates",
+  "library",
   "promlog",
   "tutorials",
   "pricing_plans",
@@ -760,8 +780,15 @@ function KubeAiMarketingPage() {
       if (s && VALID_STUDIO_KEYS.includes(s as StudioPageKey)) {
         return s as StudioPageKey;
       }
+      if (s === "photos" || s === "image-generate" || s === "images") return "image_generate";
+      if (s === "videos" || s === "video-generate") return "video_generate";
       if (s === "storyboard_studio") return "storyboard";
+      if (s === "characters" || s === "character-creator") return "characters";
+      if (s === "ads-studio" || s === "ads_studio") return "ads_studio";
       if (s === "mcp") return "mcp_hub";
+      if (s === "pricing") return "pricing_plans";
+      if (s === "library") return "library";
+      if (s === "cinema") return "cinema";
     }
     return "studio_2";
   });
@@ -771,10 +798,24 @@ function KubeAiMarketingPage() {
       let targetKey: StudioPageKey = "studio_2";
       if (studioKey === "none" || studioKey === "studio_2") {
         targetKey = "studio_2";
-      } else if (studioKey === "storyboard_studio") {
+      } else if (studioKey === "image_generate" || studioKey === "photos" || studioKey === "image-generate") {
+        targetKey = "image_generate";
+      } else if (studioKey === "video_generate" || studioKey === "videos" || studioKey === "video-generate") {
+        targetKey = "video_generate";
+      } else if (studioKey === "characters" || studioKey === "character_creator" || studioKey === "character-creator") {
+        targetKey = "characters";
+      } else if (studioKey === "ads_studio" || studioKey === "ads_9x" || studioKey === "ads-studio") {
+        targetKey = "ads_studio";
+      } else if (studioKey === "storyboard_studio" || studioKey === "storyboard") {
         targetKey = "storyboard";
-      } else if (studioKey === "mcp") {
+      } else if (studioKey === "mcp" || studioKey === "mcp_hub") {
         targetKey = "mcp_hub";
+      } else if (studioKey === "pricing" || studioKey === "pricing_plans") {
+        targetKey = "pricing_plans";
+      } else if (studioKey === "library") {
+        targetKey = "library";
+      } else if (studioKey === "cinema") {
+        targetKey = "cinema";
       } else if (VALID_STUDIO_KEYS.includes(studioKey as StudioPageKey)) {
         targetKey = studioKey as StudioPageKey;
       }
@@ -1338,18 +1379,21 @@ function KubeAiMarketingPage() {
 
           {/* Desktop Navigation Mega-Dropdowns (Halai 100% Matching Parity) */}
           <HeaderNavDropdowns
+            onNavigateToTab={(tabKey) => navigateToStudio(tabKey)}
             onSelectStudio={(studioId) => {
-              if (studioId === "marketing_2" || studioId === "cinema") {
+              if (studioId === "marketing_2") {
                 navigateToStudio("studio_2");
                 setHeroMode("video");
+              } else if (studioId === "cinema") {
+                navigateToStudio("cinema");
               } else if (studioId === "ugc_2" || studioId === "ugc_1") {
                 navigateToStudio("ugc_studio");
               } else if (studioId === "ads_9x" || studioId === "marketing_1") {
-                navigateToStudio("ads_9x");
+                navigateToStudio("ads_studio");
               } else if (studioId === "products") {
                 navigateToStudio("product_3d");
               } else if (studioId === "characters") {
-                navigateToStudio("character_creator");
+                navigateToStudio("characters");
               } else if (studioId === "storyboard") {
                 navigateToStudio("storyboard");
               } else if (studioId === "shots") {
@@ -1357,12 +1401,12 @@ function KubeAiMarketingPage() {
               }
             }}
             onSelectPhotoModel={(modelName) => {
-              navigateToStudio("studio_2");
+              navigateToStudio("image_generate");
               setHeroMode("image");
               setHeroPrompt((prev) => prev || `صورة فوتوغرافية احترافية لكوب قهوة مختصة KUBE بدقة 4K بنموذج ${modelName}`);
             }}
             onSelectVideoModel={(modelName) => {
-              navigateToStudio("studio_2");
+              navigateToStudio("video_generate");
               setHeroMode("video");
               setHeroPrompt((prev) => prev || `إعلان فيديو سينمائي 15 ثانية لكافيه KUBE بنموذج ${modelName}`);
             }}
@@ -1495,28 +1539,25 @@ function KubeAiMarketingPage() {
                 </div>
               </div>
 
-              {/* Root Nav Items: صور / فيديو / تطبيقات (Dedicated Standalone Pages) */}
+              {/* Root Nav Items: صور / فيديو / تطبيقات / ستوري بورد / المكتبة / الباقات (Dedicated Standalone Pages) */}
               <div className="space-y-1">
                 <button
-                  onClick={() => navigateToStudio("product_3d")}
+                  onClick={() => navigateToStudio("image_generate")}
                   className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5 transition-all text-xs font-bold"
                 >
                   <div className="flex items-center gap-2.5">
                     <ImageIcon className="w-4 h-4 text-zinc-400" />
-                    <span>صور</span>
+                    <span>صور (AI Image Generator)</span>
                   </div>
                 </button>
 
                 <button
-                  onClick={() => {
-                    setHeroMode("video");
-                    navigateToStudio("studio_2");
-                  }}
+                  onClick={() => navigateToStudio("video_generate")}
                   className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5 transition-all text-xs font-bold"
                 >
                   <div className="flex items-center gap-2.5">
-                    <Video className="w-4 h-4 text-zinc-400" />
-                    <span>فيديو</span>
+                    <Video className="w-4 h-4 text-[#00e575]" />
+                    <span>فيديو (AI Video Generator)</span>
                   </div>
                 </button>
 
@@ -1526,7 +1567,27 @@ function KubeAiMarketingPage() {
                 >
                   <div className="flex items-center gap-2.5">
                     <LayoutGrid className="w-4 h-4 text-zinc-400" />
-                    <span>تطبيقات</span>
+                    <span>تطبيقات وقوالب إعلانية</span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => navigateToStudio("library")}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5 transition-all text-xs font-bold"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Layers className="w-4 h-4 text-[#ff2a4b]" />
+                    <span>مكتبة الأصول (Library)</span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => navigateToStudio("pricing_plans")}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5 transition-all text-xs font-bold"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Zap className="w-4 h-4 text-[#00e575]" />
+                    <span>الباقات والاشتراكات</span>
                   </div>
                 </button>
               </div>
@@ -1630,6 +1691,17 @@ function KubeAiMarketingPage() {
                         <Camera className="w-4 h-4 text-zinc-400" />
                         <span>لقطات</span>
                       </div>
+                    </button>
+
+                    <button
+                      onClick={() => navigateToStudio("cinema")}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Film className="w-4 h-4 text-purple-400" />
+                        <span>استوديو السينما</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300">قريباً</span>
                     </button>
                   </div>
                 )}
@@ -2871,6 +2943,56 @@ function KubeAiMarketingPage() {
         </div>
       </footer>
         </>
+      ) : currentStudioPage === "image_generate" ? (
+        <HalaiImageGenerateSection
+          onBackToStudio={() => navigateToStudio("studio_2")}
+          onSendToStudio2={(prompt) => {
+            setHeroPrompt(prompt);
+            setHeroMode("video");
+            navigateToStudio("studio_2");
+          }}
+        />
+      ) : currentStudioPage === "video_generate" ? (
+        <HalaiVideoGenerateSection
+          onBackToStudio={() => navigateToStudio("studio_2")}
+        />
+      ) : (currentStudioPage === "characters" || currentStudioPage === "character_creator") ? (
+        <HalaiCharactersSection
+          onBackToStudio={() => navigateToStudio("studio_2")}
+          onSelectCharacter={(name) => {
+            setHeroPrompt(`فيديو إعلاني من بطولة ${name} في كافيه KUBE`);
+            navigateToStudio("studio_2");
+          }}
+        />
+      ) : (currentStudioPage === "storyboard" || currentStudioPage === "storyboard_studio") ? (
+        <HalaiStoryboardSection
+          onBackToStudio={() => navigateToStudio("studio_2")}
+          onSendSceneToStudio2={(sc) => {
+            setHeroPrompt(sc);
+            navigateToStudio("studio_2");
+          }}
+        />
+      ) : (currentStudioPage === "ads_studio" || currentStudioPage === "ads_9x") ? (
+        <HalaiAdsStudioSection
+          onBackToStudio={() => navigateToStudio("studio_2")}
+          onSendAdToStudio2={(p) => {
+            setHeroPrompt(p);
+            navigateToStudio("studio_2");
+          }}
+        />
+      ) : currentStudioPage === "library" ? (
+        <HalaiLibrarySection
+          onBackToStudio={() => navigateToStudio("studio_2")}
+          onStartCreation={() => navigateToStudio("studio_2")}
+        />
+      ) : currentStudioPage === "cinema" ? (
+        <HalaiCinemaSection
+          onBackToStudio={() => navigateToStudio("studio_2")}
+        />
+      ) : (currentStudioPage === "pricing_plans" || currentStudioPage === "pricing") ? (
+        <HalaiPricingSection
+          onBackToStudio={() => navigateToStudio("studio_2")}
+        />
       ) : (
         /* ============================================================== */
         /* STANDALONE STUDIO PAGE WORKSPACE (100% Halai Real Page Parity) */

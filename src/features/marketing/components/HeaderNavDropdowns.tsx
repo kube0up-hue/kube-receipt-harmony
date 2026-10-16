@@ -28,6 +28,7 @@ export interface HeaderNavDropdownsProps {
   onSelectPhotoModel: (modelName: string) => void;
   onSelectVideoModel: (modelName: string) => void;
   onSelectApp: (appId: string) => void;
+  onNavigateToTab?: (tabKey: string) => void;
 }
 
 // 1. HALAI 9 STUDIOS
@@ -470,7 +471,10 @@ export function HeaderNavDropdowns({
       >
         <button
           type="button"
-          onClick={() => handleMouseEnter("photos")}
+          onClick={() => {
+            if (onNavigateToTab) onNavigateToTab("image_generate");
+            else handleMouseEnter("photos");
+          }}
           className={`flex items-center gap-1 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium ${
             openMenu === "photos"
               ? "text-white bg-white/[0.08]"
@@ -542,7 +546,10 @@ export function HeaderNavDropdowns({
       >
         <button
           type="button"
-          onClick={() => handleMouseEnter("videos")}
+          onClick={() => {
+            if (onNavigateToTab) onNavigateToTab("video_generate");
+            else handleMouseEnter("videos");
+          }}
           className={`flex items-center gap-1 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium ${
             openMenu === "videos"
               ? "text-white bg-white/[0.08]"
@@ -609,7 +616,10 @@ export function HeaderNavDropdowns({
       >
         <button
           type="button"
-          onClick={() => handleMouseEnter("apps")}
+          onClick={() => {
+            if (onNavigateToTab) onNavigateToTab("templates");
+            else handleMouseEnter("apps");
+          }}
           className={`flex items-center gap-1 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium ${
             openMenu === "apps"
               ? "text-white bg-white/[0.08]"
@@ -742,7 +752,7 @@ export function HeaderNavDropdowns({
       {/* 5. Direct Link: ستوري بورد */}
       <button
         type="button"
-        onClick={() => onSelectApp("storyboard")}
+        onClick={() => (onNavigateToTab ? onNavigateToTab("storyboard") : onSelectApp("storyboard"))}
         className="flex items-center gap-1 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium text-zinc-400 hover:text-white hover:bg-white/[0.06] ms-2"
       >
         <Clapperboard className="w-4 h-4 text-zinc-400" />
@@ -750,8 +760,9 @@ export function HeaderNavDropdowns({
       </button>
 
       {/* 6. Direct Link: اتصال MCP */}
-      <a
-        href="#mcp-section"
+      <button
+        type="button"
+        onClick={() => (onNavigateToTab ? onNavigateToTab("mcp_hub") : onSelectApp("mcp_connect"))}
         className="flex items-center gap-1 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium text-zinc-400 hover:text-white hover:bg-white/[0.06]"
       >
         <Radio className="w-4 h-4 text-purple-400" />
@@ -759,12 +770,12 @@ export function HeaderNavDropdowns({
         <span className="text-[9px] uppercase px-1.5 rounded-sm font-bold -skew-x-12 shrink-0 bg-transparent text-white border border-white/30">
           Beta
         </span>
-      </a>
+      </button>
 
       {/* 7. Super Agent Button */}
       <button
         type="button"
-        onClick={() => onSelectApp("super_agent")}
+        onClick={() => (onNavigateToTab ? onNavigateToTab("super_agent") : onSelectApp("super_agent"))}
         className="flex items-center gap-1.5 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium text-white bg-white/5 hover:bg-white/10 border border-white/10 ms-1"
       >
         <Bot className="w-4 h-4 text-[#ff2a4b]" />
@@ -772,6 +783,34 @@ export function HeaderNavDropdowns({
         <span className="text-[9px] uppercase px-1.5 rounded-sm font-bold -skew-x-12 shrink-0 bg-[#ff2a4b] text-white">
           جديد
         </span>
+      </button>
+
+      {/* 8. مجتمع */}
+      <button
+        type="button"
+        onClick={() => onNavigateToTab?.("community")}
+        className="flex items-center gap-1 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium text-zinc-400 hover:text-white hover:bg-white/[0.06]"
+      >
+        <span>مجتمع</span>
+      </button>
+
+      {/* 9. الباقات */}
+      <button
+        type="button"
+        onClick={() => onNavigateToTab?.("pricing_plans")}
+        className="hidden md:flex items-center gap-1.5 h-8 ps-2.5 pe-3 rounded-[10px] bg-white/5 shadow-[0_2px_1.5px_-0.5px_rgba(0,0,0,0.03),inset_0_2px_3px_0_rgba(255,255,255,0.03)] backdrop-blur-[12px] text-white hover:bg-white/10 transition-all text-sm font-medium whitespace-nowrap"
+      >
+        <span>الباقات</span>
+      </button>
+
+      {/* 10. المكتبة */}
+      <button
+        type="button"
+        onClick={() => onNavigateToTab?.("library")}
+        className="flex items-center gap-1.5 h-8 ps-2.5 pe-3 rounded-[10px] bg-white/5 shadow-[0_2px_1.5px_-0.5px_rgba(0,0,0,0.03),inset_0_2px_3px_0_rgba(255,255,255,0.03)] backdrop-blur-[12px] text-white hover:bg-white/10 transition-all text-sm font-medium whitespace-nowrap"
+      >
+        <Layers className="w-3.5 h-3.5 text-[#00e575]" />
+        <span>المكتبة</span>
       </button>
     </nav>
   );
