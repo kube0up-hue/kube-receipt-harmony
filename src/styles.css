@@ -342,15 +342,44 @@
   animation: promlog-marquee 28s linear infinite;
 }
 
-.animate-sheen {
-  animation: pm-sheen 4.5s ease-in-out infinite;
+@keyframes ms2-develop {
+  0% {
+    filter: blur(18px) saturate(0.3) brightness(1.2);
+    transform: scale(1.04);
+  }
+  to {
+    filter: none;
+    transform: none;
+  }
 }
 
-.animate-breathe {
-  animation: pm-breathe 3s ease-in-out infinite;
+@keyframes ms2-need {
+  0% {
+    box-shadow: 0 0 rgba(255, 42, 75, 0.5);
+  }
+  to {
+    box-shadow: 0 0 0 10px rgba(255, 42, 75, 0);
+  }
 }
 
-.animate-highlight-beat {
-  animation: highlight-beat 2.5s ease-in-out infinite;
+@keyframes pm-attention {
+  0%, to { transform: scale(1); outline-color: #fff0; }
+  18% { transform: scale(1.022); outline-color: rgba(255, 255, 255, 0.85); }
+  38% { transform: scale(1); outline-color: rgba(255, 255, 255, 0.1); }
+  58% { transform: scale(1.018); outline-color: rgba(255, 255, 255, 0.7); }
+  78% { transform: scale(1); outline-color: #fff0; }
 }
+
+.animate-develop {
+  animation: ms2-develop 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-need {
+  animation: ms2-need 1.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.animate-attention {
+  animation: pm-attention 1.8s ease-in-out infinite;
+}
+
 

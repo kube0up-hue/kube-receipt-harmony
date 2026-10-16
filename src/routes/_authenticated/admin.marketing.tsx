@@ -1595,6 +1595,23 @@ function KubeAiMarketingPage() {
                   <span className="absolute top-2.5 right-2.5 text-base sm:text-lg drop-shadow-md">
                     {st.icon}
                   </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLightboxItem({
+                        isOpen: true,
+                        imgUrl: st.thumbnail,
+                        title: `نمط: ${st.labelAr} (${st.label})`,
+                        prompt: st.taglineAr,
+                        aspectRatio: "4:5 Portrait",
+                        specs: "4K AI Generated • Studio Lighting",
+                      });
+                    }}
+                    className="absolute bottom-2.5 left-2.5 z-20 w-7 h-7 rounded-lg bg-black/70 hover:bg-[#ff2a4b] text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm"
+                    title="تكبير بدقة 4K"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
 
                 <div className="p-3 space-y-1 text-right bg-zinc-950/80">
@@ -3528,70 +3545,114 @@ function KubeAiMarketingPage() {
             {/* Close button */}
             <button
               onClick={() => setLightboxItem(null)}
-              className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-black/70 hover:bg-white/20 text-white flex items-center justify-center backdrop-blur-md active:scale-95 transition-all"
+              className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-black/75 hover:bg-white/20 text-white flex items-center justify-center backdrop-blur-md active:scale-95 transition-all border border-white/10"
+              title="إغلاق المعاينة"
             >
               <X className="w-5 h-5" />
             </button>
 
-            {/* Image Preview Area */}
+            {/* Image Preview Stage with animate-develop */}
             <div className="flex-1 bg-black flex items-center justify-center p-4 relative min-h-[300px] sm:min-h-[480px]">
               <img
                 src={lightboxItem.imgUrl}
                 alt={lightboxItem.title}
-                className="max-h-[80vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl"
+                className="max-h-[80vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl animate-develop"
               />
-              <span className="absolute bottom-4 right-4 text-[10px] font-mono text-[#ff3b56] bg-black/80 px-2.5 py-1 rounded-full border border-[#ff2a4b]/30">
-                4K Cinema Master
+              <span className="absolute bottom-4 right-4 text-[10px] font-mono text-[#ff3b56] bg-black/85 backdrop-blur-md px-3 py-1 rounded-full border border-[#ff2a4b]/40 shadow-lg">
+                4K Cinema Master • 8K Texture
               </span>
             </div>
 
-            {/* Sidebar Details */}
-            <div className="w-full md:w-80 p-5 md:p-6 space-y-4 text-right bg-zinc-900/90 border-t md:border-t-0 md:border-r border-white/10 flex flex-col justify-between shrink-0">
-              <div className="space-y-3">
-                <span className="text-[10px] font-mono text-[#ff3b56] uppercase tracking-wider block">
-                  KUBE AI Studio Lightbox
-                </span>
+            {/* Sidebar Inspector Details */}
+            <div className="w-full md:w-84 p-5 md:p-6 space-y-4 text-right bg-zinc-900/95 border-t md:border-t-0 md:border-r border-white/10 flex flex-col justify-between shrink-0">
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-[#ff3b56] uppercase tracking-wider block font-bold">
+                    KUBE AI STUDIO 2.0
+                  </span>
+                  <span className="text-[9px] font-mono bg-white/10 text-zinc-300 px-2 py-0.5 rounded-full">
+                    {lightboxItem.aspectRatio || "9:16"}
+                  </span>
+                </div>
+
                 <h4 className="text-base sm:text-lg font-black text-white">{lightboxItem.title}</h4>
 
-                {lightboxItem.aspectRatio && (
-                  <div className="text-xs font-mono text-zinc-400">
-                    المقاس: <span className="text-white font-bold">{lightboxItem.aspectRatio}</span>
+                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
+                  <div className="p-2 rounded-xl bg-black/60 border border-white/5">
+                    <span className="text-zinc-500 block text-[9px]">العدسة</span>
+                    <span className="text-white">85mm f/1.4</span>
                   </div>
-                )}
-
-                {lightboxItem.specs && (
-                  <div className="text-xs font-mono text-zinc-400">
-                    المواصفات: <span className="text-white font-bold">{lightboxItem.specs}</span>
+                  <div className="p-2 rounded-xl bg-black/60 border border-white/5">
+                    <span className="text-zinc-500 block text-[9px]">الإضاءة</span>
+                    <span className="text-[#ff3b56]">Studio 3D Key</span>
                   </div>
-                )}
+                </div>
 
                 {lightboxItem.prompt && (
                   <div className="space-y-1">
-                    <span className="text-[11px] font-bold text-zinc-400 block">البرومبت الإخراجي:</span>
-                    <p className="text-[11px] font-mono text-zinc-300 bg-black/60 p-3 rounded-xl border border-white/5 line-clamp-6 select-all">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-zinc-400">البرومبت الإخراجي:</span>
+                      <button
+                        onClick={() => handleCopy(lightboxItem.prompt!, lightboxItem.title)}
+                        className="text-[10px] text-[#ff3b56] hover:underline flex items-center gap-1 font-mono"
+                      >
+                        <Copy className="w-3 h-3" /> نسخ
+                      </button>
+                    </div>
+                    <p className="text-[11px] font-mono text-zinc-300 bg-black/70 p-3 rounded-xl border border-white/5 line-clamp-5 select-all leading-relaxed">
                       {lightboxItem.prompt}
                     </p>
                   </div>
                 )}
               </div>
 
+              {/* Action Toolbar */}
               <div className="space-y-2 pt-3 border-t border-white/10">
-                {lightboxItem.prompt && (
-                  <button
-                    onClick={() => handleCopy(lightboxItem.prompt!, lightboxItem.title)}
-                    className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/15 text-white font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>نسخ البرومبت بالإنجليزية</span>
-                  </button>
-                )}
-
                 <button
                   onClick={() => toast.success(`تم بدء تحميل الصورة بدقة 4K: ${lightboxItem.title}`)}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black text-xs active:scale-95 shadow-md shadow-[#ff2a4b]/30 transition-all text-center"
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black text-xs active:scale-95 shadow-lg shadow-[#ff2a4b]/30 transition-all text-center"
                 >
                   تحميل بدقة 4K كاملة
                 </button>
+
+                <div className="grid grid-cols-3 gap-1.5 pt-1">
+                  <button
+                    onClick={() => {
+                      setActiveStudioModal("mimic_motion");
+                      setLightboxItem(null);
+                      toast.info("تم نقل اللقطة إلى استديو محاكاة الحركة");
+                    }}
+                    className="py-2 px-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 text-[10px] font-bold text-center active:scale-95 transition-all truncate"
+                    title="تحريك بالذكاء الاصطناعي"
+                  >
+                    🎬 موشن
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveStudioModal("ads_9x");
+                      setAdsProductTitle(lightboxItem.title);
+                      setLightboxItem(null);
+                      toast.info("تم نقل اللقطة إلى استديو الـ 9 إعلانات");
+                    }}
+                    className="py-2 px-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 text-[10px] font-bold text-center active:scale-95 transition-all truncate"
+                    title="توليد 9 زوايا إعلانية"
+                  >
+                    ✨ 9 زوايا
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveStudioModal("product_3d");
+                      setLightboxItem(null);
+                      toast.info("تم نقل اللقطة إلى استديو 3D كمرجع");
+                    }}
+                    className="py-2 px-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 text-[10px] font-bold text-center active:scale-95 transition-all truncate"
+                    title="استخدام كمرجع 3D"
+                  >
+                    ☕️ 3D مرجع
+                  </button>
+                </div>
               </div>
             </div>
           </div>
