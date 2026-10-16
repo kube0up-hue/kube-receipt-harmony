@@ -57,6 +57,7 @@ import {
   Clock,
   Trash2,
   Download,
+  Music,
 } from "lucide-react";
 import { toast } from "sonner";
 import { dispatchStudioGeneration } from "@/features/marketing/providers/ai-providers";
