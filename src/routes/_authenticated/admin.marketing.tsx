@@ -94,6 +94,7 @@ import {
 import { useCurrentUser } from "@/lib/use-current-user";
 import { primaryRoleHome } from "@/lib/current-user";
 import { KubeMcpHubSection, KubeMcpModalContent } from "@/features/marketing/mcp/KubeMcpHubSection";
+import { HeaderNavDropdowns } from "@/features/marketing/components/HeaderNavDropdowns";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing")({
   head: () => ({
@@ -1063,82 +1064,64 @@ function KubeAiMarketingPage() {
             <MenuIcon className="w-5 h-5 text-white" />
           </button>
 
-          {/* KUBE AI Brand Logo */}
+          {/* KUBE UP Official Brand Logo */}
           <Link
             to="/admin/marketing"
-            className="h-9 md:h-12 flex items-center shrink-0 cursor-pointer hover:scale-105 transition-transform gap-2 md:gap-2.5"
+            className="h-9 md:h-12 flex items-center shrink-0 cursor-pointer hover:opacity-90 transition-opacity gap-2 md:gap-3"
           >
-            <div className="flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#ff334b] via-[#ef4444] to-[#991b1b] shadow-lg shadow-[#ff2a4b]/30 text-white font-black text-sm md:text-base border border-white/20">
-              K
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm md:text-base font-black tracking-wider text-white">KUBE</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff3b56] to-[#ff2a4b] font-black text-xs md:text-sm">
-                AI
-              </span>
-              <span className="hidden sm:inline-block rounded-full bg-[#ff2a4b]/20 border border-[#ff2a4b]/40 px-2 py-0.5 text-[9px] font-bold text-[#ff3b56] font-mono">
-                STUDIO v2
-              </span>
-            </div>
+            <img
+              src="/kube-up-logo.png"
+              alt="KUBE UP"
+              className="h-7 md:h-8 w-auto object-contain rounded"
+            />
+            <span className="hidden sm:inline-block rounded-full bg-[#00e575]/15 border border-[#00e575]/30 px-2 py-0.5 text-[10px] font-bold text-[#00e575] font-mono">
+              STUDIO 2.0
+            </span>
           </Link>
 
-          {/* Desktop Navigation Items (Hidden on Mobile) */}
-          <nav className="hidden xl:flex items-center gap-0.5 h-full ms-3">
-            <button
-              onClick={() => setActiveStudioModal("product_3d")}
-              className="flex items-center gap-1 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium text-zinc-400 hover:text-white hover:bg-white/[0.06]"
-            >
-              <ImageIcon className="w-4 h-4" />
-              <span>صور</span>
-            </button>
+          {/* Desktop Navigation Mega-Dropdowns (Halai 100% Matching Parity) */}
+          <HeaderNavDropdowns
+            onSelectStudio={(studioId) => {
+              if (studioId === "marketing_2" || studioId === "cinema") {
+                setHeroMode("video");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else if (studioId === "ugc_2" || studioId === "ugc_1") {
+                setActiveStudioModal("ugc_studio");
+              } else if (studioId === "ads_9x" || studioId === "marketing_1") {
+                setActiveStudioModal("ads_9x");
+              } else if (studioId === "products") {
+                setActiveStudioModal("product_3d");
+              } else if (studioId === "characters") {
+                setActiveStudioModal("character_studio");
+              } else if (studioId === "storyboard") {
+                setActiveStudioModal("mimic_motion");
+              }
+            }}
+            onSelectPhotoModel={(modelName) => {
+              setHeroMode("image");
+              setHeroPrompt((prev) => prev || `صورة فوتوغرافية احترافية لكوب قهوة مختصة KUBE بدقة 4K بنموذج ${modelName}`);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            onSelectVideoModel={(modelName) => {
+              setHeroMode("video");
+              setHeroPrompt((prev) => prev || `إعلان فيديو سينمائي 15 ثانية لكافيه KUBE بنموذج ${modelName}`);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            onSelectApp={(appId) => {
+              if (appId === "super_agent") {
+                setActiveStudioModal("super_agent");
+              } else if (appId === "mimic_motion") {
+                setActiveStudioModal("mimic_motion");
+              } else if (appId === "storyboard") {
+                setActiveStudioModal("mimic_motion");
+              } else if (appId === "promlog") {
+                document.getElementById("my-ads-section")?.scrollIntoView({ behavior: "smooth" });
+              } else if (appId === "mcp_connect") {
+                document.getElementById("mcp-section")?.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
+          />
 
-            <button
-              onClick={() => setActiveStudioModal("ugc_studio")}
-              className="flex items-center gap-1 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium text-zinc-400 hover:text-white hover:bg-white/[0.06]"
-            >
-              <Video className="w-4 h-4" />
-              <span>فيديو</span>
-            </button>
-
-            <a
-              href="#templates-section"
-              className="flex items-center gap-1 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium text-zinc-400 hover:text-white hover:bg-white/[0.06]"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>تطبيقات</span>
-            </a>
-
-            {/* Studio Dropdown / Launcher */}
-            <button
-              onClick={() => setActiveStudioModal("product_3d")}
-              className="group flex items-center gap-1.5 text-sm font-medium transition-colors h-full px-2.5 text-zinc-400 hover:text-white"
-            >
-              <Layers className="w-4 h-4 text-[#ff2a4b]" />
-              <span>الاستديو</span>
-            </button>
-
-            <a
-              href="#mcp-section"
-              className="flex items-center gap-1 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium text-zinc-400 hover:text-white hover:bg-white/[0.06]"
-            >
-              <Radio className="w-4 h-4 text-purple-400" />
-              <span>اتصال MCP</span>
-              <span className="text-[9px] uppercase px-1.5 rounded-sm font-bold -skew-x-12 shrink-0 bg-transparent text-white border border-white/30">
-                Beta
-              </span>
-            </a>
-
-            <button
-              onClick={() => setActiveStudioModal("super_agent")}
-              className="flex items-center gap-1.5 h-8 px-2.5 rounded-[10px] text-sm transition-colors whitespace-nowrap font-medium text-white bg-white/5 hover:bg-white/10 border border-white/10"
-            >
-              <Bot className="w-4 h-4 text-[#ff2a4b]" />
-              <span>سوبر ايجنت</span>
-              <span className="text-[9px] uppercase px-1.5 rounded-sm font-bold -skew-x-12 shrink-0 bg-[#ff2a4b] text-white">
-                جديد
-              </span>
-            </button>
-          </nav>
         </div>
 
         {/* Left Section: Action Buttons */}
@@ -1245,9 +1228,15 @@ function KubeAiMarketingPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <span className="font-black text-sm text-white">KUBE</span>
-                    <span className="text-xs font-black text-[#ff2a4b]">AI</span>
+                  <div className="flex items-center gap-1.5">
+                    <img
+                      src="/kube-up-logo.png"
+                      alt="KUBE UP"
+                      className="h-6 w-auto object-contain rounded"
+                    />
+                    <span className="rounded-full bg-[#00e575]/15 border border-[#00e575]/30 px-1.5 py-0.5 text-[9px] font-bold text-[#00e575] font-mono">
+                      2.0
+                    </span>
                   </div>
                   <button
                     onClick={() => setMobileMenuOpen(false)}
@@ -1583,7 +1572,7 @@ function KubeAiMarketingPage() {
           </div>
 
           {/* Diverse Showcase Fan Row (7 Categories: Burger, UGC, Perfume, Fashion, Sneakers, Motion, Cafe) */}
-          <div className="w-full max-w-3xl mx-auto overflow-x-auto pb-2 scrollbar-none select-none">
+          <div className="w-full max-w-3xl mx-auto overflow-x-auto pb-2 no-scrollbar scrollbar-none select-none">
             <div className="flex items-center justify-start sm:justify-center gap-2.5 sm:gap-3 min-w-max px-2">
               {SHOWCASE_CAROUSEL_ITEMS.map((item) => {
                 const isActive = heroAdType === item.format;

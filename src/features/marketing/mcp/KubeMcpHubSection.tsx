@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Radio, Cpu, Sparkles, Copy, Check } from "lucide-react";
+import { Radio, Cpu, Sparkles, Copy, Check, ExternalLink, Github, ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 
 export const CLAUDE_CONFIG_JSON = JSON.stringify(
@@ -30,6 +30,19 @@ export const CURSOR_CONFIG_JSON = JSON.stringify(
           KUBE_API_KEY: "kube_live_sec_prod_77192",
         },
       },
+    },
+  },
+  null,
+  2
+);
+
+export const CHATGPT_CONFIG_JSON = JSON.stringify(
+  {
+    name: "KUBE Studio MCP",
+    url: "https://kubekitchen.app/api/mcp",
+    auth: {
+      type: "bearer",
+      token: "kube_live_sec_prod_77192",
     },
   },
   null,
@@ -83,138 +96,166 @@ export const MCP_TOOLS_SHOWCASE = [
   },
 ];
 
+const PLATFORMS = [
+  { id: "claude", name: "Claude" },
+  { id: "cursor", name: "Cursor" },
+  { id: "chatgpt", name: "ChatGPT" },
+  { id: "openclaw", name: "OpenClaw" },
+  { id: "codex", name: "Codex" },
+  { id: "hermes", name: "Hermes" },
+] as const;
+
 export function KubeMcpHubSection({ onOpenModal }: { onOpenModal: () => void }) {
-  const [platform, setPlatform] = useState<"claude" | "cursor" | "cli">("claude");
+  const [selectedPlatform, setSelectedPlatform] = useState<string>("claude");
+  const [copiedLink, setCopiedLink] = useState(false);
 
-  const currentSnippet =
-    platform === "claude" ? CLAUDE_CONFIG_JSON : platform === "cursor" ? CURSOR_CONFIG_JSON : CLI_CONFIG_COMMAND;
+  const mcpUrl = "https://kubekitchen.app/api/mcp";
 
-  const currentPath =
-    platform === "claude"
-      ? "%APPDATA%\\Claude\\claude_desktop_config.json"
-      : platform === "cursor"
-      ? ".cursor/mcp.json"
-      : "Terminal command";
-
-  const handleCopy = (text: string, label = "الكود") => {
+  const handleCopy = (text: string, label = "الرابط") => {
     navigator.clipboard.writeText(text);
+    setCopiedLink(true);
     toast.success(`تم نسخ ${label} بنجاح!`);
+    setTimeout(() => setCopiedLink(false), 2000);
   };
 
   return (
-    <section id="mcp-section" className="py-12 md:py-20 max-w-[1600px] mx-auto px-4 md:px-8 border-t border-white/5 space-y-10">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-3 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono">
-            <Radio className="w-3.5 h-3.5 animate-pulse" />
-            <span>MODEL CONTEXT PROTOCOL (MCP) • V2.5</span>
-            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-white">رسمي</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
-            حوّل CLAUDE و CURSOR و CHATGPT إلى استوديو إبداعي
-          </h2>
-          <p className="text-xs md:text-sm text-zinc-400 leading-relaxed max-w-2xl">
-            اربط KUBE AI مع بيئة عملك اليومية عبر بروتوكول MCP المفتوح. اطلب من Claude أو Cursor أو أي وكيل ذكاء اصطناعي توليد إعلانات فيديو 4K، مقاطع صانعي محتوى UGC سعوديين، وجلسات تصوير منتجات بأمر محادثة مباشر وبدون مغادرة شاشتك.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
+    <section id="mcp-section" className="py-12 md:py-20 max-w-[1400px] mx-auto px-4 md:px-8 border-t border-white/5 space-y-12">
+      {/* Halai-Matched MCP Hero Header */}
+      <div className="flex flex-col items-center text-center space-y-4 max-w-4xl mx-auto">
+        {/* Sub-nav Pills */}
+        <div className="flex items-center gap-2 p-1 rounded-full bg-white/5 border border-white/10 mb-2">
+          <span className="inline-flex items-center gap-1.5 h-8 px-4 rounded-full text-xs font-semibold bg-white text-zinc-950">
+            MCP
+          </span>
           <button
             onClick={onOpenModal}
-            className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs active:scale-95 transition-all shadow-lg shadow-purple-600/20 flex items-center gap-2"
+            className="inline-flex items-center gap-1.5 h-8 px-4 rounded-full text-xs font-medium text-zinc-400 hover:text-white transition-colors"
           >
-            <Cpu className="w-4 h-4" />
-            <span>فتح مركز الموصّلات والمهارات</span>
+            مهارات
           </button>
+          <a
+            href="https://github.com/hallah-ai/skills"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 h-8 rounded-full text-xs text-zinc-400 hover:text-white transition-colors"
+          >
+            <Github className="w-3.5 h-3.5" />
+            <span>GitHub</span>
+          </a>
+        </div>
+
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight uppercase leading-[1.15]">
+          حوّل <span className="text-[#ff3b56]">CLAUDE</span> و <span className="text-purple-400">CURSOR</span> و <span className="text-emerald-400">CHATGPT</span> إلى استوديو إبداعي
+        </h2>
+        <p className="text-xs sm:text-sm md:text-base text-zinc-400 leading-relaxed max-w-2xl">
+          اربط KUBE AI مباشرة مع عملاء الذكاء الاصطناعي عبر بروتوكول MCP المفتوح. ولّد إعلانات فيديو 4K وصور منتجات فوتوغرافية ومحتوى UGC في محادثتك بنقرة واحدة.
+        </p>
+
+        {/* Platform Selector Pills (Matching Halai's 6 platform pills) */}
+        <div className="flex items-center justify-center gap-2 flex-wrap pt-2">
+          {PLATFORMS.map((p) => {
+            const isActive = selectedPlatform === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setSelectedPlatform(p.id)}
+                className={`inline-flex items-center gap-2 h-9 px-4 rounded-full border text-xs font-semibold whitespace-nowrap transition-all ${
+                  isActive
+                    ? "bg-white text-zinc-950 border-white shadow-lg"
+                    : "border-white/[0.08] bg-white/[0.03] text-zinc-300 hover:text-white hover:bg-white/[0.08]"
+                }`}
+              >
+                <span>{p.name}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* 3 Step Integration Walkthrough Cards */}
+      {/* Halai's 3-Step Setup Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-500/40 text-purple-400 font-mono font-black text-xs flex items-center justify-center">01</span>
-            <span className="text-[10px] text-zinc-500 font-mono">إعداد الاتصال</span>
-          </div>
-          <h4 className="text-sm font-black text-white">انسخ كود التكوين</h4>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            اختر عميل الذكاء الاصطناعي (Claude Desktop أو Cursor أو CLI) وانسخ إعدادات الاتصال المشفرة مع مفتاح API الخاص بك.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-500/40 text-purple-400 font-mono font-black text-xs flex items-center justify-center">02</span>
-            <span className="text-[10px] text-zinc-500 font-mono">حفظ الإعدادات</span>
-          </div>
-          <h4 className="text-sm font-black text-white">ألصق الكود في تطبيقك</h4>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            افتح ملف <code className="text-purple-300 font-mono bg-purple-500/10 px-1 py-0.5 rounded text-[11px]">claude_desktop_config.json</code> أو إعدادات MCP في Cursor، وألصق الكود ثم أعد تشغيل التطبيق.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="w-7 h-7 rounded-lg bg-[#00e575]/20 border border-[#00e575]/40 text-[#00e575] font-mono font-black text-xs flex items-center justify-center">03</span>
-            <span className="text-[10px] text-[#00e575] font-mono">جاهز للإبداع</span>
-          </div>
-          <h4 className="text-sm font-black text-white">أعطِ الأوامر باللغة الطبيعية</h4>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            اطلب: <span className="text-white font-medium">"أنشئ إعلان فيديو 15 ثانية لقهوة V60 إثيوبية مع صانع محتوى سعودي"</span> وسيقوم Claude باستدعاء خادم KUBE وتنفيذ الريندر فوراً!
-          </p>
-        </div>
-      </div>
-
-      {/* Interactive Configuration Box */}
-      <div className="rounded-3xl border border-purple-500/20 bg-gradient-to-b from-zinc-950 via-zinc-900 to-black p-6 sm:p-8 space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-white">تكوين عميل MCP:</span>
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black border border-white/10">
-              {(["claude", "cursor", "cli"] as const).map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPlatform(p)}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                    platform === p ? "bg-purple-600 text-white shadow-sm" : "text-zinc-400 hover:text-white"
-                  }`}
-                >
-                  {p === "claude" ? "Claude Desktop" : p === "cursor" ? "Cursor / Windsurf" : "Node.js Stdio Bridge"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <button
-            onClick={() => handleCopy(currentSnippet, "إعدادات MCP")}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 font-bold text-xs active:scale-95 transition-all self-start sm:self-auto"
-          >
-            <Copy className="w-3.5 h-3.5" />
-            <span>نسخ الإعدادات بنقرة واحدة</span>
-          </button>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-[11px] text-zinc-500 font-mono">
-            <span>{currentPath}</span>
-            <span className="text-[#00e575] flex items-center gap-1">
-              <Check className="w-3 h-3" /> متوافق 100% مع مواصفة Halai MCP v2.5
+        {/* Step 1 */}
+        <div className="rounded-2xl border border-white/10 bg-[#141416]/90 p-5 flex flex-col justify-between space-y-4">
+          <div className="space-y-2">
+            <span className="w-7 h-7 rounded-lg bg-white/10 border border-white/15 text-white font-mono font-bold text-xs flex items-center justify-center">
+              1
             </span>
+            <h3 className="text-base font-semibold text-white">افتح الموصلات</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              في إعدادات حسابك في Claude أو Cursor، ادخل على صفحة الموصلات لإضافة موصل جديد.
+            </p>
           </div>
-          <pre className="p-4 rounded-2xl bg-black border border-white/10 font-mono text-xs text-purple-300 overflow-x-auto text-left ltr direction-ltr scrollbar-thin">
-            <code>{currentSnippet}</code>
-          </pre>
+          <div>
+            <a
+              href="https://claude.ai/settings/connectors"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 h-8 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 text-white text-xs font-semibold transition-all active:scale-95"
+            >
+              <span>موصلات Claude</span>
+              <ExternalLink className="w-3 h-3 text-zinc-400" />
+            </a>
+          </div>
+        </div>
+
+        {/* Step 2 */}
+        <div className="rounded-2xl border border-white/10 bg-[#141416]/90 p-5 flex flex-col justify-between space-y-4">
+          <div className="space-y-2">
+            <span className="w-7 h-7 rounded-lg bg-white/10 border border-white/15 text-white font-mono font-bold text-xs flex items-center justify-center">
+              2
+            </span>
+            <h3 className="text-base font-semibold text-white">الصق رابط MCP</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              أضف رابط الموصل المباشر واحفظ التغييرات للربط التلقائي الفوري.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between p-2.5 rounded-xl border border-white/10 bg-zinc-950 font-mono text-[11px] text-zinc-300 overflow-x-auto no-scrollbar">
+              <span className="truncate">{mcpUrl}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleCopy(mcpUrl, "رابط MCP")}
+              className="w-full inline-flex items-center justify-center gap-1.5 h-8 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold transition-all active:scale-95"
+            >
+              {copiedLink ? <Check className="w-3.5 h-3.5 text-[#00e575]" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedLink ? "تم النسخ بنجاح" : "انسخ رابط MCP"}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Step 3 */}
+        <div className="rounded-2xl border border-white/10 bg-[#141416]/90 p-5 flex flex-col justify-between space-y-4">
+          <div className="space-y-2">
+            <span className="w-7 h-7 rounded-lg bg-white/10 border border-white/15 text-white font-mono font-bold text-xs flex items-center justify-center">
+              3
+            </span>
+            <h3 className="text-base font-semibold text-white">وافق ثم استخدم</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              اسمح لـ Claude باستخدام أدوات KUBE، وابدأ توليد الصور والفيديوهات مباشرة في الشات.
+            </p>
+          </div>
+          <div>
+            <a
+              href="https://github.com/hallah-ai/skills"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 h-8 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 transition-colors active:scale-95"
+            >
+              <Github className="w-3.5 h-3.5" />
+              <span>افتح المستودع</span>
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* 6 Halai-matching Tool Showcase Cards */}
-      <div className="space-y-4">
+      {/* 6 Authorized MCP Tools Showcase Grid */}
+      <div className="space-y-4 pt-4">
         <div className="flex items-center justify-between">
           <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            <span>أدوات ومهارات KUBE AI المصرحة في MCP (نفس قدرات هلاي):</span>
+            <Sparkles className="w-4 h-4 text-[#ff2a4b]" />
+            <span>المهارات والأدوات المصرحة لخادم KUBE MCP:</span>
           </h3>
           <span className="text-xs font-mono text-zinc-500">6 أدوات رسمية جاهزة للاستدعاء</span>
         </div>
@@ -223,10 +264,10 @@ export function KubeMcpHubSection({ onOpenModal }: { onOpenModal: () => void }) 
           {MCP_TOOLS_SHOWCASE.map((tool) => (
             <div
               key={tool.name}
-              className="p-5 rounded-2xl border border-white/10 bg-zinc-900/60 hover:border-purple-500/40 transition-all space-y-3"
+              className="p-5 rounded-2xl border border-white/10 bg-[#141416]/80 hover:border-white/20 transition-all space-y-3"
             >
               <div className="flex items-center justify-between">
-                <span className="font-mono text-xs text-purple-400 font-bold bg-purple-500/10 px-2.5 py-1 rounded-lg border border-purple-500/20">
+                <span className="font-mono text-xs text-[#00e575] font-bold bg-[#00e575]/10 px-2.5 py-1 rounded-lg border border-[#00e575]/20">
                   {tool.name}
                 </span>
                 <span className="text-[10px] text-zinc-500 font-mono">{tool.tag}</span>
@@ -234,40 +275,11 @@ export function KubeMcpHubSection({ onOpenModal }: { onOpenModal: () => void }) 
               <h4 className="text-xs font-black text-white">{tool.title}</h4>
               <p className="text-[11px] text-zinc-400 leading-relaxed">{tool.desc}</p>
               <div className="pt-2 border-t border-white/5 text-[10px] text-zinc-500">
-                <span className="text-zinc-400 font-bold">مثال لأمر الذكاء الاصطناعي: </span>
+                <span className="text-zinc-400 font-bold">مثال لأمر الوكيل: </span>
                 "{tool.samplePrompt}"
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* E-Commerce Store Connectors: Salla & Zid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-white/5">
-        <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 to-black p-6 sm:p-8 space-y-4">
-          <span className="text-xs font-mono text-[#00e575]">متوفر في متجر تطبيقات سلة</span>
-          <h3 className="text-xl sm:text-2xl font-black text-white">عزّز متجرك في سلة مع KUBE MCP</h3>
-          <p className="text-xs md:text-sm text-zinc-400 leading-relaxed">
-            أنشئ صور منتجاتك وفيديوهاتها وإعلاناتها من لوحة تحكم سلة مباشرة وبمزامنة فورية مع كاشير KUBE.
-          </p>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono px-3 py-1 rounded-lg bg-white/5 text-zinc-300 border border-white/10">
-              سلة POS متصلة بنجاح
-            </span>
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 to-black p-6 sm:p-8 space-y-4">
-          <span className="text-xs font-mono text-[#00e575]">متوفر في متجر تطبيقات زد</span>
-          <h3 className="text-xl sm:text-2xl font-black text-white">عزّز متجرك في زد مع KUBE MCP</h3>
-          <p className="text-xs md:text-sm text-zinc-400 leading-relaxed">
-            أنشئ صور منتجاتك وفيديوهاتها وإعلاناتها من لوحة تحكم زد مباشرة وبمزامنة فورية مع نظام KUBE ERP.
-          </p>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono px-3 py-1 rounded-lg bg-white/5 text-zinc-300 border border-white/10">
-              زد ERP متصل بنجاح
-            </span>
-          </div>
         </div>
       </div>
     </section>
@@ -337,7 +349,7 @@ export function KubeMcpModalContent() {
       {/* Config Box */}
       <div className="space-y-2">
         <span className="text-[11px] font-mono text-zinc-500 block">{currentPath}</span>
-        <pre className="p-4 rounded-2xl bg-black border border-white/10 font-mono text-xs text-purple-300 overflow-x-auto text-left ltr direction-ltr scrollbar-thin">
+        <pre className="p-4 rounded-2xl bg-black border border-white/10 font-mono text-xs text-purple-300 overflow-x-auto text-left ltr direction-ltr no-scrollbar">
           <code>{currentSnippet}</code>
         </pre>
       </div>
