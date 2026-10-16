@@ -6,6 +6,8 @@ import {
   Copy,
   Plus,
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Search,
   Layers,
   Zap,
@@ -44,8 +46,20 @@ import {
   RotateCcw,
   Maximize2,
   Film,
+  LayoutGrid,
+  Users,
+  GraduationCap,
+  Sparkle,
+  BookOpen,
+  Mic,
+  Paperclip,
+  Clapperboard,
+  Clock,
+  Trash2,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
+import { dispatchStudioGeneration } from "@/features/marketing/providers/ai-providers";
 import {
   SAUDI_VISUAL_PROMPTS,
   SAUDI_UGC_FORMATS,
@@ -432,13 +446,65 @@ function KubeAiMarketingPage() {
   const currentUser = useCurrentUser();
   const backHomeUrl = primaryRoleHome(currentUser.data?.roles ?? []);
 
-  // Modal Workspace States
+  // Modal Workspace States (Expanded to 100% cover Halai studios, MCP, Community, Tutorials, Pricing, and Shots)
   const [activeStudioModal, setActiveStudioModal] = useState<
-    "none" | "super_agent" | "product_3d" | "ugc_studio" | "ads_9x" | "models_api" | "promlog" | "providers_guide" | "mimic_motion" | "storyboard_studio"
+    | "none"
+    | "super_agent"
+    | "product_3d"
+    | "ugc_studio"
+    | "ads_9x"
+    | "models_api"
+    | "promlog"
+    | "providers_guide"
+    | "mimic_motion"
+    | "storyboard_studio"
+    | "mcp_hub"
+    | "community"
+    | "tutorials"
+    | "pricing_plans"
+    | "character_creator"
+    | "shots_studio"
+    | "connectors_hub"
   >("none");
 
-  // Mobile drawer toggle
+  // Mobile drawer toggle & accordion states
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [studiosAccordionOpen, setStudiosAccordionOpen] = useState(true);
+  const [exploreAccordionOpen, setExploreAccordionOpen] = useState(true);
+
+  // New Ad Bottom Sheet Modal (Matching IMG_0105)
+  const [isNewAdModalOpen, setIsNewAdModalOpen] = useState(false);
+
+  // Hero Creation Studio 2.0 Form States (Matching IMG_0104)
+  const [heroMode, setHeroMode] = useState<"video" | "image">("video");
+  const [heroPrompt, setHeroPrompt] = useState("");
+  const [heroProduct, setHeroProduct] = useState<(typeof KUBE_COFFEE_CATALOG)[0] | null>(KUBE_COFFEE_CATALOG[0]);
+  const [heroPersona, setHeroPersona] = useState<(typeof UGC_CREATORS)[0] | null>(null);
+  const [heroScene, setHeroScene] = useState<string | null>(null);
+  const [heroAdType, setHeroAdType] = useState<string>("شرح منتج وسكب");
+  const [heroAspect, setHeroAspect] = useState<"3:4" | "9:16" | "1:1" | "16:9">("3:4");
+  const [heroResolution, setHeroResolution] = useState<"1080p" | "4K" | "720p" | "480p">("1080p");
+  const [heroDuration, setHeroDuration] = useState<"12 ث" | "10 ث" | "15 ث" | "30 ث">("12 ث");
+  const [isGeneratingHeroAd, setIsGeneratingHeroAd] = useState(false);
+
+  // "إعلاناتي" (My Ads Gallery) States (Matching IMG_0097)
+  const [myAdsFilter, setMyAdsFilter] = useState<"all" | "video" | "image">("all");
+  const [userAds, setUserAds] = useState<
+    Array<{
+      id: string;
+      title: string;
+      type: "video" | "image";
+      thumb: string;
+      createdAt: string;
+      status: "ready" | "rendering";
+      aspect: string;
+      prompt: string;
+    }>
+  >([]);
+
+  // Super Agent 10-Step Walkthrough Tour States (Matching IMG_0099 to IMG_0103)
+  const [superAgentTourOpen, setSuperAgentTourOpen] = useState(false);
+  const [superAgentTourStep, setSuperAgentTourStep] = useState<number>(1);
 
   // Custom Right-Click Context Menu State
   const [contextMenu, setContextMenu] = useState<{
@@ -823,158 +889,351 @@ function KubeAiMarketingPage() {
       </header>
 
       {/* ============================================================== */}
-      {/* 2. MOBILE SLIDE-OUT DRAWER (Full Menu for iPhone / Android)     */}
+      {/* 2. MOBILE SLIDE-OUT DRAWER (100% Halai Matching Architecture)  */}
       {/* ============================================================== */}
       {mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 z-[10005] bg-black/80 backdrop-blur-md animate-in fade-in duration-200 xl:hidden select-none"
+          className="fixed inset-0 z-[10005] bg-black/85 backdrop-blur-md animate-in fade-in duration-200 xl:hidden select-none"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="fixed inset-y-0 start-0 z-[10006] w-[85vw] max-w-xs bg-[#121214] border-e border-white/10 p-5 flex flex-col justify-between overflow-y-auto shadow-2xl animate-in slide-in-from-start duration-300 select-text"
+            className="fixed inset-y-0 start-0 z-[10006] w-[88vw] max-w-[320px] bg-[#141416] border-e border-white/10 p-4 flex flex-col justify-between overflow-y-auto shadow-2xl animate-in slide-in-from-start duration-300 select-text"
           >
-            <div className="space-y-6">
-              {/* Drawer Topbar */}
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#ff334b] to-[#dc2626] text-white flex items-center justify-center font-black text-sm">
-                    K
+            <div className="space-y-4">
+              {/* Drawer Topbar with Quick Utility Icons */}
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                <div className="flex items-center gap-1.5">
+                  <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-black font-black text-xs ring-2 ring-[#00e575]">
+                    ز
                   </div>
-                  <div>
-                    <span className="font-black text-sm text-white block">KUBE AI</span>
-                    <span className="text-[10px] text-[#ff3b56] font-mono block">الاستوديو الذكي</span>
-                  </div>
+                  <a
+                    href="https://tiktok.com/@kube"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 flex items-center justify-center border border-white/5"
+                    title="تيك توك"
+                  >
+                    <Music className="w-3.5 h-3.5" />
+                  </a>
+                  <button
+                    onClick={() => toast.info("لا توجد إشعارات جديدة")}
+                    className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 flex items-center justify-center border border-white/5"
+                    title="الإشعارات"
+                  >
+                    <Bell className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMyAdsFilter("all");
+                      setMobileMenuOpen(false);
+                      const el = document.getElementById("my-ads-section");
+                      if (el) el.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 flex items-center justify-center border border-white/5"
+                    title="إعلاناتي والمكتبة"
+                  >
+                    <Folder className="w-3.5 h-3.5" />
+                  </button>
                 </div>
 
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center border border-white/10"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <span className="font-black text-sm text-white">KUBE</span>
+                    <span className="text-xs font-black text-[#ff2a4b]">AI</span>
+                  </div>
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center border border-white/10 active:scale-95"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
-              {/* Navigation Items */}
-              <div className="space-y-1.5 text-xs font-medium">
+              {/* Root Nav Items: صور / فيديو / تطبيقات */}
+              <div className="space-y-1">
                 <button
                   onClick={() => {
-                    setActiveStudioModal("super_agent");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Bot className="w-4 h-4 text-[#ff2a4b]" />
-                    <span>سوبر ايجنت</span>
-                  </div>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#ff2a4b] text-white">جديد</span>
-                </button>
-
-                <button
-                  onClick={() => {
+                    setHeroMode("image");
                     setActiveStudioModal("product_3d");
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5 transition-all text-xs font-bold"
                 >
                   <div className="flex items-center gap-2.5">
-                    <Layers className="w-4 h-4 text-[#ff3b56]" />
-                    <span>استديو المنتجات 3D</span>
+                    <ImageIcon className="w-4 h-4 text-zinc-400" />
+                    <span>صور</span>
                   </div>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-white/10 text-zinc-300">3D</span>
                 </button>
 
                 <button
                   onClick={() => {
-                    setActiveStudioModal("ugc_studio");
+                    setHeroMode("video");
+                    setActiveStudioModal("mimic_motion");
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5 transition-all text-xs font-bold"
                 >
                   <div className="flex items-center gap-2.5">
-                    <Video className="w-4 h-4 text-amber-400" />
-                    <span>استديو UGC 2.0</span>
+                    <Video className="w-4 h-4 text-zinc-400" />
+                    <span>فيديو</span>
                   </div>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300">
-                    شخصيات
-                  </span>
                 </button>
 
                 <button
                   onClick={() => {
-                    setActiveStudioModal("ads_9x");
                     setMobileMenuOpen(false);
+                    const el = document.getElementById("templates-section");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5 transition-all text-xs font-bold"
                 >
                   <div className="flex items-center gap-2.5">
-                    <Sparkles className="w-4 h-4 text-[#ff2a4b]" />
-                    <span>استديو الإعلانات 9x</span>
+                    <LayoutGrid className="w-4 h-4 text-zinc-400" />
+                    <span>تطبيقات</span>
                   </div>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#ff2a4b]/20 text-[#ff3b56]">9x</span>
+                </button>
+              </div>
+
+              {/* Accordion 1: الاستوديوهات */}
+              <div className="pt-2 border-t border-white/5">
+                <button
+                  onClick={() => setStudiosAccordionOpen(!studiosAccordionOpen)}
+                  className="w-full flex items-center justify-between py-2 text-[11px] font-bold text-zinc-400 hover:text-white"
+                >
+                  <span>الاستوديوهات</span>
+                  {studiosAccordionOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
 
-                <button
-                  onClick={() => {
-                    setActiveStudioModal("models_api");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Cpu className="w-4 h-4 text-blue-400" />
-                    <span>كتالوج المحركات والـ API</span>
+                {studiosAccordionOpen && (
+                  <div className="space-y-1 pt-1 text-xs">
+                    <button
+                      onClick={() => {
+                        setHeroMode("video");
+                        setMobileMenuOpen(false);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Wand2 className="w-4 h-4 text-[#ff2a4b]" />
+                        <span>استديو التسويق 2.0</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-black bg-[#00e575] text-black">جديد</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("ads_9x");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Sparkle className="w-4 h-4 text-zinc-400" />
+                        <span>استديو التسويق</span>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("ugc_studio");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Users className="w-4 h-4 text-zinc-400" />
+                        <span>استديو UGC 2.0</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-black bg-[#00e575] text-black">جديد</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("ads_9x");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white/10 text-white font-bold"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <LayoutGrid className="w-4 h-4 text-[#ff2a4b]" />
+                        <span>استديو الإعلانات</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#00e575]/20 text-[#00e575] border border-[#00e575]/40">
+                        رائج
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("storyboard_studio");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Film className="w-4 h-4 text-zinc-400" />
+                        <span>ستوري بورد</span>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("product_3d");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <ShoppingBag className="w-4 h-4 text-zinc-400" />
+                        <span>استديو المنتجات</span>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("character_creator");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Users className="w-4 h-4 text-zinc-400" />
+                        <span>استديو الشخصيات</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-black bg-[#00e575] text-black">جديد</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("shots_studio");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Camera className="w-4 h-4 text-zinc-400" />
+                        <span>لقطات</span>
+                      </div>
+                    </button>
                   </div>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500/20 text-blue-300">12+</span>
+                )}
+              </div>
+
+              {/* Accordion 2: استكشف */}
+              <div className="pt-2 border-t border-white/5">
+                <button
+                  onClick={() => setExploreAccordionOpen(!exploreAccordionOpen)}
+                  className="w-full flex items-center justify-between py-2 text-[11px] font-bold text-zinc-400 hover:text-white"
+                >
+                  <span>استكشف</span>
+                  {exploreAccordionOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
 
-                <button
-                  onClick={() => {
-                    setActiveStudioModal("providers_guide");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-[#ff2a4b]/15 text-[#ff3b56] font-bold border border-[#ff2a4b]/30"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Key className="w-4 h-4" />
-                    <span>دليل مفاتيح المزودين (API)</span>
-                  </div>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                {exploreAccordionOpen && (
+                  <div className="space-y-1 pt-1 text-xs">
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("mcp_hub");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Radio className="w-4 h-4 text-purple-400" />
+                        <span>اتصال MCP</span>
+                      </div>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold border border-white/30 text-white font-mono">
+                        BETA
+                      </span>
+                    </button>
 
-                <button
-                  onClick={() => {
-                    setActiveStudioModal("promlog");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2.5 p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
-                >
-                  <FolderOpen className="w-4 h-4 text-emerald-400" />
-                  <span>المكتبة وبروملوق (40+)</span>
-                </button>
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("super_agent");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Bot className="w-4 h-4 text-[#ff2a4b]" />
+                        <span>سوبر ايجنت</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-black bg-[#00e575] text-black">جديد</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("community");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Users className="w-4 h-4 text-zinc-400" />
+                        <span>مجتمع</span>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("promlog");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <BookOpen className="w-4 h-4 text-zinc-400" />
+                        <span>بروملوق</span>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("tutorials");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <GraduationCap className="w-4 h-4 text-zinc-400" />
+                        <span>شروحات</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-black bg-[#00e575] text-black">جديد</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveStudioModal("pricing_plans");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Award className="w-4 h-4 text-amber-400" />
+                        <span>الباقات</span>
+                      </div>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Drawer Bottom Actions */}
-            <div className="pt-4 border-t border-white/10 space-y-3">
-              <Link
-                to={backHomeUrl}
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>العودة للوحة تحكم KUBE</span>
-              </Link>
-
-              <div className="p-3 rounded-xl bg-black/60 border border-white/5 flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-[#ff2a4b] text-white flex items-center justify-center font-black text-xs shrink-0">
-                  ز
+            {/* Drawer User Bar (Credit-Free matching Halai UI) */}
+            <div className="pt-3 border-t border-white/10 space-y-2">
+              <div className="p-2.5 rounded-xl bg-black/60 border border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-black font-black text-xs flex items-center justify-center shrink-0 ring-2 ring-[#00e575]">
+                    ز
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-bold text-white block">زياد عيسى</span>
+                    <span className="text-[10px] text-zinc-400 font-mono block">حساب رئيسي • KUBE</span>
+                  </div>
                 </div>
-                <div className="truncate">
-                  <span className="text-xs font-bold text-white block truncate">زياد عيسى</span>
-                  <span className="text-[10px] text-[#ff3b56] font-mono block">استخدام داخلي خاص • KUBE</span>
-                </div>
+                <ChevronDown className="w-4 h-4 text-zinc-500" />
               </div>
             </div>
           </div>
@@ -1038,81 +1297,476 @@ function KubeAiMarketingPage() {
       </nav>
 
       {/* ============================================================== */}
-      {/* 4. SECTION 1: HERO (Mobile & Desktop Responsive)               */}
+      {/* 4. SECTION 1: STUDIO 2.0 HERO & CREATION FORM (100% Halai)     */}
       {/* ============================================================== */}
-      <section className="relative min-h-[580px] sm:min-h-[680px] md:min-h-[750px] lg:h-[100vh] flex flex-col items-center justify-center text-center px-4 md:px-6 overflow-hidden shrink-0 pt-20 md:pt-16">
-        {/* Background Stream Loop */}
-        <div className="absolute inset-0 w-full h-full pointer-events-none select-none">
-          <img
-            src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/40dba6a71d8013595711298206cc8d48/thumbnails/thumbnail.jpg?height=720"
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover opacity-50 scale-105 transition-transform duration-1000"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/45 to-black" />
-        </div>
-
-        {/* Hero Content */}
-        <div className="relative z-10 max-w-6xl w-full space-y-5 md:space-y-8 animate-in fade-in duration-1000 px-2 sm:px-4">
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black uppercase text-white leading-[0.88] drop-shadow-[0_20px_50px_rgba(0,0,0,0.95)] tracking-tighter">
-            ابدع <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-br from-[#ff3b56] via-[#ff2a4b] to-[#b91c1c]">
-              بلا حدود.
-            </span>
-          </h1>
-
-          {/* Floating Engine Logos Row (Responsive Touch Friendly) */}
-          <div className="flex items-center justify-center gap-1.5 md:gap-3 flex-wrap max-w-4xl mx-auto py-2">
-            {ENGINE_LOGOS.map((eng, idx) => (
-              <div
-                key={idx}
-                title={eng.name}
-                onClick={() => {
-                  setSelectedEngine(eng.name);
-                  setActiveStudioModal("super_agent");
-                  toast.success(`تم اختيار محرك ${eng.name}`);
-                }}
-                className="w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center shrink-0 hover:bg-white/15 hover:scale-110 hover:border-[#ff2a4b]/60 active:scale-95 transition-all duration-300 cursor-pointer shadow-lg"
-              >
-                <img
-                  src={eng.icon}
-                  alt={eng.name}
-                  className={`w-4 h-4 md:w-6 md:h-6 object-contain ${eng.invert ? "brightness-0 invert" : ""}`}
-                />
+      <section className="relative w-full overflow-hidden bg-black pt-20 pb-10 px-3 sm:px-6 md:px-8 border-b border-white/5">
+        <div className="max-w-4xl mx-auto flex flex-col items-center text-center space-y-6">
+          
+          {/* 3D Glass Emblem & Curved Studio Title (Matching IMG_0104) */}
+          <div className="relative flex flex-col items-center justify-center pt-2">
+            <div className="relative flex items-center justify-center">
+              {/* Glowing Ambient Light */}
+              <div className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-[#00e575]/30 to-[#ff2a4b]/20 blur-3xl pointer-events-none" />
+              
+              {/* 3D Glass Emblem Box */}
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-white/10 via-white/5 to-white/0 border border-white/20 backdrop-blur-xl shadow-2xl flex items-center justify-center p-3 group hover:scale-105 transition-transform duration-500">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#00e575] via-[#10b981] to-[#059669] flex items-center justify-center text-black shadow-lg shadow-[#00e575]/40 transform -rotate-6 group-hover:rotate-0 transition-transform">
+                  <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-current ml-0.5" />
+                </div>
               </div>
-            ))}
+            </div>
+
+            <div className="space-y-1.5 pt-3">
+              <span className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white block">
+                استوديو التسويق 2.0
+              </span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+                <span className="text-xs text-zinc-300 font-medium">لا حدود للإبداع</span>
+              </div>
+            </div>
           </div>
 
-          <p className="text-sm sm:text-lg md:text-2xl text-zinc-300 font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md px-2">
-            محركات توليدية مضبوطة بدقة للجيل القادم من المبدعين في كافيه ومطبخ KUBE.
-          </p>
-
-          {/* Quick Action Buttons */}
-          <div className="flex items-center justify-center gap-2.5 md:gap-4 flex-wrap pt-2 w-full max-w-md mx-auto sm:max-w-none">
-            <button
-              onClick={() => setActiveStudioModal("super_agent")}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-[14px] bg-gradient-to-r from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white font-black text-sm md:text-base shadow-xl shadow-[#ff2a4b]/30 active:scale-95 transition-all"
+          {/* 3 Showcase Cards Row (Food, Explainer, Motion) (Matching IMG_0104) */}
+          <div className="w-full grid grid-cols-3 gap-2.5 sm:gap-4 max-w-2xl mx-auto pt-2">
+            {/* Card 1: Food / Coffee */}
+            <div
+              onClick={() => {
+                setHeroProduct(KUBE_COFFEE_CATALOG[0]);
+                setHeroAdType("طعام ومشروبات");
+                toast.success("تم اختيار نمط: طعام وقهوة مختصة");
+              }}
+              className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#00e575] active:scale-95 transition-all cursor-pointer shadow-xl"
             >
-              <Zap className="w-4 h-4 fill-current" />
-              <span>أطلق سوبر ايجنت ▶</span>
-            </button>
+              <img
+                src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/68f99df1e137fb4eccb09a8fd2c8dd10/thumbnails/thumbnail.jpg?height=720"
+                alt="طعام"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/70 backdrop-blur-md text-white border border-white/10">
+                طعام
+              </span>
+              <div className="absolute bottom-2 inset-x-2 text-right">
+                <span className="text-[11px] font-bold text-white block truncate">كولد برو كيني</span>
+              </div>
+            </div>
 
-            <button
-              onClick={() => setActiveStudioModal("product_3d")}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs sm:text-sm md:text-base backdrop-blur-md active:scale-95 transition-all"
+            {/* Card 2: Explainer / UGC Kitchen */}
+            <div
+              onClick={() => {
+                setHeroPersona(UGC_CREATORS[1]);
+                setHeroAdType("شرح وتجربة منتج");
+                toast.success("تم اختيار نمط: شرح وتجربة واقعية");
+              }}
+              className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#00e575] active:scale-95 transition-all cursor-pointer shadow-xl"
             >
-              <Layers className="w-4 h-4 text-[#ff2a4b]" />
-              <span>استديو 3D</span>
-            </button>
+              <img
+                src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/e979b81d089e42e710e17fab3b3bbde5/thumbnails/thumbnail.jpg?time=0&height=1000"
+                alt="شرح"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/70 backdrop-blur-md text-white border border-white/10">
+                شرح
+              </span>
+              <div className="absolute bottom-2 inset-x-2 text-right">
+                <span className="text-[11px] font-bold text-white block truncate">صناع محتوى KUBE</span>
+              </div>
+            </div>
 
-            <button
-              onClick={() => setActiveStudioModal("ads_9x")}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[14px] bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-200 font-bold text-xs sm:text-sm md:text-base backdrop-blur-md active:scale-95 transition-all"
+            {/* Card 3: Motion / Kinetic */}
+            <div
+              onClick={() => {
+                setHeroAdType("حركة وسكب سينمائي");
+                toast.success("تم اختيار نمط: حركة وسكب سينمائي");
+              }}
+              className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#00e575] active:scale-95 transition-all cursor-pointer shadow-xl"
             >
-              <Sparkles className="w-4 h-4 text-[#ff3b56]" />
-              <span>إعلانات 9x</span>
+              <img
+                src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/679f435913be72cd7135ad8fb2b4c880/thumbnails/thumbnail.jpg?height=720"
+                alt="حركة"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/70 backdrop-blur-md text-white border border-white/10">
+                حركة
+              </span>
+              <div className="absolute bottom-2 inset-x-2 text-right">
+                <span className="text-[11px] font-bold text-white block truncate">سكب ديناميكي</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Creation Switcher: صورة / فيديو (Segmented Pill) */}
+          <div className="flex items-center justify-center pt-2">
+            <div className="inline-flex p-1 rounded-2xl bg-zinc-900/90 border border-white/10 text-xs font-bold shadow-lg">
+              <button
+                type="button"
+                onClick={() => setHeroMode("video")}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all active:scale-95 ${
+                  heroMode === "video"
+                    ? "bg-zinc-800 text-white shadow-md border border-white/10 font-bold"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                <Video className="w-4 h-4 text-[#00e575]" />
+                <span>فيديو</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setHeroMode("image")}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all active:scale-95 ${
+                  heroMode === "image"
+                    ? "bg-zinc-800 text-white shadow-md border border-white/10 font-bold"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                <ImageIcon className="w-4 h-4 text-zinc-300" />
+                <span>صورة</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Creation Form Card (100% Halai Layout) */}
+          <div className="w-full max-w-2xl mx-auto rounded-3xl bg-[#141416] border border-white/10 p-4 sm:p-5 space-y-4 text-right shadow-2xl">
+            {/* Prompt Textarea */}
+            <div className="relative">
+              <textarea
+                rows={2}
+                value={heroPrompt}
+                onChange={(e) => setHeroPrompt(e.target.value)}
+                placeholder={
+                  heroMode === "video"
+                    ? "صف أفضل فكرة لديك للفيديو..."
+                    : "صف أفضل فكرة لديك لصورة المنتج..."
+                }
+                className="w-full bg-transparent text-sm sm:text-base text-white placeholder:text-zinc-500 focus:outline-none resize-none leading-relaxed"
+              />
+            </div>
+
+            {/* 3 Upload / Select Slots (Product *, Character, Scene) */}
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+              {/* Slot 1: Scene (المشهد) */}
+              <button
+                type="button"
+                onClick={() => {
+                  toast.info("تم تفعيل إضاءة استوديو كافيه KUBE التلقائية للمشهد");
+                  setHeroScene("استوديو رخام أسود ونيون");
+                }}
+                className={`relative aspect-square sm:aspect-[4/3] rounded-2xl border p-2 flex flex-col items-center justify-center gap-1.5 transition-all active:scale-95 ${
+                  heroScene
+                    ? "border-[#00e575] bg-[#00e575]/10 text-white"
+                    : "border-white/10 bg-black/40 hover:bg-white/5 text-zinc-400"
+                }`}
+              >
+                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#00e575]/20 text-[#00e575] flex items-center justify-center text-xs font-bold border border-[#00e575]/40">
+                  +
+                </div>
+                <ImageIcon className="w-5 h-5 text-zinc-300" />
+                <span className="text-[11px] font-bold text-zinc-300">
+                  {heroScene ? "تم اختيار المشهد" : "المشهد"}
+                </span>
+              </button>
+
+              {/* Slot 2: Character (الشخصية) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveStudioModal("ugc_studio");
+                }}
+                className={`relative aspect-square sm:aspect-[4/3] rounded-2xl border p-2 flex flex-col items-center justify-center gap-1.5 transition-all active:scale-95 ${
+                  heroPersona
+                    ? "border-[#00e575] bg-[#00e575]/10 text-white"
+                    : "border-white/10 bg-black/40 hover:bg-white/5 text-zinc-400"
+                }`}
+              >
+                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#00e575]/20 text-[#00e575] flex items-center justify-center text-xs font-bold border border-[#00e575]/40">
+                  +
+                </div>
+                <Users className="w-5 h-5 text-zinc-300" />
+                <span className="text-[11px] font-bold text-zinc-300 truncate max-w-full px-1">
+                  {heroPersona ? heroPersona.name.split(" ")[0] : "الشخصية"}
+                </span>
+              </button>
+
+              {/* Slot 3: Product * (المنتج - إلزامي) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveStudioModal("product_3d");
+                }}
+                className={`relative aspect-square sm:aspect-[4/3] rounded-2xl border p-2 flex flex-col items-center justify-center gap-1.5 transition-all active:scale-95 ${
+                  heroProduct
+                    ? "border-[#00e575] bg-[#00e575]/10 text-white shadow-sm shadow-[#00e575]/20"
+                    : "border-red-500/50 bg-red-500/10 text-white animate-need"
+                }`}
+              >
+                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#00e575] text-black flex items-center justify-center text-xs font-black shadow-md">
+                  +
+                </div>
+                <Coffee className="w-5 h-5 text-[#00e575]" />
+                <div className="text-center px-1">
+                  <span className="text-[11px] font-bold text-white block truncate">
+                    {heroProduct ? heroProduct.name : "المنتج *"}
+                  </span>
+                  {!heroProduct && (
+                    <span className="text-[9px] text-red-400 font-mono block">إلزامي *</span>
+                  )}
+                </div>
+              </button>
+            </div>
+
+            {/* Controls Row: نوع الإعلان / نسبة الأبعاد / الدقة / المدة */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
+              {/* Ad Type Selector */}
+              <div className="relative">
+                <select
+                  value={heroAdType}
+                  onChange={(e) => setHeroAdType(e.target.value)}
+                  className="w-full appearance-none rounded-xl bg-zinc-900 border border-white/10 hover:border-[#00e575] px-3 py-2 text-zinc-200 text-xs font-bold focus:outline-none cursor-pointer text-right"
+                >
+                  <option value="شرح منتج وسكب">اختر نوعًا: شرح منتج</option>
+                  <option value="إعلان سينمائي 4K">إعلان سينمائي 4K</option>
+                  <option value="مقارنة سريعة">مقارنة سريعة قبل وبعد</option>
+                  <option value="ترند تيك توك">ترند تيك توك وسناب</option>
+                  <option value="لايف ستايل كافيه">لايف ستايل كافيه</option>
+                </select>
+              </div>
+
+              {/* Aspect Ratio */}
+              <div className="relative">
+                <select
+                  value={heroAspect}
+                  onChange={(e) => setHeroAspect(e.target.value as any)}
+                  className="w-full appearance-none rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 px-3 py-2 text-zinc-200 text-xs font-mono font-bold focus:outline-none cursor-pointer text-center"
+                >
+                  <option value="3:4">3:4 (عمودي)</option>
+                  <option value="9:16">9:16 (ستوري)</option>
+                  <option value="1:1">1:1 (مربع)</option>
+                  <option value="16:9">16:9 (أفقي)</option>
+                </select>
+              </div>
+
+              {/* Resolution */}
+              <div className="relative">
+                <select
+                  value={heroResolution}
+                  onChange={(e) => setHeroResolution(e.target.value as any)}
+                  className="w-full appearance-none rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 px-3 py-2 text-zinc-200 text-xs font-mono font-bold focus:outline-none cursor-pointer text-center"
+                >
+                  <option value="1080p">1080p FHD</option>
+                  <option value="4K">4K UltraHD</option>
+                  <option value="720p">720p HD</option>
+                  <option value="480p">480p SD</option>
+                </select>
+              </div>
+
+              {/* Duration */}
+              <div className="relative">
+                <select
+                  value={heroDuration}
+                  onChange={(e) => setHeroDuration(e.target.value as any)}
+                  className="w-full appearance-none rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 px-3 py-2 text-zinc-200 text-xs font-bold focus:outline-none cursor-pointer text-center"
+                >
+                  <option value="12 ث">12 ثانية</option>
+                  <option value="10 ث">10 ثوانٍ</option>
+                  <option value="15 ث">15 ثانية</option>
+                  <option value="30 ث">30 ثانية</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Action Generate Button (Clean without numbers or credit) */}
+            <div className="pt-2">
+              <button
+                type="button"
+                disabled={isGeneratingHeroAd}
+                onClick={async () => {
+                  if (!heroProduct) {
+                    toast.error("يرجى اختيار المنتج أولاً (حقل إلزامي *)");
+                    return;
+                  }
+                  setIsGeneratingHeroAd(true);
+                  toast.info("جاري توجيه محركات الذكاء الاصطناعي وبدء الريندر...");
+
+                  // Dispatch via decoupled provider layer
+                  await dispatchStudioGeneration({
+                    task: heroMode === "video" ? "video_ugc_motion" : "image_packshot_4k",
+                    provider: "fal_ai",
+                    prompt: heroPrompt || `Cinematic commercial for ${heroProduct.name}`,
+                    aspectRatio: heroAspect,
+                    resolution: heroResolution,
+                    productImageUrl: heroProduct.img,
+                    adType: heroAdType,
+                  });
+
+                  setTimeout(() => {
+                    const newAd = {
+                      id: `ad-${Date.now()}`,
+                      title: `${heroProduct.name} — ${heroAdType}`,
+                      type: heroMode,
+                      thumb: heroProduct.img,
+                      createdAt: "الآن",
+                      status: "ready" as const,
+                      aspect: heroAspect,
+                      prompt: heroPrompt || `Commercial render of ${heroProduct.name}`,
+                    };
+                    setUserAds((prev) => [newAd, ...prev]);
+                    setIsGeneratingHeroAd(false);
+                    toast.success("تم تجهيز إعلانك بنجاح وعرضه في قسم إعلاناتي!");
+                    
+                    // Smooth scroll to My Ads section
+                    const el = document.getElementById("my-ads-section");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }, 1200);
+                }}
+                className={`relative w-full h-12 rounded-2xl font-black text-sm text-black flex items-center justify-center gap-2 overflow-hidden transition-all active:scale-[0.99] shadow-xl ${
+                  isGeneratingHeroAd
+                    ? "bg-zinc-700 text-zinc-400 cursor-wait"
+                    : "bg-[#00e575] hover:bg-[#00ff83] shadow-[#00e575]/25"
+                }`}
+              >
+                {/* Authentic Sheen Animation */}
+                <div className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg] pointer-events-none animate-[pm-sheen_4s_infinite]" />
+                
+                {isGeneratingHeroAd ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border-2 border-zinc-400 border-t-white animate-spin" />
+                    <span>جاري الإنشاء...</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Play className="w-4 h-4 fill-current" />
+                    <span>إنشاء</span>
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Quick "أنشئ إعلانًا" Trigger Button (Matching Halai CTA) */}
+          <div className="pt-2">
+            <button
+              onClick={() => setIsNewAdModalOpen(true)}
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs sm:text-sm active:scale-95 transition-all shadow-lg"
+            >
+              <Sparkles className="w-4 h-4 text-[#00e575]" />
+              <span>أنشئ إعلانًا من قالب مخصص</span>
             </button>
           </div>
+
         </div>
+
+        {/* ============================================================== */}
+        {/* SECTION: "إعلاناتي" (My Ads Gallery - Matching IMG_0097)        */}
+        {/* ============================================================== */}
+        <div id="my-ads-section" className="max-w-4xl mx-auto pt-14 pb-4">
+          <div className="flex items-center justify-between pb-4 border-b border-white/5">
+            <h3 className="text-lg sm:text-xl font-black text-white">إعلاناتي</h3>
+
+            {/* Filter Pills: الكل / فيديو / صور */}
+            <div className="inline-flex p-1 rounded-xl bg-zinc-900 border border-white/10 text-xs">
+              <button
+                type="button"
+                onClick={() => setMyAdsFilter("all")}
+                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                  myAdsFilter === "all" ? "bg-white/15 text-white" : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                الكل
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setMyAdsFilter("video")}
+                className={`p-1.5 rounded-lg transition-all ${
+                  myAdsFilter === "video" ? "bg-white/15 text-white" : "text-zinc-400 hover:text-white"
+                }`}
+                title="فيديوهات"
+              >
+                <Video className="w-3.5 h-3.5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setMyAdsFilter("image")}
+                className={`p-1.5 rounded-lg transition-all ${
+                  myAdsFilter === "image" ? "bg-white/15 text-white" : "text-zinc-400 hover:text-white"
+                }`}
+                title="صور"
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Empty State when no ads created yet (Matching IMG_0097) */}
+          {userAds.length === 0 ? (
+            <div className="py-14 flex flex-col items-center justify-center text-center space-y-3">
+              <div className="w-16 h-14 rounded-2xl bg-zinc-900/90 border border-white/10 flex items-center justify-center text-zinc-500 shadow-inner">
+                <Video className="w-6 h-6 text-zinc-400" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-sm font-black text-white">لا توجد إعلانات بعد</h4>
+                <p className="text-xs text-zinc-400 max-w-sm">
+                  اختر النوع، أضف منتجك، وصف الإعلان. يظهر هنا فور جاهزيته.
+                </p>
+              </div>
+            </div>
+          ) : (
+            /* Populated Ads Grid */
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4">
+              {userAds
+                .filter((ad) => myAdsFilter === "all" || ad.type === myAdsFilter)
+                .map((ad) => (
+                  <div
+                    key={ad.id}
+                    className="group relative rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#00e575] transition-all shadow-xl"
+                  >
+                    <div className="aspect-[4/5] w-full overflow-hidden relative">
+                      <img
+                        src={ad.thumb}
+                        alt={ad.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 animate-develop"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                      
+                      {/* Top Badges */}
+                      <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md text-[9px] font-mono bg-black/70 text-[#00e575] border border-[#00e575]/30">
+                        {ad.type === "video" ? "فيديو" : "صورة 4K"}
+                      </span>
+
+                      {/* Action buttons */}
+                      <div className="absolute bottom-2 inset-x-2 flex items-center justify-between text-right">
+                        <div className="truncate flex-1">
+                          <span className="text-xs font-bold text-white block truncate">{ad.title}</span>
+                          <span className="text-[10px] text-zinc-400 block font-mono">{ad.createdAt}</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setLightboxItem({
+                              isOpen: true,
+                              imgUrl: ad.thumb,
+                              title: ad.title,
+                              prompt: ad.prompt,
+                              aspectRatio: ad.aspect,
+                              specs: "4K Master • KUBE Engine",
+                            });
+                          }}
+                          className="w-7 h-7 rounded-lg bg-black/70 hover:bg-[#ff2a4b] text-white flex items-center justify-center shrink-0 border border-white/10"
+                          title="معاينة وتكبير"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+
       </section>
 
       {/* ============================================================== */}
@@ -1961,81 +2615,350 @@ function KubeAiMarketingPage() {
                 </div>
               )}
 
-              {/* MODAL: SUPER AGENT WORKSPACE */}
+              {/* MODAL: SUPER AGENT WORKSPACE (100% Halai Matching) */}
               {activeStudioModal === "super_agent" && (
-                <div className="h-full flex flex-col justify-between space-y-4">
-                  {/* Chat Stream */}
-                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-2">
-                    {chatMessages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`flex gap-3 ${msg.sender === "user" ? "flex-row-reverse" : "flex-row"}`}
-                      >
-                        <div
-                          className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs ${
-                            msg.sender === "user" ? "bg-amber-500 text-black" : "bg-[#ff2a4b] text-white font-black"
-                          }`}
-                        >
-                          {msg.sender === "user" ? "ز" : "K"}
+                <div className="relative h-full flex flex-col justify-between space-y-4 text-right">
+                  
+                  {/* Top Announcement Banner (Matching IMG_0099) */}
+                  <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-zinc-900 border border-white/10 shrink-0">
+                    <div className="flex items-center gap-2.5">
+                      <img
+                        src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/f902bd3c5421e3c5b4175ec715a4b194/thumbnails/thumbnail.jpg?height=720"
+                        alt="Mimic"
+                        className="w-10 h-10 rounded-xl object-cover shrink-0 border border-white/10"
+                      />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-white">اطلب من الوكيل فيديو كيوب ميميك</span>
+                          <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-[#00e575] text-black">جديد</span>
                         </div>
-                        <div
-                          className={`max-w-[85%] rounded-2xl p-3.5 sm:p-4 text-xs md:text-sm leading-relaxed whitespace-pre-wrap ${
-                            msg.sender === "user"
-                              ? "bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-medium"
-                              : "bg-zinc-900 border border-white/10 text-white"
-                          }`}
-                        >
-                          {msg.text}
-                        </div>
+                        <span className="text-[10px] text-zinc-400">انسخ حركة أي فيديو وطبقها على منتجك</span>
                       </div>
-                    ))}
-
-                    {isAgentTyping && (
-                      <div className="flex items-center gap-2 text-xs text-[#ff3b56] font-mono animate-pulse">
-                        <Bot className="w-4 h-4" />
-                        <span>سوبر ايجنت يصيغ المحتوى البصري...</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Input Capsule with Format Quick Chips */}
-                  <div className="space-y-3 pt-3 border-t border-white/10 shrink-0">
-                    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs touch-pan-x">
-                      {SAUDI_UGC_FORMATS.slice(0, 6).map((fmt) => (
-                        <button
-                          key={fmt.id}
-                          onClick={() => {
-                            setSelectedUgcFormat(fmt);
-                            handleSendAgent(`اكتب لي إعلان بصيغة: ${fmt.nameAr}`);
-                          }}
-                          className={`px-3 py-1.5 rounded-full font-bold whitespace-nowrap active:scale-95 transition-all ${
-                            selectedUgcFormat.id === fmt.id
-                              ? "bg-[#ff2a4b] text-white"
-                              : "bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white"
-                          }`}
-                        >
-                          {fmt.nameAr}
-                        </button>
-                      ))}
                     </div>
 
-                    <div className="relative flex items-center gap-2 rounded-2xl bg-zinc-900 border border-white/15 p-1.5 sm:p-2">
-                      <input
-                        type="text"
+                    <button
+                      onClick={() => setSuperAgentTourOpen(true)}
+                      className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-[11px] font-bold active:scale-95 transition-all"
+                    >
+                      بدء الجولة الإرشادية ✦
+                    </button>
+                  </div>
+
+                  {/* Greeting & Headline */}
+                  <div className="text-center space-y-1.5 pt-1">
+                    <div className="inline-flex items-center gap-2 justify-center">
+                      <div className="w-5 h-5 rounded-md bg-[#00e575] flex items-center justify-center text-black font-black text-xs">
+                        ✦
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-black text-white">
+                        مساء الخير، زياد
+                      </h3>
+                    </div>
+                    <p className="text-xs sm:text-sm text-zinc-400">
+                      حوّل محادثة بسيطة إلى محتوى تسويقي جاهز للإنتاج.
+                    </p>
+                  </div>
+
+                  {/* Super Agent Input Capsule (Matching IMG_0102) */}
+                  <div className="max-w-2xl w-full mx-auto space-y-3 shrink-0">
+                    <div className="relative rounded-3xl bg-zinc-900/90 border border-white/15 p-3 sm:p-4 space-y-2 shadow-2xl">
+                      <textarea
+                        rows={2}
                         value={agentInputText}
                         onChange={(e) => setAgentInputText(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSendAgent()}
-                        placeholder="...اطلب من سوبر ايجنت أي إعلان لقهوة KUBE"
-                        className="flex-1 bg-transparent px-3 py-2 text-xs md:text-sm text-white placeholder:text-zinc-500 focus:outline-none"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendAgent();
+                          }
+                        }}
+                        placeholder="اجعل صورة منتجي بجودة الاستوديو... أو صمّم ملصقاً إعلانياً لقهوة KUBE"
+                        className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-none resize-none leading-relaxed"
                       />
+
+                      {/* Controls inside input box: Mic, Send, Model, Attach */}
+                      <div className="flex items-center justify-between pt-1 border-t border-white/5">
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleSendAgent()}
+                            className="w-9 h-9 rounded-xl bg-[#00e575] hover:bg-[#00ff83] text-black flex items-center justify-center font-bold shadow-md active:scale-95 transition-transform"
+                            title="إرسال"
+                          >
+                            <Send className="w-4 h-4 -scale-x-100" />
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={() => toast.info("جاري الاستماع للأمر الصوتي بالعامية السعودية...")}
+                            className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center active:scale-95"
+                            title="أمر صوتي"
+                          >
+                            <Mic className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {/* Model Switcher Dropdown */}
+                          <div className="relative">
+                            <select
+                              value={selectedEngine}
+                              onChange={(e) => setSelectedEngine(e.target.value)}
+                              className="appearance-none rounded-xl bg-black/60 border border-white/10 hover:border-white/20 px-3 py-1.5 text-[11px] font-bold text-zinc-300 focus:outline-none cursor-pointer text-center"
+                            >
+                              <option value="تلقائي (Omni Flash 1.1)">تلقائي ✦</option>
+                              <option value="Google Gemini 1.5 Pro">Gemini 1.5 Pro</option>
+                              <option value="Claude 3.5 Sonnet">Claude 3.5 Sonnet</option>
+                              <option value="Flux 1.1 Pro Ultra">Flux 1.1 Pro</option>
+                              <option value="Kling 3 Turbo">Kling 3 Turbo</option>
+                            </select>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => toast.info("انقر لإرفاق صورة منتج أو ملف مرجعي")}
+                            className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center active:scale-95"
+                            title="إرفاق ملف"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick Chips Row below input */}
+                    <div className="flex items-center justify-center gap-2 flex-wrap text-xs">
                       <button
-                        onClick={() => handleSendAgent()}
-                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff334b] to-[#dc2626] hover:from-[#ff4d64] hover:to-[#ef4444] text-white flex items-center justify-center shadow-lg shrink-0 transition-transform active:scale-95"
+                        onClick={() => handleSendAgent("اقترح لي مهارة تسويقية لزيادة مبيعات كافيه KUBE")}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white active:scale-95 transition-colors"
                       >
-                        <Send className="w-4 h-4" />
+                        <Zap className="w-3.5 h-3.5 text-amber-400" />
+                        <span>المهارات</span>
+                      </button>
+
+                      <button
+                        onClick={() => setActiveStudioModal("connectors_hub")}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white active:scale-95 transition-colors"
+                      >
+                        <span>الموصلات</span>
+                        <span className="flex items-center gap-0.5 text-[10px] text-zinc-400">
+                          (سلة، زد، سلاك)
+                        </span>
+                      </button>
+
+                      <button
+                        onClick={() => setActiveStudioModal("mcp_hub")}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white active:scale-95 transition-colors"
+                      >
+                        <Radio className="w-3.5 h-3.5 text-purple-400" />
+                        <span>جرب MCP</span>
                       </button>
                     </div>
                   </div>
+
+                  {/* Section: "صُنعت على كيوب — اختر واحدة ونسوّي لك مثلها" (Matching IMG_0099) */}
+                  <div className="space-y-2 pt-2">
+                    <span className="text-xs font-bold text-zinc-400 block text-right">
+                      صُنعت على كيوب — اختر واحدة ونسوّي لك مثلها
+                    </span>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                      {[
+                        {
+                          title: "شوكولاتة الشعار",
+                          thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/68f99df1e137fb4eccb09a8fd2c8dd10/thumbnails/thumbnail.jpg?height=720",
+                          prompt: "Luxury embossed artisan chocolate box with KUBE gold branding on matte finish",
+                        },
+                        {
+                          title: "أكياس التسوق",
+                          thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/21d02f613a69c054c30b1438749d13f4/thumbnails/thumbnail.jpg?height=720",
+                          prompt: "Luxury boutique shopping bags with embossed red ribbon and elegant typography",
+                        },
+                        {
+                          title: "إكسسوارات مميزة",
+                          thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/835f0e67d1f54a16cdf00ffe29eb57d2/thumbnails/thumbnail.jpg?height=720",
+                          prompt: "Diamond crystal brooch in the shape of luxury Arabic calligraphy on silk",
+                        },
+                        {
+                          title: "شخصية تسويقية",
+                          thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/c43e443131757e6b7f81f374a372b878/thumbnails/thumbnail.jpg?height=720",
+                          prompt: "Authentic Saudi youth in modern thobe enjoying specialty cold brew coffee in Riyadh",
+                        },
+                      ].map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#00e575] transition-all cursor-pointer shadow-lg"
+                        >
+                          <img
+                            src={item.thumb}
+                            alt={item.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                          
+                          <div className="absolute inset-x-2 bottom-2 space-y-1.5 text-center">
+                            <span className="text-xs font-bold text-white block truncate">
+                              {item.title}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleSendAgent(`سوّ لي إعلان مثل: ${item.title} لقهوة KUBE`);
+                              }}
+                              className="w-full py-1.5 rounded-xl bg-white/20 hover:bg-[#00e575] hover:text-black text-white text-[11px] font-bold backdrop-blur-md active:scale-95 transition-all"
+                            >
+                              سوّ لي مثلها
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Chat Messages Stream (Rendered above if conversation active) */}
+                  {chatMessages.length > 1 && (
+                    <div className="space-y-3 pt-3 border-t border-white/10 max-h-48 overflow-y-auto">
+                      {chatMessages.slice(1).map((msg) => (
+                        <div
+                          key={msg.id}
+                          className={`flex gap-2.5 ${msg.sender === "user" ? "flex-row-reverse" : "flex-row"}`}
+                        >
+                          <div
+                            className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs ${
+                              msg.sender === "user" ? "bg-amber-500 text-black" : "bg-[#00e575] text-black font-black"
+                            }`}
+                          >
+                            {msg.sender === "user" ? "ز" : "✦"}
+                          </div>
+                          <div
+                            className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed whitespace-pre-wrap ${
+                              msg.sender === "user"
+                                ? "bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white"
+                                : "bg-zinc-900 border border-white/10 text-white"
+                            }`}
+                          >
+                            {msg.text}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 10-Step Interactive Guided Tour Modal Popup (Matching IMG_0099 to IMG_0103) */}
+                  {superAgentTourOpen && (
+                    <div
+                      onClick={() => setSuperAgentTourOpen(false)}
+                      className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+                    >
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="max-w-sm w-full rounded-3xl bg-[#1a1a1e] border border-white/15 p-5 space-y-4 text-right shadow-2xl animate-in zoom-in-95 duration-200"
+                      >
+                        {/* Header: Counter & Close */}
+                        <div className="flex items-center justify-between text-xs text-zinc-400 font-mono">
+                          <button
+                            onClick={() => setSuperAgentTourOpen(false)}
+                            className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="font-bold text-zinc-300">{superAgentTourStep} / 10</span>
+                        </div>
+
+                        {/* Step Details */}
+                        <div className="space-y-2">
+                          <h4 className="text-base font-black text-white">
+                            {superAgentTourStep === 1 && "أهلاً بك في سوبر ايجنت"}
+                            {superAgentTourStep === 2 && "اكتب فكرتك"}
+                            {superAgentTourStep === 3 && "ارفع صور منتجاتك"}
+                            {superAgentTourStep === 4 && "اختر النموذج"}
+                            {superAgentTourStep === 5 && "أرسل أو اضغط Enter"}
+                            {superAgentTourStep === 6 && "المهارات والموصلات"}
+                            {superAgentTourStep === 7 && "محاكاة الحركة (Mimic)"}
+                            {superAgentTourStep === 8 && "استوديو الشخصيات"}
+                            {superAgentTourStep === 9 && "حزمة الـ 9 إعلانات"}
+                            {superAgentTourStep === 10 && "التصدير وجودة 4K"}
+                          </h4>
+
+                          <p className="text-xs text-zinc-300 leading-relaxed">
+                            {superAgentTourStep === 1 &&
+                              "جولة سريعة تشرح لك وظيفة كل زر. تقدر تتخطاها في أي وقت."}
+                            {superAgentTourStep === 2 &&
+                              "اشرح ما تريده بكلماتك — عربي أو إنجليزي. مثلاً: «سوّ لي إعلان لعطري أو لقهوتي»."}
+                            {superAgentTourStep === 3 &&
+                              "أضف صور عالية الجودة لمنتجك أو كوب القهوة ليتعرف عليها الذكاء الاصطناعي بدقة."}
+                            {superAgentTourStep === 4 &&
+                              "بدّل العقل الذي يرد عليك. النماذج الأخف تستهلك وقتاً أقل، والأقوى تخطط أفضل."}
+                            {superAgentTourStep === 5 &&
+                              "اضغط زر الإرسال أو Enter. يخطط السوبر ايجنت للعمل وينفّذ الحملة فوراً."}
+                            {superAgentTourStep === 6 &&
+                              "اربط متجرك في سلة وزد وتطبيقات التواصل لنشر الحملات تلقائياً بنقرة واحدة."}
+                            {superAgentTourStep === 7 &&
+                              "حوّل أي مقطع فيديو حقيقي إلى إعلان لمنتجك بنفس زوايا الكاميرا وحركتها بدون تشوه."}
+                            {superAgentTourStep === 8 &&
+                              "صمّم سفيراً أو صانع محتوى UGC يتحدث باللهجة النجدية أو الحجازية عن كافيه KUBE."}
+                            {superAgentTourStep === 9 &&
+                              "ولّد 9 زوايا إعلانية مختلفة بضغطة زر واحدة تناسب جميع مقاسات المنصات (ستوري، بوست، ريلز)."}
+                            {superAgentTourStep === 10 &&
+                              "حمّل الصور والفيديوهات بدقة 4K سينمائية مع إضاءة استوديو كاملة بدون أي علامات مائية."}
+                          </p>
+                        </div>
+
+                        {/* 10 Progress Dots */}
+                        <div className="flex items-center justify-center gap-1.5 py-1">
+                          {Array.from({ length: 10 }).map((_, i) => (
+                            <span
+                              key={i}
+                              className={`h-1.5 rounded-full transition-all ${
+                                superAgentTourStep === i + 1
+                                  ? "w-5 bg-[#00e575]"
+                                  : "w-1.5 bg-white/20"
+                              }`}
+                            />
+                          ))}
+                        </div>
+
+                        {/* Navigation Buttons */}
+                        <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                          {superAgentTourStep > 1 ? (
+                            <button
+                              onClick={() => setSuperAgentTourStep((s) => Math.max(1, s - 1))}
+                              className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 font-bold text-xs active:scale-95 transition-all"
+                            >
+                              رجوع
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => setSuperAgentTourOpen(false)}
+                              className="px-4 py-2 rounded-xl text-zinc-500 hover:text-zinc-300 text-xs font-bold"
+                            >
+                              تخطي
+                            </button>
+                          )}
+
+                          {superAgentTourStep < 10 ? (
+                            <button
+                              onClick={() => setSuperAgentTourStep((s) => Math.min(10, s + 1))}
+                              className="px-5 py-2 rounded-xl bg-white text-black font-black text-xs active:scale-95 transition-all shadow-md"
+                            >
+                              التالي
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setSuperAgentTourOpen(false);
+                                toast.success("أنت الآن جاهز لاستخدام سوبر ايجنت بكل احترافية!");
+                              }}
+                              className="px-5 py-2 rounded-xl bg-[#00e575] text-black font-black text-xs active:scale-95 transition-all shadow-md shadow-[#00e575]/30"
+                            >
+                              ابدأ الآن
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               )}
 
@@ -3315,41 +4238,462 @@ function KubeAiMarketingPage() {
                 </div>
               )}
 
-              {/* MODAL: PROMLOG */}
-              {activeStudioModal === "promlog" && (
+              {/* MODAL: MCP & SKILLS HUB (Matching IMG_0100) */}
+              {activeStudioModal === "mcp_hub" && (
                 <div className="space-y-6 text-right">
-                  <div className="pb-4 border-b border-white/10">
-                    <h3 className="font-black text-base text-white">بروملوق — مكتبة برومبتات كافيه KUBE الكاملة</h3>
-                    <p className="text-xs text-zinc-400">أكثر من 40 برومبت احترافي باللغتين العربية والإنجليزية</p>
+                  <div className="pb-4 border-b border-white/10 space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono">
+                      <span>OPEN CLIENT إبداعي</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-white">BETA</span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white">
+                      اربط KUBE AI مع أي وكيل ذكاء اصطناعي أو بيئة تطوير بأمر واحد
+                    </h3>
+                    <p className="text-xs text-zinc-400 max-w-xl leading-relaxed">
+                      بروتوكول Model Context Protocol يتيح لك استدعاء استوديوهات KUBE لتوليد الفيديو والصور والإعلانات من Cursor و Claude Desktop و LangChain مباشرة.
+                    </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {SAUDI_VISUAL_PROMPTS.map((p) => (
-                      <div
-                        key={p.id}
-                        className="rounded-2xl border border-white/10 bg-zinc-900 p-4 space-y-2.5 flex flex-col justify-between"
+                  {/* Terminal Command Box */}
+                  <div className="p-4 rounded-2xl bg-black border border-white/15 space-y-3 font-mono text-xs">
+                    <div className="flex items-center justify-between text-zinc-500">
+                      <span>Terminal / CLI Command</span>
+                      <button
+                        onClick={() => handleCopy("npx skills-ai add kube-marketing", "أمر التثبيت")}
+                        className="flex items-center gap-1 text-[#00e575] hover:underline"
                       >
-                        <div className="space-y-1.5">
-                          <span className="text-[10px] font-mono text-[#ff3b56] block">{p.category}</span>
-                          <h4 className="text-xs font-black text-white">{p.title}</h4>
-                          <p className="text-xs text-zinc-300 leading-relaxed font-sans">{p.arabicPrompt}</p>
-                          <div className="p-2.5 rounded-xl bg-black/60 border border-white/5 text-[10px] font-mono text-zinc-400 select-all">
-                            {p.englishPrompt}
-                          </div>
-                        </div>
+                        <Copy className="w-3.5 h-3.5" /> نسخ
+                      </button>
+                    </div>
+                    <div className="p-3 rounded-xl bg-zinc-950 text-[#00e575] border border-white/5 select-all">
+                      npx skills-ai add kube-marketing
+                    </div>
+                  </div>
 
+                  {/* Supported Integrations Grid */}
+                  <div className="space-y-2">
+                    <span className="text-xs font-bold text-white block">العملاء والبيئات المدعومة رسمياً:</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                      {[
+                        { name: "Claude Desktop", desc: "أداة توليد وسائط باللغة الطبيعية" },
+                        { name: "Cursor & Windsurf", desc: "استدعاء التوليد داخل بيئة الكود" },
+                        { name: "LangChain & Flowise", desc: "سير عمل مؤتمت للحملات" },
+                        { name: "سلة وزد كاشير", desc: "توليد صور المنتجات من الكتالوج" },
+                      ].map((item, i) => (
+                        <div key={i} className="p-3.5 rounded-2xl bg-zinc-900 border border-white/10 space-y-1">
+                          <span className="font-black text-white block">{item.name}</span>
+                          <span className="text-[10px] text-zinc-400 block leading-tight">{item.desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL: CONNECTORS HUB (الموصلات) */}
+              {activeStudioModal === "connectors_hub" && (
+                <div className="space-y-6 text-right">
+                  <div className="pb-4 border-b border-white/10">
+                    <h3 className="text-lg font-black text-white">الموصلات وتكاملات القنوات (Connectors)</h3>
+                    <p className="text-xs text-zinc-400">اربط قنوات النشر والتجارة لتصدير الإعلانات والمحتوى آلياً</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                    {[
+                      { name: "متجر سلة (Salla)", desc: "مزامنة المنتجات وتوليد خلفيات 3D لمتجر القهوة", status: "متصل" },
+                      { name: "متجر زد (Zid)", desc: "تحديث صور الكتالوج وإعلانات 9x في متجر KUBE", status: "متصل" },
+                      { name: "تيك توك للأعمال (TikTok Ads)", desc: "نشر فيديوهات الـ UGC مباشرة في الحملات", status: "جاهز للربط" },
+                      { name: "سناب شات (Snapchat Ads)", desc: "تصدير فلاتر وإعلانات 9:16 العمودية", status: "جاهز للربط" },
+                      { name: "سلاك (Slack Notifications)", desc: "إرسال مسودات الإعلانات لاعتمادها من فريق التسويق", status: "متصل" },
+                      { name: "قوقل درايف (Google Drive)", desc: "حفظ ريندرات 4K الأصلية في مجلد الكافيه", status: "متصل" },
+                    ].map((conn, idx) => (
+                      <div key={idx} className="p-4 rounded-2xl bg-zinc-900 border border-white/10 space-y-3 flex flex-col justify-between">
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-white">{conn.name}</span>
+                            <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-[#00e575]">
+                              {conn.status}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-zinc-400 leading-relaxed">{conn.desc}</p>
+                        </div>
                         <button
-                          onClick={() => handleCopy(p.englishPrompt, p.title)}
-                          className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-[#ff2a4b] hover:text-white text-xs font-bold active:scale-95 transition-colors"
+                          onClick={() => toast.success(`تم تحديث موصل: ${conn.name}`)}
+                          className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-200 text-xs font-bold active:scale-95 transition-all text-center"
                         >
-                          نسخ البرومبت بالإنجليزية
+                          إعدادات الموصّل
                         </button>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
+
+              {/* MODAL: COMMUNITY (المجتمع) */}
+              {activeStudioModal === "community" && (
+                <div className="space-y-6 text-right">
+                  <div className="pb-4 border-b border-white/10 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-black text-white">مجتمع إبداع KUBE</h3>
+                      <p className="text-xs text-zinc-400">أحدث الإعلانات والبرومبتات الملهمة المطروحة من فريق التسويق</p>
+                    </div>
+                    <button
+                      onClick={() => toast.info("شارك إعلانك المولد مع طاقم KUBE")}
+                      className="px-4 py-2 rounded-xl bg-[#00e575] text-black font-black text-xs active:scale-95"
+                    >
+                      مشاركة إعلان +
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                    {[
+                      { title: "كولد برو بالنيون", author: "سارة النمر", likes: 89, thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/68f99df1e137fb4eccb09a8fd2c8dd10/thumbnails/thumbnail.jpg?height=720" },
+                      { title: "فلات وايت صباحي", author: "فيصل العتيبي", likes: 142, thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/47e6fccb610688b7c7eb8c091577872a/thumbnails/thumbnail.jpg?height=720" },
+                      { title: "كرواسون لوز فاخر", author: "نوف السديري", likes: 64, thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/b0846f302f55b41ad9c4fcc29bb8dd97/thumbnails/thumbnail.jpg?height=720" },
+                      { title: "حزمة أكياس المحاصيل", author: "عبدالله الشمري", likes: 110, thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/21d02f613a69c054c30b1438749d13f4/thumbnails/thumbnail.jpg?height=720" },
+                    ].map((c, i) => (
+                      <div key={i} className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 shadow-lg">
+                        <img src={c.thumb} alt={c.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                        <div className="absolute bottom-2 inset-x-2 space-y-1 text-right">
+                          <span className="text-xs font-bold text-white block truncate">{c.title}</span>
+                          <div className="flex items-center justify-between text-[10px] text-zinc-400">
+                            <span>{c.author}</span>
+                            <span className="text-[#00e575]">♥ {c.likes}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL: TUTORIALS (الشروحات) */}
+              {activeStudioModal === "tutorials" && (
+                <div className="space-y-6 text-right">
+                  <div className="pb-4 border-b border-white/10">
+                    <h3 className="text-lg font-black text-white">أكاديمية وشروحات KUBE AI</h3>
+                    <p className="text-xs text-zinc-400">دروس سريعة ترفع جودة إعلاناتك من لقطة عادية إلى ريندر تجاري عالمي</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {[
+                      { title: "كيف تنشئ إعلان 30 ثانية لقهوتك", dur: "3 دقائق", desc: "خطوة بخطوة من كتابة فكرة المشهد حتى تصدير الفيديو بالصوت النقي" },
+                      { title: "أسرار محاكاة الحركة في Mimic Motion", dur: "4 دقائق", desc: "كيف تنسخ سكب القهوة وحركات الأيدي بدون أي تشوه بصري" },
+                      { title: "توجيه إضاءة الاستوديو ثلاثية الأبعاد", dur: "5 دقائق", desc: "محاكاة الـ Softbox والـ Rim Light مع أسطح الرخام الأسود" },
+                    ].map((tut, i) => (
+                      <div key={i} className="p-4 rounded-2xl bg-zinc-900 border border-white/10 space-y-3 flex flex-col justify-between">
+                        <div className="space-y-2">
+                          <div className="aspect-video w-full rounded-xl bg-black flex items-center justify-center text-zinc-500">
+                            <Play className="w-8 h-8 text-[#00e575]" />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-white">{tut.title}</span>
+                            <span className="text-[10px] font-mono text-zinc-400">{tut.dur}</span>
+                          </div>
+                          <p className="text-[11px] text-zinc-400 leading-relaxed">{tut.desc}</p>
+                        </div>
+                        <button
+                          onClick={() => toast.info("جاري تشغيل الشرح التعليمي...")}
+                          className="w-full py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold active:scale-95"
+                        >
+                          مشاهدة الشرح ▶
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL: PRICING PLANS (الباقات - نسختك المؤسسية غير المحدودة) */}
+              {activeStudioModal === "pricing_plans" && (
+                <div className="space-y-6 text-right">
+                  <div className="pb-4 border-b border-white/10 text-center space-y-1">
+                    <span className="text-xs font-mono text-[#00e575] font-bold">وصول مؤسسي غير محدود</span>
+                    <h3 className="text-xl sm:text-2xl font-black text-white">باقات واستخدام استوديو KUBE AI</h3>
+                    <p className="text-xs text-zinc-400">حسابك مفعّل على الخطة المؤسسية الخاصة بكافة منسوبي كافيه ومطبخ KUBE</p>
+                  </div>
+
+                  <div className="max-w-md mx-auto p-6 rounded-3xl bg-zinc-900 border-2 border-[#00e575]/40 space-y-5 shadow-2xl relative">
+                    <span className="absolute -top-3 right-6 px-3 py-1 rounded-full text-[10px] font-black bg-[#00e575] text-black shadow-md">
+                      الخطة المفعلة حالياً
+                    </span>
+
+                    <div className="space-y-1">
+                      <span className="text-lg font-black text-white block">باقة المؤسسة (Enterprise Staff)</span>
+                      <span className="text-xs text-zinc-400 block">وصول داخلي شامل لكافة الاستوديوهات والنماذج</span>
+                    </div>
+
+                    <div className="space-y-2.5 text-xs text-zinc-300">
+                      {[
+                        "توليد غير محدود لصور المنتجات بدقة 4K",
+                        "إنشاء مقاطع UGC مع شخصيات سعودية واقعية",
+                        "محاكاة الحركة السينمائية Mimic 60fps",
+                        "استوديو الإعلانات 9x والـ 30 نمط بصري",
+                        "ربط بروتوكول MCP مع كاشير سلة وزد",
+                        "تصدير تجاري بدون أي علامات مائية أو حدود نقاط",
+                      ].map((feat, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-[#00e575] shrink-0" />
+                          <span>{feat}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-black/60 border border-white/5 text-center text-xs font-mono text-[#00e575]">
+                      الحالة: نشط ومفعّل بالكامل لـ زياد عيسى
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL: CHARACTER CREATOR (استوديو الشخصيات) */}
+              {activeStudioModal === "character_creator" && (
+                <div className="space-y-6 text-right">
+                  <div className="pb-4 border-b border-white/10">
+                    <h3 className="text-lg font-black text-white">صمّم شخصيتك الإعلانية الافتراضية</h3>
+                    <p className="text-xs text-zinc-400">اجعل الوجه نفسه بطل كل حملات وفيديوهات كافيه KUBE القادمة</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-white block">اسم الشخصية:</label>
+                        <input
+                          type="text"
+                          defaultValue="سفير KUBE الجديد"
+                          className="w-full rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-xs text-white"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-white block">الزي والمظهر:</label>
+                        <select className="w-full rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-xs text-white">
+                          <option>ثوب سعودي عصري وشماغ أنيق</option>
+                          <option>عباية وبشت مطرز فاخر</option>
+                          <option>كاجوال شبابي وهودي KUBE أسود</option>
+                        </select>
+                      </div>
+                      <button
+                        onClick={() => {
+                          toast.success("تم تثبيت ملامح الشخصية بنجاح ونقلها للاستوديو!");
+                          setActiveStudioModal("ugc_studio");
+                        }}
+                        className="w-full py-3 rounded-xl bg-[#00e575] text-black font-black text-xs active:scale-95"
+                      >
+                        حفظ واستخدام الشخصية
+                      </button>
+                    </div>
+
+                    <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-black border border-white/10 flex items-center justify-center relative">
+                      <img
+                        src="https://media.hallah.ai/cdn-cgi/image/width=400,format=auto/cms/studios/ugc-2/characters/male/sultan.png"
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-black/75 text-[10px] text-white font-mono">
+                        معاينة الملامح الثابتة
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL: SHOTS STUDIO (لقطات) */}
+              {activeStudioModal === "shots_studio" && (
+                <div className="space-y-6 text-right">
+                  <div className="pb-4 border-b border-white/10">
+                    <h3 className="text-lg font-black text-white">لقطات سريعة (Instant Shots)</h3>
+                    <p className="text-xs text-zinc-400">توليد لقطة إعلانية واحدة لمنتجك بنقرة واحدة بدون خطوات إضافية</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {KUBE_COFFEE_CATALOG.map((c) => (
+                      <div
+                        key={c.id}
+                        onClick={() => {
+                          toast.success(`تم توليد لقطة سريعة لـ: ${c.name}`);
+                          setLightboxItem({
+                            isOpen: true,
+                            imgUrl: c.img,
+                            title: `لقطة: ${c.name}`,
+                            prompt: `Instant macro hero shot of ${c.name} in KUBE cafe with cinematic rim light`,
+                            aspectRatio: "1:1",
+                            specs: "Instant 4K Shot",
+                          });
+                        }}
+                        className="p-3 rounded-2xl bg-zinc-900 border border-white/10 hover:border-[#00e575] cursor-pointer active:scale-95 transition-all text-center space-y-2"
+                      >
+                        <div className="aspect-square rounded-xl overflow-hidden bg-black">
+                          <img src={c.img} alt={c.name} className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-xs font-bold text-white block truncate">{c.name}</span>
+                        <span className="text-[10px] text-[#00e575] block font-mono">التقاط فوري ✦</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 17.5. NEW AD BOTTOM SHEET MODAL (Matching IMG_0105)            */}
+      {/* ============================================================== */}
+      {isNewAdModalOpen && (
+        <div
+          onClick={() => setIsNewAdModalOpen(false)}
+          className="fixed inset-0 z-[10020] bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 select-none touch-manipulation"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full sm:max-w-lg rounded-t-[32px] sm:rounded-[32px] bg-[#141416] border-t sm:border border-white/15 p-5 space-y-4 text-right shadow-2xl animate-in slide-in-from-bottom duration-300 select-text"
+          >
+            {/* iOS Top Drag Indicator */}
+            <div className="w-10 h-1 rounded-full bg-zinc-600 mx-auto -mt-1 mb-2" />
+
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <button
+                type="button"
+                onClick={() => setIsNewAdModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center active:scale-95"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <h3 className="text-base font-black text-white">إعلان جديد</h3>
+            </div>
+
+            {/* Segmented Switcher: فيديو / صورة */}
+            <div className="inline-flex p-1 rounded-xl bg-zinc-900 border border-white/10 text-xs w-full justify-center">
+              <button
+                type="button"
+                onClick={() => setHeroMode("video")}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all font-bold ${
+                  heroMode === "video" ? "bg-zinc-800 text-white" : "text-zinc-400"
+                }`}
+              >
+                <Video className="w-3.5 h-3.5 text-[#00e575]" />
+                <span>فيديو</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setHeroMode("image")}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all font-bold ${
+                  heroMode === "image" ? "bg-zinc-800 text-white" : "text-zinc-400"
+                }`}
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>صورة</span>
+              </button>
+            </div>
+
+            {/* 3 Upload / Select Slots */}
+            <div className="grid grid-cols-3 gap-2.5">
+              <div
+                onClick={() => {
+                  setHeroProduct(KUBE_COFFEE_CATALOG[0]);
+                  toast.success("تم اختيار المنتج: كولد برو كيني");
+                }}
+                className="aspect-square rounded-2xl bg-zinc-900/80 border border-white/10 hover:border-[#00e575] p-2 flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 relative"
+              >
+                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-white/10 text-white flex items-center justify-center text-[10px]">
+                  +
+                </div>
+                <Coffee className="w-5 h-5 text-zinc-400" />
+                <span className="text-[10px] font-bold text-zinc-300">المنتج</span>
+              </div>
+
+              <div
+                onClick={() => {
+                  setHeroPersona(UGC_CREATORS[0]);
+                  toast.success("تم اختيار الشخصية: سلطان");
+                }}
+                className="aspect-square rounded-2xl bg-zinc-900/80 border border-white/10 hover:border-[#00e575] p-2 flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 relative"
+              >
+                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-white/10 text-white flex items-center justify-center text-[10px]">
+                  +
+                </div>
+                <Users className="w-5 h-5 text-zinc-400" />
+                <span className="text-[10px] font-bold text-zinc-300">الشخصية</span>
+              </div>
+
+              <div
+                onClick={() => {
+                  setHeroScene("بار القهوة المختصة");
+                  toast.success("تم اختيار المشهد: بار القهوة");
+                }}
+                className="aspect-square rounded-2xl bg-zinc-900/80 border border-white/10 hover:border-[#00e575] p-2 flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 relative"
+              >
+                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-white/10 text-white flex items-center justify-center text-[10px]">
+                  +
+                </div>
+                <ImageIcon className="w-5 h-5 text-zinc-400" />
+                <span className="text-[10px] font-bold text-zinc-300">المشهد</span>
+              </div>
+            </div>
+
+            {/* Prompt Textarea */}
+            <div className="p-3 rounded-2xl bg-zinc-900/90 border border-white/10">
+              <textarea
+                rows={3}
+                value={heroPrompt}
+                onChange={(e) => setHeroPrompt(e.target.value)}
+                placeholder="صف الإعلان الذي تريد إنشاءه..."
+                className="w-full bg-transparent text-xs text-white placeholder:text-zinc-500 focus:outline-none resize-none leading-relaxed"
+              />
+            </div>
+
+            {/* Controls Row */}
+            <div className="grid grid-cols-4 gap-2 text-[11px] font-mono">
+              <div className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center truncate font-bold text-zinc-300">
+                اختر نوعًا
+              </div>
+              <div className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center font-bold text-zinc-300">
+                9:16
+              </div>
+              <div className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center font-bold text-zinc-300">
+                1080p
+              </div>
+              <div className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center font-bold text-zinc-300">
+                10ث
+              </div>
+            </div>
+
+            {/* Helper text */}
+            <div className="text-center text-[11px] text-zinc-400">
+              اختر نوع الإعلان لتبدأ
+            </div>
+
+            {/* Action button */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsNewAdModalOpen(false);
+                toast.info("جاري توجيه طلب إنشاء الإعلان للريندر...");
+                setTimeout(() => {
+                  const newAd = {
+                    id: `ad-${Date.now()}`,
+                    title: `إعلان كافيه KUBE مخصص`,
+                    type: heroMode,
+                    thumb: KUBE_COFFEE_CATALOG[0].img,
+                    createdAt: "الآن",
+                    status: "ready" as const,
+                    aspect: "9:16",
+                    prompt: heroPrompt || "Custom commercial ad",
+                  };
+                  setUserAds((prev) => [newAd, ...prev]);
+                  toast.success("تم إتمام الإنشاء وإضافته لقسم إعلاناتي!");
+                }, 1000);
+              }}
+              className="w-full py-3 rounded-2xl bg-zinc-800 hover:bg-[#00e575] hover:text-black text-zinc-300 font-bold text-xs active:scale-95 transition-all flex items-center justify-center gap-1.5"
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              <span>إنشاء</span>
+            </button>
           </div>
         </div>
       )}
