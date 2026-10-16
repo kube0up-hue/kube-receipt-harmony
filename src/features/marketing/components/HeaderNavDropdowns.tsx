@@ -74,9 +74,15 @@ const STUDIOS_LIST = [
   },
   {
     id: "storyboard",
-    title: "لقطات",
+    title: "ستوري بورد",
     desc: "تخطيط ستوري بورد سينمائي وتقسيم مشاهد الإعلان خطوة بخطوة",
     icon: Clapperboard,
+  },
+  {
+    id: "shots",
+    title: "لقطات",
+    desc: "توليد لقطة إعلانية واحدة لمنتجك بنقرة واحدة سريعة بدقة 4K",
+    icon: Camera,
   },
   {
     id: "ugc_1",
@@ -412,6 +418,14 @@ const CREATIVE_APPS_LIST = [
     icon: Radio,
     badge: "Beta",
     badgeColor: "bg-purple-500 text-white",
+  },
+  {
+    id: "templates",
+    title: "تطبيقات وقوالب إعلانية جاهزة",
+    desc: "كتالوج القوالب الإعلانية الجاهزة لكافيه KUBE والمنتجات بنقرة واحدة",
+    icon: LayoutGrid,
+    badge: "جديد",
+    badgeColor: "bg-[#00e575] text-black",
   },
 ];
 

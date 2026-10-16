@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { PermissionGuard } from "@/components/permission-guard";
 import {
   Sparkles,
@@ -548,31 +548,122 @@ interface ChatMessage {
   timestamp: string;
 }
 
+export type StudioPageKey =
+  | "studio_2"
+  | "storyboard"
+  | "ugc_studio"
+  | "ads_9x"
+  | "product_3d"
+  | "character_creator"
+  | "shots_studio"
+  | "mimic_motion"
+  | "super_agent"
+  | "mcp_hub"
+  | "templates"
+  | "promlog"
+  | "tutorials"
+  | "pricing_plans"
+  | "community"
+  | "models_api"
+  | "providers_guide"
+  | "connectors_hub";
+
+const VALID_STUDIO_KEYS: StudioPageKey[] = [
+  "studio_2",
+  "storyboard",
+  "ugc_studio",
+  "ads_9x",
+  "product_3d",
+  "character_creator",
+  "shots_studio",
+  "mimic_motion",
+  "super_agent",
+  "mcp_hub",
+  "templates",
+  "promlog",
+  "tutorials",
+  "pricing_plans",
+  "community",
+  "models_api",
+  "providers_guide",
+  "connectors_hub",
+];
+
 function KubeAiMarketingPage() {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const backHomeUrl = primaryRoleHome(currentUser.data?.roles ?? []);
 
-  // Modal Workspace States (Expanded to 100% cover Halai studios, MCP, Community, Tutorials, Pricing, and Shots)
-  const [activeStudioModal, setActiveStudioModal] = useState<
-    | "none"
-    | "super_agent"
-    | "product_3d"
-    | "ugc_studio"
-    | "ads_9x"
-    | "models_api"
-    | "promlog"
-    | "providers_guide"
-    | "mimic_motion"
-    | "storyboard_studio"
-    | "mcp_hub"
-    | "community"
-    | "tutorials"
-    | "pricing_plans"
-    | "character_creator"
-    | "shots_studio"
-    | "connectors_hub"
-  >("none");
+  // Standalone Studio Page Navigation State (100% Matching Halai Architecture - NO Popups/Modals!)
+  const [currentStudioPage, setCurrentStudioPage] = useState<StudioPageKey>(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const s = params.get("studio");
+      if (s && VALID_STUDIO_KEYS.includes(s as StudioPageKey)) {
+        return s as StudioPageKey;
+      }
+      if (s === "storyboard_studio") return "storyboard";
+      if (s === "mcp") return "mcp_hub";
+    }
+    return "studio_2";
+  });
+
+  const navigateToStudio = useCallback(
+    (studioKey: StudioPageKey | "none" | "storyboard_studio" | "mcp" | string) => {
+      let targetKey: StudioPageKey = "studio_2";
+      if (studioKey === "none" || studioKey === "studio_2") {
+        targetKey = "studio_2";
+      } else if (studioKey === "storyboard_studio") {
+        targetKey = "storyboard";
+      } else if (studioKey === "mcp") {
+        targetKey = "mcp_hub";
+      } else if (VALID_STUDIO_KEYS.includes(studioKey as StudioPageKey)) {
+        targetKey = studioKey as StudioPageKey;
+      }
+
+      setCurrentStudioPage(targetKey);
+      setMobileMenuOpen(false);
+
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        if (targetKey === "studio_2") {
+          url.searchParams.delete("studio");
+        } else {
+          url.searchParams.set("studio", targetKey);
+        }
+        window.history.pushState({}, "", url.toString());
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    },
+    []
+  );
+
+  // Backward compatibility alias: any call to setActiveStudioModal navigates to the standalone page
+  const setActiveStudioModal = useCallback(
+    (modal: string) => {
+      navigateToStudio(modal);
+    },
+    [navigateToStudio]
+  );
+  const activeStudioModal = currentStudioPage;
+
+  useEffect(() => {
+    const onPopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const s = params.get("studio");
+      if (s && VALID_STUDIO_KEYS.includes(s as StudioPageKey)) {
+        setCurrentStudioPage(s as StudioPageKey);
+      } else if (s === "storyboard_studio") {
+        setCurrentStudioPage("storyboard");
+      } else if (s === "mcp") {
+        setCurrentStudioPage("mcp_hub");
+      } else {
+        setCurrentStudioPage("studio_2");
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   // Mobile drawer toggle & accordion states
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -1067,6 +1158,10 @@ function KubeAiMarketingPage() {
           {/* KUBE UP Official Brand Logo */}
           <Link
             to="/admin/marketing"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToStudio("studio_2");
+            }}
             className="h-9 md:h-12 flex items-center shrink-0 cursor-pointer hover:opacity-90 transition-opacity gap-2 md:gap-3"
           >
             <img
@@ -1083,41 +1178,45 @@ function KubeAiMarketingPage() {
           <HeaderNavDropdowns
             onSelectStudio={(studioId) => {
               if (studioId === "marketing_2" || studioId === "cinema") {
+                navigateToStudio("studio_2");
                 setHeroMode("video");
-                window.scrollTo({ top: 0, behavior: "smooth" });
               } else if (studioId === "ugc_2" || studioId === "ugc_1") {
-                setActiveStudioModal("ugc_studio");
+                navigateToStudio("ugc_studio");
               } else if (studioId === "ads_9x" || studioId === "marketing_1") {
-                setActiveStudioModal("ads_9x");
+                navigateToStudio("ads_9x");
               } else if (studioId === "products") {
-                setActiveStudioModal("product_3d");
+                navigateToStudio("product_3d");
               } else if (studioId === "characters") {
-                setActiveStudioModal("character_studio");
+                navigateToStudio("character_creator");
               } else if (studioId === "storyboard") {
-                setActiveStudioModal("mimic_motion");
+                navigateToStudio("storyboard");
+              } else if (studioId === "shots") {
+                navigateToStudio("shots_studio");
               }
             }}
             onSelectPhotoModel={(modelName) => {
+              navigateToStudio("studio_2");
               setHeroMode("image");
               setHeroPrompt((prev) => prev || `صورة فوتوغرافية احترافية لكوب قهوة مختصة KUBE بدقة 4K بنموذج ${modelName}`);
-              window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             onSelectVideoModel={(modelName) => {
+              navigateToStudio("studio_2");
               setHeroMode("video");
               setHeroPrompt((prev) => prev || `إعلان فيديو سينمائي 15 ثانية لكافيه KUBE بنموذج ${modelName}`);
-              window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             onSelectApp={(appId) => {
               if (appId === "super_agent") {
-                setActiveStudioModal("super_agent");
+                navigateToStudio("super_agent");
               } else if (appId === "mimic_motion") {
-                setActiveStudioModal("mimic_motion");
+                navigateToStudio("mimic_motion");
               } else if (appId === "storyboard") {
-                setActiveStudioModal("mimic_motion");
+                navigateToStudio("storyboard");
               } else if (appId === "promlog") {
-                document.getElementById("my-ads-section")?.scrollIntoView({ behavior: "smooth" });
+                navigateToStudio("promlog");
               } else if (appId === "mcp_connect") {
-                document.getElementById("mcp-section")?.scrollIntoView({ behavior: "smooth" });
+                navigateToStudio("mcp_hub");
+              } else if (appId === "templates") {
+                navigateToStudio("templates");
               }
             }}
           />
@@ -1192,12 +1291,22 @@ function KubeAiMarketingPage() {
             className="fixed inset-y-0 start-0 z-[10006] w-[88vw] max-w-[320px] bg-[#141416] border-e border-white/10 p-4 flex flex-col justify-between overflow-y-auto shadow-2xl animate-in slide-in-from-start duration-300 select-text"
           >
             <div className="space-y-4">
-              {/* Drawer Topbar with Quick Utility Icons */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              {/* Drawer Topbar with Clean Spacing & Zero Overlap */}
+              <div className="flex items-center justify-between pb-3.5 border-b border-white/10">
+                {/* Logo & Version Badge */}
+                <div className="flex items-center gap-2">
+                  <img
+                    src="/kube-up-logo.png"
+                    alt="KUBE UP"
+                    className="h-6 sm:h-7 w-auto object-contain rounded"
+                  />
+                  <span className="rounded-full bg-[#00e575]/15 border border-[#00e575]/30 px-1.5 py-0.5 text-[9px] font-bold text-[#00e575] font-mono">
+                    2.0
+                  </span>
+                </div>
+
+                {/* Right controls: quick icons & distinct Close button */}
                 <div className="flex items-center gap-1.5">
-                  <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-black font-black text-xs ring-2 ring-[#00e575]">
-                    ز
-                  </div>
                   <a
                     href="https://tiktok.com/@kube"
                     target="_blank"
@@ -1215,47 +1324,19 @@ function KubeAiMarketingPage() {
                     <Bell className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => {
-                      setMyAdsFilter("all");
-                      setMobileMenuOpen(false);
-                      const el = document.getElementById("my-ads-section");
-                      if (el) el.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 flex items-center justify-center border border-white/5"
-                    title="إعلاناتي والمكتبة"
-                  >
-                    <Folder className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5">
-                    <img
-                      src="/kube-up-logo.png"
-                      alt="KUBE UP"
-                      className="h-6 w-auto object-contain rounded"
-                    />
-                    <span className="rounded-full bg-[#00e575]/15 border border-[#00e575]/30 px-1.5 py-0.5 text-[9px] font-bold text-[#00e575] font-mono">
-                      2.0
-                    </span>
-                  </div>
-                  <button
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center border border-white/10 active:scale-95"
+                    aria-label="إغلاق القائمة"
+                    className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center border border-white/15 active:scale-95 transition-all ms-1"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              {/* Root Nav Items: صور / فيديو / تطبيقات */}
+              {/* Root Nav Items: صور / فيديو / تطبيقات (Dedicated Standalone Pages) */}
               <div className="space-y-1">
                 <button
-                  onClick={() => {
-                    setHeroMode("image");
-                    setActiveStudioModal("product_3d");
-                    setMobileMenuOpen(false);
-                  }}
+                  onClick={() => navigateToStudio("product_3d")}
                   className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5 transition-all text-xs font-bold"
                 >
                   <div className="flex items-center gap-2.5">
@@ -1267,8 +1348,7 @@ function KubeAiMarketingPage() {
                 <button
                   onClick={() => {
                     setHeroMode("video");
-                    setActiveStudioModal("mimic_motion");
-                    setMobileMenuOpen(false);
+                    navigateToStudio("studio_2");
                   }}
                   className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5 transition-all text-xs font-bold"
                 >
@@ -1279,11 +1359,7 @@ function KubeAiMarketingPage() {
                 </button>
 
                 <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    const el = document.getElementById("templates-section");
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
-                  }}
+                  onClick={() => navigateToStudio("templates")}
                   className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5 transition-all text-xs font-bold"
                 >
                   <div className="flex items-center gap-2.5">
@@ -1293,7 +1369,7 @@ function KubeAiMarketingPage() {
                 </button>
               </div>
 
-              {/* Accordion 1: الاستوديوهات */}
+              {/* Accordion 1: الاستوديوهات (كل استوديو صفحة مستقلة كاملة بدون نوافذ) */}
               <div className="pt-2 border-t border-white/5">
                 <button
                   onClick={() => setStudiosAccordionOpen(!studiosAccordionOpen)}
@@ -1308,8 +1384,7 @@ function KubeAiMarketingPage() {
                     <button
                       onClick={() => {
                         setHeroMode("video");
-                        setMobileMenuOpen(false);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
+                        navigateToStudio("studio_2");
                       }}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
@@ -1321,10 +1396,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("ads_9x");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("ads_9x")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1334,10 +1406,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("ugc_studio");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("ugc_studio")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1348,10 +1417,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("ads_9x");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("ads_9x")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white/10 text-white font-bold"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1364,10 +1430,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("storyboard_studio");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("storyboard")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1377,10 +1440,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("product_3d");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("product_3d")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1390,10 +1450,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("character_creator");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("character_creator")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1404,10 +1461,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("shots_studio");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("shots_studio")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1419,7 +1473,7 @@ function KubeAiMarketingPage() {
                 )}
               </div>
 
-              {/* Accordion 2: استكشف */}
+              {/* Accordion 2: استكشف (صفحات مستقلة) */}
               <div className="pt-2 border-t border-white/5">
                 <button
                   onClick={() => setExploreAccordionOpen(!exploreAccordionOpen)}
@@ -1432,10 +1486,7 @@ function KubeAiMarketingPage() {
                 {exploreAccordionOpen && (
                   <div className="space-y-1 pt-1 text-xs">
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("mcp_hub");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("mcp_hub")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1448,10 +1499,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("super_agent");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("super_agent")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1462,10 +1510,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("community");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("community")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1475,10 +1520,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("promlog");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("promlog")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1488,10 +1530,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("tutorials");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("tutorials")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1502,10 +1541,7 @@ function KubeAiMarketingPage() {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveStudioModal("pricing_plans");
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => navigateToStudio("pricing_plans")}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl text-zinc-200 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
@@ -1540,9 +1576,14 @@ function KubeAiMarketingPage() {
 
 
       {/* ============================================================== */}
-      {/* 4. SECTION 1: STUDIO 2.0 HERO & CREATION FORM (100% Halai)     */}
+      {/* MAIN VIEW: EITHER STUDIO 2.0 OR DEDICATED STANDALONE PAGE      */}
       {/* ============================================================== */}
-      <section className="relative w-full overflow-hidden bg-[#131416] pt-14 pb-10 px-3 sm:px-6 md:px-8 border-b border-white/[0.06]">
+      {currentStudioPage === "studio_2" ? (
+        <>
+          {/* ============================================================== */}
+          {/* 4. SECTION 1: STUDIO 2.0 HERO & CREATION FORM (100% Halai)     */}
+          {/* ============================================================== */}
+          <section className="relative w-full overflow-hidden bg-[#131416] pt-14 pb-10 px-3 sm:px-6 md:px-8 border-b border-white/[0.06]">
         {/* Halai Background Subtle Dot Grid */}
         <div
           className="absolute inset-0 pointer-events-none opacity-40"
@@ -2667,52 +2708,66 @@ function KubeAiMarketingPage() {
           </div>
         </div>
       </footer>
-
-      {/* ============================================================== */}
-      {/* 17. INTERACTIVE WORKSPACE MODAL OVERLAY (iPhone & Full Screen) */}
-      {/* ============================================================== */}
-      {activeStudioModal !== "none" && (
-        <div
-          onClick={() => setActiveStudioModal("none")}
-          className="fixed inset-0 z-[10010] bg-black/95 sm:bg-black/90 backdrop-blur-2xl flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 animate-in fade-in duration-200 select-none touch-manipulation"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full h-[94dvh] sm:h-[92vh] sm:max-w-6xl rounded-t-[28px] sm:rounded-[28px] border-t sm:border border-white/15 bg-[#121212] flex flex-col overflow-hidden shadow-2xl select-text"
-          >
-            {/* Mobile drag handle bar */}
-            <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto my-2 sm:hidden shrink-0" />
-
-            {/* Modal Topbar */}
-            <div className="h-14 px-4 sm:px-5 border-b border-white/10 flex items-center justify-between bg-zinc-950/90 shrink-0">
-              <div className="flex items-center gap-2.5 truncate">
-                <div className="w-6 h-6 rounded-lg bg-[#ff2a4b] text-white flex items-center justify-center font-black text-xs shrink-0">
-                  ⚡️
-                </div>
+        </>
+      ) : (
+        /* ============================================================== */
+        /* STANDALONE STUDIO PAGE WORKSPACE (100% Halai Real Page Parity) */
+        /* ============================================================== */
+        <main className="w-full min-h-[calc(100dvh-3.5rem)] pt-14 md:pt-16 bg-[#121214] flex flex-col text-right">
+          {/* Top Breadcrumb Bar with Back Navigation */}
+          <div className="w-full bg-[#18191c] border-b border-white/10 px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3 sticky top-14 md:top-16 z-30 backdrop-blur-md bg-opacity-95">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => navigateToStudio("studio_2")}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs border border-white/10 active:scale-95 transition-all group"
+              >
+                <ArrowRight className="w-4 h-4 text-[#00e575] group-hover:-translate-x-1 transition-transform" />
+                <span>العودة إلى استديو 2.0</span>
+              </button>
+              <div className="h-4 w-px bg-white/10 hidden sm:block" />
+              <div className="flex items-center gap-2 truncate">
                 <span className="text-xs sm:text-sm font-black text-white truncate">
-                  {activeStudioModal === "super_agent" && "سوبر ايجنت KUBE — محادثة فورية وتوليد إعلانات"}
-                  {activeStudioModal === "product_3d" && "استديو المنتجات 3D — إضاءة وزوايا ثلاثية الأبعاد"}
-                  {activeStudioModal === "ugc_studio" && "استديو UGC 2.0 — الشخصيات والسكريبتات"}
-                  {activeStudioModal === "ads_9x" && "استديو الإعلانات 9x — حزمة الـ 9 زوايا"}
-                  {activeStudioModal === "mimic_motion" && "استديو محاكاة الحركة (Mimic Motion) — ريندر سينمائي 60fps"}
-                  {activeStudioModal === "storyboard_studio" && "استديو الستوري بورد (Storyboard) — إخراج إعلاني من 4 مشاهد"}
-                  {activeStudioModal === "models_api" && "كتالوج نماذج ومحركات الذكاء الاصطناعي (API)"}
-                  {activeStudioModal === "promlog" && "بروملوق — بنك برومبتات كافيه KUBE"}
-                  {activeStudioModal === "providers_guide" && "دليل مفاتيح المزودين ومستودعات الربط (API Keys Guide)"}
+                  {(currentStudioPage === "storyboard" || currentStudioPage === "storyboard_studio") && "استديو الستوري بورد (Storyboard) — إخراج إعلاني من 4 مشاهد"}
+                  {currentStudioPage === "ugc_studio" && "استديو UGC 2.0 — صناع محتوى سعوديين واقعيين"}
+                  {currentStudioPage === "ads_9x" && "استديو الإعلانات 9x — حزمة الـ 9 زوايا التسويقية"}
+                  {currentStudioPage === "product_3d" && "استديو المنتجات 3D — زوايا وإضاءة ثلاثية الأبعاد"}
+                  {currentStudioPage === "character_creator" && "استديو الشخصيات — تثبيت ملامح الممثل والباريستا"}
+                  {currentStudioPage === "shots_studio" && "استديو اللقطات — لقطات إعلانية سريعة بدقة 4K"}
+                  {currentStudioPage === "mimic_motion" && "استديو محاكاة الحركة (Mimic Motion) — ريندر سينمائي 60fps"}
+                  {currentStudioPage === "super_agent" && "سوبر ايجنت KUBE — محادثة فورية وتوليد إعلانات"}
+                  {currentStudioPage === "mcp_hub" && "اتصال MCP Hub — ربط المنصة مع Claude Desktop و Cursor"}
+                  {currentStudioPage === "templates" && "تطبيقات وقوالب إعلانية جاهزة"}
+                  {currentStudioPage === "promlog" && "بروملوق — بنك برومبتات كافيه KUBE"}
+                  {currentStudioPage === "tutorials" && "شروحات وأكاديمية KUBE"}
+                  {currentStudioPage === "pricing_plans" && "الباقات والاشتراكات"}
+                  {currentStudioPage === "community" && "مجتمع مبدعي KUBE"}
+                  {currentStudioPage === "models_api" && "كتالوج نماذج ومحركات الذكاء الاصطناعي (API)"}
+                  {currentStudioPage === "providers_guide" && "دليل مفاتيح المزودين ومستودعات الربط (API Keys Guide)"}
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#00e575]/20 text-[#00e575] border border-[#00e575]/40 font-mono shrink-0">
+                  صفحة مستقلة
                 </span>
               </div>
-
-              <button
-                onClick={() => setActiveStudioModal("none")}
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition-colors shrink-0"
-                title="إغلاق النافذة"
-              >
-                <X className="w-5 h-5" />
-              </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 pb-6 sm:pb-8">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success("تم نسخ رابط الصفحة المباشر!");
+                }}
+                className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white text-xs font-bold transition-colors flex items-center gap-1.5 border border-white/5"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">مشاركة الرابط</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Standalone Page Workspace Body Container */}
+          <div className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 md:p-8 space-y-6">
               {/* MODAL: PROVIDERS API KEYS GUIDE (New Report) */}
               {activeStudioModal === "providers_guide" && (
                 <div className="space-y-6 text-right">
@@ -4495,14 +4550,20 @@ function KubeAiMarketingPage() {
               )}
 
               {/* ============================================================== */}
-              {/* MODAL: STORYBOARD STUDIO WORKSPACE (Multi-Scene Sequence)     */}
+              {/* PAGE: STORYBOARD STUDIO WORKSPACE (Multi-Scene Sequence)      */}
               {/* ============================================================== */}
-              {activeStudioModal === "storyboard_studio" && (
-                <div className="space-y-5 text-right">
+              {(currentStudioPage === "storyboard" || currentStudioPage === "storyboard_studio") && (
+                <div className="space-y-6 text-right">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
                     <div>
-                      <h4 className="font-black text-sm sm:text-base text-white">إخراج إعلاني متكامل من ٤ مشاهد</h4>
-                      <p className="text-xs text-zinc-400">تسلسل سينمائي مبني على هيكل التحويل السريع (Hook &rarr; Need &rarr; Craft &rarr; CTA)</p>
+                      <div className="flex items-center gap-2">
+                        <Film className="w-5 h-5 text-[#ff2a4b]" />
+                        <h4 className="font-black text-base sm:text-lg text-white">إخراج إعلاني متكامل من ٤ مشاهد</h4>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#00e575]/20 text-[#00e575] border border-[#00e575]/40 font-mono">
+                          STORYBOARD 2.0
+                        </span>
+                      </div>
+                      <p className="text-xs text-zinc-400 mt-1">تسلسل سينمائي مبني على هيكل التحويل التجاري السريع (Hook &rarr; Need &rarr; Craft &rarr; CTA)</p>
                     </div>
                     <button
                       onClick={() => handleCopy(JSON.stringify(selectedScript, null, 2), "السيناريو")}
@@ -4513,91 +4574,183 @@ function KubeAiMarketingPage() {
                     </button>
                   </div>
 
-                  {/* 4 Sequential Scenes Breakdown */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                    {[
-                      {
-                        sceneNum: 1,
-                        time: "0:00 - 0:03",
-                        title: "الخطاف البصري (The Hook)",
-                        desc: "صوت كسر مكعبات ثلج مع سكب سريع لكولد برو KUBE وكاميرا مقربة جداً تجذب الانتباه خلال ثانيتين.",
-                        camera: "Macro Lens 100mm • 120fps Slow-mo",
-                        audio: 'صوت مكعبات الثلج: "إذا يومك ما بدأ صح.."',
-                        thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/679f435913be72cd7135ad8fb2b4c880/thumbnails/thumbnail.jpg?height=720",
-                      },
-                      {
-                        sceneNum: 2,
-                        time: "0:03 - 0:10",
-                        title: "المشكلة والاحتياج (The Need)",
-                        desc: "شخصية سعودية شابة تفتح اللابتوب في زحمة الرياض الصباحية وتبحث عن التركيز والروقان الحقيقي.",
-                        camera: "Over-the-shoulder POV • Warm morning light",
-                        audio: '"...لا تضيع وقتك بتجارب عادية."',
-                        thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/40dba6a71d8013595711298206cc8d48/thumbnails/thumbnail.jpg?height=720",
-                      },
-                      {
-                        sceneNum: 3,
-                        time: "0:10 - 0:22",
-                        title: "إتقان القهوة والتذوق (The Craft)",
-                        desc: "الباريستا يسكب الفلات وايت مع رسمة تيوليب وانسياب الحليب المخملي، يليه رشفة التذوق الأولى والابتسامة.",
-                        camera: "360 Turntable Orbit • Studio Soft Light",
-                        audio: '"نغمات إثيوبية صريحة.. حلاوة بدون أي سكر زائد."',
-                        thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/8bffdce9c36d3de8fa8ceb0d88c4e175/thumbnails/thumbnail.jpg?height=720",
-                      },
-                      {
-                        sceneNum: 4,
-                        time: "0:22 - 0:30",
-                        title: "الدعوة للطلب (The CTA)",
-                        desc: "ظهور شعار KUBE الأحمر الفخم مع كود خصم التطبيق وخريطة الفرع على طريق تركي الأول بالرياض.",
-                        camera: "Motion Graphic Packshot • Clean Branding",
-                        audio: '"مر عليهم اليوم أو اطلب من التطبيق وخل مزاجك يسبقك."',
-                        thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/1b1d49197e516bea184765e12e8bcd14/thumbnails/thumbnail.jpg?height=720",
-                      },
-                    ].map((s) => (
-                      <div
-                        key={s.sceneNum}
-                        className="rounded-2xl border border-white/10 bg-zinc-900 p-4 space-y-3 flex flex-col justify-between"
-                      >
-                        <div className="space-y-2">
-                          <div className="aspect-[16/10] w-full rounded-xl overflow-hidden bg-black relative">
-                            <img src={s.thumb} alt={s.title} className="w-full h-full object-cover" />
-                            <span className="absolute top-2 right-2 text-[10px] font-mono font-bold bg-[#ff2a4b] text-white px-2 py-0.5 rounded-full">
-                              مشهد {s.sceneNum}
-                            </span>
-                            <span className="absolute bottom-2 left-2 text-[9px] font-mono bg-black/70 text-zinc-300 px-2 py-0.5 rounded-full">
-                              {s.time}
-                            </span>
-                          </div>
-
-                          <h5 className="text-xs font-black text-white">{s.title}</h5>
-                          <p className="text-[11px] text-zinc-400 leading-relaxed">{s.desc}</p>
-                        </div>
-
-                        <div className="space-y-1.5 pt-2 border-t border-white/5 text-[10px] font-mono">
-                          <div className="text-zinc-500">
-                            الكاميرا: <span className="text-zinc-300">{s.camera}</span>
-                          </div>
-                          <div className="text-zinc-500">
-                            الصوت: <span className="text-[#ff3b56]">{s.audio}</span>
-                          </div>
+                  {/* Halai 2-Column Storyboard Layout: Right Controls Sidebar + Left Timeline Canvas */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    {/* Right Controls Panel (340px / 4 Cols on LG) */}
+                    <div className="lg:col-span-4 bg-zinc-900/90 border border-white/10 rounded-3xl p-4 sm:p-5 space-y-4 shadow-xl">
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-white block">طريقة التوليد</label>
+                        <div className="grid grid-cols-2 gap-2 p-1 bg-black/60 rounded-xl border border-white/5">
+                          <button
+                            type="button"
+                            className="py-1.5 rounded-lg bg-[#ff2a4b] text-white text-xs font-black shadow"
+                          >
+                            توليد من نص
+                          </button>
+                          <button
+                            type="button"
+                            className="py-1.5 rounded-lg text-zinc-400 hover:text-white text-xs font-bold"
+                          >
+                            توليد من صورة
+                          </button>
                         </div>
                       </div>
-                    ))}
-                  </div>
 
-                  <div className="p-4 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-bold text-white block">تصدير الستوري بورد كفيديو متسلسل</span>
-                      <span className="text-[11px] text-zinc-400 block">سيقوم محرك KUBE بربط المشاهد الأربعة بنقلات سينمائية ناعمة Seamless Transitions</span>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-white block">نسبة العرض (Aspect Ratio)</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { id: "16:9", label: "16:9 عريض" },
+                            { id: "9:16", label: "9:16 طولي" },
+                            { id: "1:1", label: "1:1 مربع" },
+                          ].map((ar) => (
+                            <button
+                              key={ar.id}
+                              type="button"
+                              className={`py-2 rounded-xl text-xs font-bold border transition-all ${
+                                ar.id === "16:9"
+                                  ? "bg-white/15 border-[#00e575] text-[#00e575]"
+                                  : "bg-black/40 border-white/10 text-zinc-400 hover:text-white"
+                              }`}
+                            >
+                              {ar.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-white block">وصف القصة الإعلانية</label>
+                        <textarea
+                          rows={3}
+                          defaultValue="قصة إعلانية سينمائية لكوب كولد برو كيني في مقهى KUBE بالرياض، تبدأ بكسر الثلج وتستمر بحوار شبابي وتنتهي بشعار الفرع."
+                          className="w-full bg-black/70 border border-white/10 focus:border-[#ff2a4b] rounded-2xl p-3 text-xs text-white placeholder-zinc-500 focus:outline-none resize-none leading-relaxed"
+                        />
+                      </div>
+
+                      {/* 4 Reference Image Slots */}
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-white block">مراجع المشاهد (٤ لقطات)</label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {[1, 2, 3, 4].map((i) => (
+                            <div
+                              key={i}
+                              className="aspect-square rounded-xl bg-black/50 border border-dashed border-white/20 hover:border-[#ff2a4b] cursor-pointer flex flex-col items-center justify-center p-1 text-center transition-all group"
+                              title={`إرفاق مرجع المشهد ${i}`}
+                            >
+                              <Plus className="w-3.5 h-3.5 text-zinc-500 group-hover:text-white" />
+                              <span className="text-[9px] font-mono text-zinc-500 group-hover:text-zinc-300">م{i}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          toast.info("جاري إرسال طلب التوليد لمحركات الفيديو السينمائية...");
+                          setTimeout(() => toast.success("تم تحديث المشاهد الأربعة بنجاح!"), 1200);
+                        }}
+                        className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#ff2a4b] to-[#dc2626] hover:brightness-110 active:scale-95 text-white font-black text-xs transition-all shadow-lg shadow-[#ff2a4b]/25 flex items-center justify-center gap-2"
+                      >
+                        <Wand2 className="w-4 h-4" />
+                        <span>توليد الستوري بورد (4 مشاهد)</span>
+                      </button>
                     </div>
-                    <button
-                      onClick={() => {
-                        toast.info("جاري تصيير الستوري بورد كفيلم إعلاني 30 ثانية...");
-                        setTimeout(() => toast.success("تم إتمام ريندر الفيديو الإعلاني كاملاً!"), 1000);
-                      }}
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black text-xs active:scale-95 shadow-md shadow-[#ff2a4b]/30"
-                    >
-                      توليد الفيلم الإعلاني كاملاً (30s)
-                    </button>
+
+                    {/* Left Timeline Canvas Area (8 Cols on LG) */}
+                    <div className="lg:col-span-8 space-y-4">
+                      {/* 4 Sequential Scenes Breakdown */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        {[
+                          {
+                            sceneNum: 1,
+                            time: "0:00 - 0:03",
+                            title: "الخطاف البصري (The Hook)",
+                            desc: "صوت كسر مكعبات ثلج مع سكب سريع لكولد برو KUBE وكاميرا مقربة جداً تجذب الانتباه خلال ثانيتين.",
+                            camera: "Macro Lens 100mm • 120fps Slow-mo",
+                            audio: 'صوت مكعبات الثلج: "إذا يومك ما بدأ صح.."',
+                            thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/679f435913be72cd7135ad8fb2b4c880/thumbnails/thumbnail.jpg?height=720",
+                          },
+                          {
+                            sceneNum: 2,
+                            time: "0:03 - 0:10",
+                            title: "المشكلة والاحتياج (The Need)",
+                            desc: "شخصية سعودية شابة تفتح اللابتوب في زحمة الرياض الصباحية وتبحث عن التركيز والروقان الحقيقي.",
+                            camera: "Over-the-shoulder POV • Warm morning light",
+                            audio: '"...لا تضيع وقتك بتجارب عادية."',
+                            thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/40dba6a71d8013595711298206cc8d48/thumbnails/thumbnail.jpg?height=720",
+                          },
+                          {
+                            sceneNum: 3,
+                            time: "0:10 - 0:22",
+                            title: "إتقان القهوة والتذوق (The Craft)",
+                            desc: "الباريستا يسكب الفلات وايت مع رسمة تيوليب وانسياب الحليب المخملي، يليه رشفة التذوق الأولى والابتسامة.",
+                            camera: "360 Turntable Orbit • Studio Soft Light",
+                            audio: '"نغمات إثيوبية صريحة.. حلاوة بدون أي سكر زائد."',
+                            thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/8bffdce9c36d3de8fa8ceb0d88c4e175/thumbnails/thumbnail.jpg?height=720",
+                          },
+                          {
+                            sceneNum: 4,
+                            time: "0:22 - 0:30",
+                            title: "الدعوة للطلب (The CTA)",
+                            desc: "ظهور شعار KUBE الأحمر الفخم مع كود خصم التطبيق وخريطة الفرع على طريق تركي الأول بالرياض.",
+                            camera: "Motion Graphic Packshot • Clean Branding",
+                            audio: '"مر عليهم اليوم أو اطلب من التطبيق وخل مزاجك يسبقك."',
+                            thumb: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/1b1d49197e516bea184765e12e8bcd14/thumbnails/thumbnail.jpg?height=720",
+                          },
+                        ].map((s) => (
+                          <div
+                            key={s.sceneNum}
+                            className="rounded-2xl border border-white/10 bg-zinc-900 p-4 space-y-3 flex flex-col justify-between hover:border-white/20 transition-all shadow-md"
+                          >
+                            <div className="space-y-2">
+                              <div className="aspect-[16/10] w-full rounded-xl overflow-hidden bg-black relative group cursor-pointer">
+                                <img src={s.thumb} alt={s.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                                    <Play className="w-4 h-4 fill-white" />
+                                  </div>
+                                </div>
+                                <span className="absolute top-2 right-2 text-[10px] font-mono font-bold bg-[#ff2a4b] text-white px-2 py-0.5 rounded-full">
+                                  مشهد {s.sceneNum}
+                                </span>
+                                <span className="absolute bottom-2 left-2 text-[9px] font-mono bg-black/70 text-zinc-300 px-2 py-0.5 rounded-full">
+                                  {s.time}
+                                </span>
+                              </div>
+
+                              <h5 className="text-xs font-black text-white">{s.title}</h5>
+                              <p className="text-[11px] text-zinc-400 leading-relaxed">{s.desc}</p>
+                            </div>
+
+                            <div className="space-y-1.5 pt-2 border-t border-white/5 text-[10px] font-mono">
+                              <div className="text-zinc-500">
+                                الكاميرا: <span className="text-zinc-300">{s.camera}</span>
+                              </div>
+                              <div className="text-zinc-500">
+                                الصوت: <span className="text-[#ff3b56]">{s.audio}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-zinc-900 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+                        <div>
+                          <span className="text-xs font-bold text-white block">تصدير الستوري بورد كفيديو متسلسل</span>
+                          <span className="text-[11px] text-zinc-400 block">سيقوم محرك KUBE بربط المشاهد الأربعة بنقلات سينمائية ناعمة Seamless Transitions</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            toast.info("جاري تصيير الستوري بورد كفيلم إعلاني 30 ثانية...");
+                            setTimeout(() => toast.success("تم إتمام ريندر الفيديو الإعلاني كاملاً!"), 1000);
+                          }}
+                          className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#ff334b] to-[#dc2626] text-white font-black text-xs active:scale-95 shadow-md shadow-[#ff2a4b]/30"
+                        >
+                          توليد الفيلم الإعلاني كاملاً (30s)
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -4904,9 +5057,126 @@ function KubeAiMarketingPage() {
                 </div>
               )}
 
+              {/* PAGE: TEMPLATES CATALOG */}
+              {currentStudioPage === "templates" && (
+                <div className="space-y-6 text-right">
+                  <div className="pb-4 border-b border-white/10 space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00e575]/10 border border-[#00e575]/30 text-[#00e575] text-xs font-mono">
+                      <LayoutGrid className="w-3.5 h-3.5" />
+                      <span>APPLICATIONS & CREATIVE TEMPLATES</span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white">
+                      تطبيقات وقوالب إعلانية جاهزة لكافيه KUBE
+                    </h3>
+                    <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed">
+                      اختر أي قالب إعلاني بضغطة زر واحدة، وقم بإنشاء فيديو أو بوستر سينمائي لمنتجك مباشرة دون الحاجة لكتابة برومبت من الصفر.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                    {TEMPLATES_ITEMS.map((tmpl) => (
+                      <div
+                        key={tmpl.id}
+                        onClick={() => {
+                          setHeroPrompt(tmpl.promptSample);
+                          setHeroAdType(tmpl.cat);
+                          navigateToStudio("studio_2");
+                          toast.success(`تم اختيار قالب: ${tmpl.title}`);
+                        }}
+                        className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#00e575] cursor-pointer active:scale-95 transition-all shadow-xl flex flex-col justify-end p-3 text-right"
+                      >
+                        <img src={tmpl.thumb} alt={tmpl.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                        <div className="relative z-10 space-y-1">
+                          <span className="text-[10px] font-mono text-[#00e575] px-2 py-0.5 rounded-full bg-black/60 border border-[#00e575]/30 inline-block">{tmpl.cat}</span>
+                          <h4 className="text-xs sm:text-sm font-black text-white truncate">{tmpl.title}</h4>
+                          <span className="text-[10px] text-zinc-300 block line-clamp-1">{tmpl.desc}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* PAGE: PROMLOG PROMPT BANK */}
+              {currentStudioPage === "promlog" && (
+                <div className="space-y-6 text-right">
+                  <div className="pb-4 border-b border-white/10 space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-mono">
+                      <BookOpen className="w-3.5 h-3.5" />
+                      <span>PROMLOG • بنك البرومبتات الفيروسية لكافيه KUBE</span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white">
+                      بروملوق — كتالوج الأوامر الإعلانية عالية التحويل
+                    </h3>
+                    <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed">
+                      تصفّح وانسخ برومبتات الفيديو والصور المصممة خصيصاً لمقاهي ومطاعم الرياض مع ضبط زوايا الكاميرا ومحركات Veo 3.1 و Kling و Midjourney.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {SAUDI_VISUAL_PROMPTS.map((p, idx) => (
+                      <div
+                        key={idx}
+                        className="p-4 rounded-2xl bg-zinc-900 border border-white/10 hover:border-white/25 transition-all space-y-3 flex flex-col justify-between"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-white">{p.title}</span>
+                            <span className="text-[10px] font-mono text-zinc-400 px-2 py-0.5 rounded bg-white/5">{p.category}</span>
+                          </div>
+                          <p className="text-xs text-zinc-300 leading-relaxed font-sans">{p.promptAr}</p>
+                          <p className="text-[11px] text-zinc-500 font-mono leading-relaxed line-clamp-2" dir="ltr">{p.promptEn}</p>
+                        </div>
+                        <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(p.promptAr);
+                              toast.success("تم نسخ البرومبت العربي!");
+                            }}
+                            className="flex-1 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                          >
+                            <Copy className="w-3 h-3" />
+                            <span>نسخ البرومبت</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setHeroPrompt(p.promptAr);
+                              navigateToStudio("studio_2");
+                              toast.success("تم نقل البرومبت إلى استديو 2.0!");
+                            }}
+                            className="px-3 py-1.5 rounded-xl bg-[#00e575] hover:brightness-110 text-black text-xs font-black transition-all"
+                          >
+                            تطبيق فوري
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
             </div>
-          </div>
-        </div>
+
+          {/* Standalone Page Footer */}
+          <footer className="w-full border-t border-white/10 bg-[#0d0d0f] py-6 px-4 sm:px-8 mt-auto text-center text-xs text-zinc-500">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <img src="/kube-up-logo.png" alt="KUBE" className="h-5 w-auto object-contain rounded" />
+                <span>KUBE AI Marketing Studio • منصة الإنتاج الإعلاني الذكي</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigateToStudio("studio_2")}
+                className="text-[#00e575] hover:underline font-bold"
+              >
+                العودة إلى استديو 2.0 الرئيسي
+              </button>
+            </div>
+          </footer>
+        </main>
       )}
 
       {/* ============================================================== */}
