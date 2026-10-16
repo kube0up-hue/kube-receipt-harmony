@@ -99,12 +99,13 @@ const STUDIOS_LIST = [
   },
 ];
 
-// 2. HALAI IMAGE MODELS CATALOG
-const PHOTO_MODELS_LIST = [
+// 2. HALAI IMAGE MODELS CATALOG - EXACT 2-COLUMN STRUCTURE (MATCHING HALAI SCREENSHOT 2)
+// Right Column in RTL:
+const PHOTO_MODELS_COLUMN_1 = [
   {
     id: "gpt_image_25",
     name: "جي بي تي إيماج 2.5",
-    desc: "أحدث نماذج OpenAI، بنسختين: صن‌برست وفلير بجودة فائقة",
+    desc: "أحدث نماذج OpenAI، بنسختين: صان برست وتيلر",
     badge: "جديد",
     subBadge: "يدعم العربي",
     icon: Sparkles,
@@ -112,7 +113,7 @@ const PHOTO_MODELS_LIST = [
   {
     id: "gpt_image_2",
     name: "جي بي تي إيماج 2",
-    desc: "أحدث نموذج من OpenAI بجودة استثنائية وتحرير متقدم للمنتجات",
+    desc: "أحدث نموذج من OpenAI بجودة استثنائية وتحرير متقدم",
     badge: "جديد",
     subBadge: "يدعم العربي",
     icon: Sparkles,
@@ -120,112 +121,109 @@ const PHOTO_MODELS_LIST = [
   {
     id: "nano_banana_2",
     name: "نانو بنانا 2",
-    desc: "صور عالية الدقة مع نص واضح وقابلية للتحرير وبجودات مختلفة",
+    desc: "صور عالية الدقة مع نص واضح وقابلية للتحرير وبجودات مختلفة للخيارات",
     badge: "جديد",
-    icon: ImageIcon,
+    icon: Sparkle,
   },
   {
     id: "nano_banana_pro",
     name: "نانو بنانا برو",
-    desc: "أفضل نموذج صور بدقة 4K مع تفاصيل فائقة للإضاءة والظلال",
+    desc: "أفضل نموذج صور بدقة 4K مع تفاصيل فائقة",
     badge: "الأشهر",
-    icon: Zap,
+    icon: Sparkle,
   },
   {
     id: "nano_banana_21",
     name: "نانو بنانا 2.1",
-    desc: "أحدث نسخة من جوجل: تصميم أدق، ثبات أفضل للشخصيات، وسرعة أعلى",
+    desc: "أحدث نسخة من نانو بنانا من جوجل؛ تصميم أدق، ثبات أفضل للشخصيات، وسرعة أعلى",
     badge: "جديد",
-    icon: Wand2,
+    icon: Sparkle,
   },
   {
     id: "nano_banana_lite",
     name: "نانو بنانا لايت",
     desc: "أسرع وأخف نانو بنانا وأقلها تكلفة — مسودات سريعة مع تعديلات نصية",
     badge: "جديد",
-    icon: Zap,
+    icon: Sparkle,
   },
   {
     id: "nano_banana_2_lite",
     name: "نانو بنانا 2 لايت",
-    desc: "نانو بنانا 2 عالية الدقة بطبقة أخف وأقل تكلفة للمسودات",
+    desc: "نانو بنانا 2 عالية الدقة بطبقة أخف وأقل تكلفة",
     badge: "جديد",
-    icon: Zap,
+    icon: Sparkle,
   },
   {
     id: "ideogram_v4",
     name: "إيديوجرام V4",
-    desc: "صور وملصقات وشعارات عالية الجودة مع نص عربي وإنجليزي دقيق",
+    desc: "صور وملصقات وشعارات عالية الجودة مع نص واضح ودقيق",
     badge: "جديد",
     icon: Palette,
   },
   {
     id: "krea_2",
     name: "كريا 2",
-    desc: "صور عالية الدقة — لارج للجودة القصوى، تيربو للسرعة الخاطفة",
+    desc: "صور عالية الدقة — تمازج للجودة، تربو للسرعة",
     badge: "جديد",
     icon: Sparkles,
   },
-  {
-    id: "qwen_image_3",
-    name: "كوين إيميج 3",
-    desc: "نص واضح، مع تحرير متقدم من 3 صور مرجعية للمشروب كحد أقصى",
-    badge: "جديد",
-    icon: ImageIcon,
-  },
+];
+
+// Left Column in RTL:
+const PHOTO_MODELS_COLUMN_2 = [
   {
     id: "nano_banana_v1",
     name: "نانو بنانا",
-    desc: "نموذج سريع وفعال لتوليد الصور اليومية والمنشورات السريعة",
-    icon: ImageIcon,
+    desc: "نموذج سريع وفعال لتوليد الصور اليومية",
+    icon: Sparkle,
   },
   {
     id: "seedream_5_lite",
     name: "سيدريم 5 لايت",
-    desc: "توليد صور ذكي مع استدلال منطقي وتحرير ومعرفة متخصصة بالقهوة",
+    desc: "توليد صور ذكي مع استدلال منطقي وتحرير ومعرفة متخصصة",
     badge: "جديد",
-    icon: Sparkles,
+    icon: Radio,
   },
   {
     id: "seedream_45",
     name: "سيدريم 4.5",
-    desc: "إبداع فني متقدم بأسلوب سينمائي وألوان غنية",
-    icon: Palette,
+    desc: "إبداع فني متقدم بأسلوب فريد",
+    icon: Radio,
   },
   {
     id: "gpt_15",
     name: "جي بي تي 1.5",
-    desc: "واقعية مذهلة مع إضاءة ستوديو وتكوين إعلاني محسّن",
+    desc: "واقعية مذهلة مع إضاءة وتكوين محصن",
     icon: Sparkles,
   },
   {
     id: "flux_v2_max",
     name: "فلكس v2 ماكس",
-    desc: "أعلى مستويات الدقة والتفاصيل في عالم صور المنتجات الإعلانية",
+    desc: "أعلى مستويات الدقة والتفاصيل في عالم الصور",
     icon: Zap,
   },
   {
     id: "flux_v2_pro",
     name: "فلكس v2 برو",
-    desc: "الخيار الاحترافي للنتائج السينمائية وإعلانات البوسترات الفاخرة",
-    icon: Sparkles,
+    desc: "الخيار الاحترافي لنتائج سينمائية",
+    icon: Zap,
   },
   {
     id: "face_swap",
     name: "تبديل الوجوه",
-    desc: "تغيير الوجوه في أي صورة بدقة واحترافية وبقاء الملامح الطبيعية",
-    icon: Repeat,
+    desc: "تغيير الوجوه في أي صورة بدقة واحترافية",
+    icon: Users,
   },
   {
     id: "character_swap",
     name: "تبديل الشخصية",
-    desc: "تغيير الشخصية بالكامل مع الحفاظ على التكوين العام والمشروب",
-    icon: Users,
+    desc: "تغيير الشخصية مع الحفاظ على التكوين العام",
+    icon: Bot,
   },
   {
     id: "upscale_4k",
     name: "رفع الدقة 4K",
-    desc: "رفع دقة الصور إلى 4K فائقة الوضوح مع تحسين التفاصيل الصغيرة",
+    desc: "رفع دقة الصور إلى 4K مع تحسين التفاصيل",
     icon: Maximize2,
   },
 ];
@@ -493,46 +491,87 @@ export function HeaderNavDropdowns({
         {openMenu === "photos" && (
           <div className="absolute top-full pt-2 z-50 animate-in fade-in slide-in-from-top-1 duration-200 right-0">
             <div
-              className="relative grid grid-cols-[minmax(17rem,1fr)_minmax(17rem,1fr)] p-2 rounded-2xl border bg-[#141416] border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.98)] overflow-y-auto no-scrollbar"
+              className="relative flex items-start gap-1 p-2 rounded-2xl border bg-[#141416] border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.98)] overflow-y-auto no-scrollbar"
               dir="rtl"
               style={{ maxHeight: "calc(100dvh - 100px)" }}
             >
-              {PHOTO_MODELS_LIST.map((model) => {
-                const IconComponent = model.icon;
-                return (
-                  <div
-                    key={model.id}
-                    onClick={() =>
-                      handleItemClick(() => {
-                        onSelectPhotoModel(model.name);
-                      })
-                    }
-                    className="p-2 grid grid-cols-[auto_1fr] gap-2.5 items-center transition-all hover:bg-white/5 active:bg-[#00e575]/10 rounded-xl cursor-pointer group"
-                  >
-                    <div className="grid justify-center items-center w-10 h-10 relative rounded-lg bg-white/5 border border-white/10 text-white group-hover:border-white/20">
-                      <IconComponent className="w-5 h-5 text-zinc-300 group-hover:text-white" />
-                      {model.badge && (
-                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase px-1.5 rounded-sm font-bold -skew-x-12 py-px leading-normal bg-[#00e575] text-black">
-                          {model.badge}
-                        </span>
-                      )}
-                    </div>
-                    <div className="grid auto-rows-min gap-0.5">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <p className="text-[13px] font-semibold text-white group-hover:text-[#00e575] transition-colors">
-                          {model.name}
-                        </p>
-                        {model.subBadge && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">
-                            {model.subBadge}
+              {/* Right Column in RTL (Column 1: GPT Image, Nano Banana 2 & Pro, Ideogram, Krea) */}
+              <div className="flex flex-col w-[285px]">
+                {PHOTO_MODELS_COLUMN_1.map((model) => {
+                  const IconComponent = model.icon;
+                  return (
+                    <div
+                      key={model.id}
+                      onClick={() =>
+                        handleItemClick(() => {
+                          onSelectPhotoModel(model.name);
+                        })
+                      }
+                      className="p-2 grid grid-cols-[auto_1fr] gap-2.5 items-center transition-all hover:bg-white/5 active:bg-[#00e575]/10 rounded-xl cursor-pointer group"
+                    >
+                      <div className="grid justify-center items-center w-10 h-10 relative rounded-lg bg-white/5 border border-white/10 text-white group-hover:border-white/20">
+                        <IconComponent className="w-5 h-5 text-zinc-300 group-hover:text-white" />
+                        {model.badge && (
+                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase px-1.5 rounded-sm font-bold -skew-x-12 py-px leading-normal bg-[#00e575] text-black">
+                            {model.badge}
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-zinc-400 leading-snug">{model.desc}</p>
+                      <div className="grid auto-rows-min gap-0.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="text-[13px] font-semibold text-white group-hover:text-[#00e575] transition-colors">
+                            {model.name}
+                          </p>
+                          {model.subBadge && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">
+                              {model.subBadge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-zinc-400 leading-snug">{model.desc}</p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+
+              {/* Vertical Divider */}
+              <div className="w-px bg-white/5 self-stretch my-1" />
+
+              {/* Left Column in RTL (Column 2: Nano Banana, Seedream, GPT 1.5, Flux, Face/Character Swap, Upscale) */}
+              <div className="flex flex-col w-[285px]">
+                {PHOTO_MODELS_COLUMN_2.map((model) => {
+                  const IconComponent = model.icon;
+                  return (
+                    <div
+                      key={model.id}
+                      onClick={() =>
+                        handleItemClick(() => {
+                          onSelectPhotoModel(model.name);
+                        })
+                      }
+                      className="p-2 grid grid-cols-[auto_1fr] gap-2.5 items-center transition-all hover:bg-white/5 active:bg-[#00e575]/10 rounded-xl cursor-pointer group"
+                    >
+                      <div className="grid justify-center items-center w-10 h-10 relative rounded-lg bg-white/5 border border-white/10 text-white group-hover:border-white/20">
+                        <IconComponent className="w-5 h-5 text-zinc-300 group-hover:text-white" />
+                        {model.badge && (
+                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase px-1.5 rounded-sm font-bold -skew-x-12 py-px leading-normal bg-[#00e575] text-black">
+                            {model.badge}
+                          </span>
+                        )}
+                      </div>
+                      <div className="grid auto-rows-min gap-0.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="text-[13px] font-semibold text-white group-hover:text-[#00e575] transition-colors">
+                            {model.name}
+                          </p>
+                        </div>
+                        <p className="text-[11px] text-zinc-400 leading-snug">{model.desc}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}

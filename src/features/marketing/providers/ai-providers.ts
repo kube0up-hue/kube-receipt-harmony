@@ -155,16 +155,21 @@ export interface StudioGenerationPayload {
   adType?: string;
 }
 
-/**
- * Dispatch stub - handles fallback simulation or live API call
- */
-export async function dispatchStudioGeneration(payload: StudioGenerationPayload): Promise<{
+export interface StudioGenerationResult {
   success: boolean;
   outputUrl: string;
   providerUsed: string;
-  metadata: Record<string, any>;
-}> {
-  // If server API route is configured, forward to /api/ai/generate
+  errorType?: "QUOTA" | "BALANCE" | "AUTH" | "NETWORK" | "NO_KEY" | "UNKNOWN";
+  errorMessage?: string;
+  metadata?: Record<string, any>;
+}
+
+/**
+ * Dispatch engine - executes genuine API generation requests with strict verification.
+ * Under NO circumstance does this return fake success notifications.
+ */
+export async function dispatchStudioGeneration(payload: StudioGenerationPayload): Promise<StudioGenerationResult> {
+  // 1. Try server API route first if configured
   try {
     const res = await fetch("/api/ai/generate", {
       method: "POST",
@@ -173,27 +178,263 @@ export async function dispatchStudioGeneration(payload: StudioGenerationPayload)
     });
     if (res.ok) {
       const data = await res.json();
-      return {
-        success: true,
-        outputUrl: data.url,
-        providerUsed: payload.provider,
-        metadata: data.metadata ?? {},
-      };
+      if (data.url) {
+        return {
+          success: true,
+          outputUrl: data.url,
+          providerUsed: payload.provider,
+          metadata: data.metadata ?? {},
+        };
+      }
     }
   } catch {
-    // Fallback gracefully to simulated studio pipeline
+    // Continue to direct provider dispatch
   }
 
-  // High fidelity default simulation output
+  // 2. Direct Provider Dispatch: Fal.ai (Flux 1.1 Pro / Kling)
+  if (payload.provider === "fal_ai" || payload.provider === "bfl_flux") {
+    const falKey = getFalApiKey();
+    if (!falKey) {
+      return {
+        success: false,
+        outputUrl: "",
+        providerUsed: "Fal.ai",
+        errorType: "NO_KEY",
+        errorMessage: "مفتاح Fal.ai غير مسجل. يرجى إدخال المفتاح في الإعدادات لتفعيل التوليد.",
+      };
+    }
+
+    try {
+      const res = await fetch("https://queue.fal.run/fal-ai/flux-pro/v1.1-ultra", {
+        method: "POST",
+        headers: {
+          Authorization: `Key ${falKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: payload.prompt,
+          image_size: payload.aspectRatio === "9:16" ? "portrait_16_9" : payload.aspectRatio === "16:9" ? "landscape_16_9" : "square_hd",
+          num_images: 1,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const imageUrl = data.images?.[0]?.url || data.image?.url;
+        if (imageUrl) {
+          return {
+            success: true,
+            outputUrl: imageUrl,
+            providerUsed: "Fal.ai (Flux 1.1 Pro Ultra)",
+            metadata: { ...data, timestamp: new Date().toISOString() },
+          };
+        }
+      }
+
+      if (res.status === 403) {
+        const errJson = await res.json().catch(() => ({}));
+        const detail = errJson.detail || "";
+        const isBalance = detail.includes("balance") || detail.includes("locked");
+        return {
+          success: false,
+          outputUrl: "",
+          providerUsed: "Fal.ai",
+          errorType: isBalance ? "BALANCE" : "AUTH",
+          errorMessage: isBalance
+            ? "رصيد Fal.ai مستنفد (403: Exhausted balance). يرجى شحن الرصيد في fal.ai/dashboard/billing للمتابعة."
+            : "خطأ في تصريح الوصول إلى Fal.ai (403).",
+        };
+      }
+
+      if (res.status === 429) {
+        return {
+          success: false,
+          outputUrl: "",
+          providerUsed: "Fal.ai",
+          errorType: "QUOTA",
+          errorMessage: "تم تجاوز معدل الطلبات في Fal.ai (429: Rate Limit Exceeded). يرجى المحاولة بعد قليل.",
+        };
+      }
+
+      const errText = await res.text().catch(() => "");
+      return {
+        success: false,
+        outputUrl: "",
+        providerUsed: "Fal.ai",
+        errorType: "UNKNOWN",
+        errorMessage: `فشل التوليد من Fal.ai (كود ${res.status}): ${errText.slice(0, 150)}`,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        outputUrl: "",
+        providerUsed: "Fal.ai",
+        errorType: "NETWORK",
+        errorMessage: `تعذر الاتصال بخوادم Fal.ai: ${err.message}`,
+      };
+    }
+  }
+
+  // 3. Direct Provider Dispatch: OpenAI (DALL-E 3 / GPT Image)
+  if (payload.provider === "openai") {
+    const openAiKey = getOpenAiApiKey();
+    if (!openAiKey) {
+      return {
+        success: false,
+        outputUrl: "",
+        providerUsed: "OpenAI",
+        errorType: "NO_KEY",
+        errorMessage: "مفتاح OpenAI غير مسجل. يرجى إدخال المفتاح في الإعدادات لتفعيل التوليد.",
+      };
+    }
+
+    try {
+      const res = await fetch("https://api.openai.com/v1/images/generations", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${openAiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "dall-e-3",
+          prompt: payload.prompt,
+          n: 1,
+          size: payload.aspectRatio === "9:16" ? "1024x1792" : payload.aspectRatio === "16:9" ? "1792x1024" : "1024x1024",
+          quality: "standard",
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const imageUrl = data.data?.[0]?.url;
+        if (imageUrl) {
+          return {
+            success: true,
+            outputUrl: imageUrl,
+            providerUsed: "OpenAI (DALL·E 3)",
+            metadata: { ...data, timestamp: new Date().toISOString() },
+          };
+        }
+      }
+
+      const errJson = await res.json().catch(() => ({}));
+      const code = errJson.error?.code || "";
+      const message = errJson.error?.message || "";
+
+      if (res.status === 429 || code === "insufficient_quota") {
+        return {
+          success: false,
+          outputUrl: "",
+          providerUsed: "OpenAI",
+          errorType: "QUOTA",
+          errorMessage: "تم استنفاد رصيد وحصة OpenAI (429: Insufficient Quota). يرجى شحن الرصيد في platform.openai.com.",
+        };
+      }
+
+      if (res.status === 401) {
+        return {
+          success: false,
+          outputUrl: "",
+          providerUsed: "OpenAI",
+          errorType: "AUTH",
+          errorMessage: "مفتاح OpenAI غير صالح أو منتهي الصلاحية (401).",
+        };
+      }
+
+      return {
+        success: false,
+        outputUrl: "",
+        providerUsed: "OpenAI",
+        errorType: "UNKNOWN",
+        errorMessage: `خطأ في استدعاء OpenAI (${res.status}): ${message}`,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        outputUrl: "",
+        providerUsed: "OpenAI",
+        errorType: "NETWORK",
+        errorMessage: `تعذر الاتصال بـ OpenAI: ${err.message}`,
+      };
+    }
+  }
+
+  // 4. Direct Provider Dispatch: Google Vertex / Gemini
+  if (payload.provider === "google_vertex") {
+    const geminiKey = getGoogleStudioApiKey();
+    if (!geminiKey) {
+      return {
+        success: false,
+        outputUrl: "",
+        providerUsed: "Google AI Studio",
+        errorType: "NO_KEY",
+        errorMessage: "مفتاح Google AI Studio غير مسجل. يرجى إدخال المفتاح في الإعدادات.",
+      };
+    }
+
+    // Direct Gemini Image models check
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${geminiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            instances: [{ prompt: payload.prompt }],
+            parameters: { sampleCount: 1, aspectRatio: payload.aspectRatio === "9:16" ? "9:16" : payload.aspectRatio === "16:9" ? "16:9" : "1:1" },
+          }),
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        const base64Data = data.predictions?.[0]?.bytesBase64Encoded;
+        if (base64Data) {
+          return {
+            success: true,
+            outputUrl: `data:image/png;base64,${base64Data}`,
+            providerUsed: "Google Imagen 3 (Vertex AI)",
+            metadata: { timestamp: new Date().toISOString() },
+          };
+        }
+      }
+
+      if (res.status === 429) {
+        return {
+          success: false,
+          outputUrl: "",
+          providerUsed: "Google AI Studio",
+          errorType: "QUOTA",
+          errorMessage: "تم استنفاد حصة التوليد الحالية في Google AI Studio (429: Quota exceeded). يرجى ربط حساب فوترة أو الانتظار.",
+        };
+      }
+
+      const errJson = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        outputUrl: "",
+        providerUsed: "Google AI Studio",
+        errorType: "UNKNOWN",
+        errorMessage: `خطأ من Google AI Studio (${res.status}): ${errJson.error?.message || "فشل التوليد"}`,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        outputUrl: "",
+        providerUsed: "Google AI Studio",
+        errorType: "NETWORK",
+        errorMessage: `تعذر الاتصال بـ Google AI Studio: ${err.message}`,
+      };
+    }
+  }
+
+  // 5. Video Engine / Other Providers (Volcano / Kling / Replicate)
   return {
-    success: true,
-    outputUrl: payload.productImageUrl || "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/68f99df1e137fb4eccb09a8fd2c8dd10/thumbnails/thumbnail.jpg?height=720",
+    success: false,
+    outputUrl: "",
     providerUsed: AI_PROVIDERS_REGISTRY[payload.provider]?.name || "KUBE Engine",
-    metadata: {
-      aspectRatio: payload.aspectRatio,
-      resolution: payload.resolution,
-      timestamp: new Date().toISOString(),
-    },
+    errorType: "BALANCE",
+    errorMessage: `نموذج ${AI_PROVIDERS_REGISTRY[payload.provider]?.name || "المحدد"} يتطلب شحن رصيد وتفعيل خادم الريندر المباشر. يرجى مراجعة إعدادات المفاتيح.`,
   };
 }
 

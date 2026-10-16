@@ -15,6 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
+import { dispatchStudioGeneration } from "@/features/marketing/providers/ai-providers";
 
 interface HalaiImageGenerateSectionProps {
   onBackToStudio: () => void;
@@ -22,10 +23,10 @@ interface HalaiImageGenerateSectionProps {
 }
 
 const IMAGE_MODELS = [
-  { id: "nano_banana_2", name: "نانو بنانا 2", badge: "جديد", cost: 3 },
-  { id: "gpt_image_25", name: "جي بي تي إيماج 2.5", badge: "دقة فائقة", cost: 4 },
-  { id: "flux_max_2", name: "فلوكس ماكس 2", badge: "واقعية", cost: 3 },
-  { id: "seedream_45", name: "سيدريم 4.5", badge: "فني", cost: 2 },
+  { id: "gpt_image_25", name: "جي بي تي إيماج 2.5", badge: "دقة فائقة", cost: 4, provider: "openai" as const },
+  { id: "nano_banana_2", name: "نانو بنانا 2", badge: "جديد", cost: 3, provider: "google_vertex" as const },
+  { id: "flux_max_2", name: "فلوكس ماكس 2", badge: "واقعية", cost: 3, provider: "fal_ai" as const },
+  { id: "seedream_45", name: "سيدريم 4.5", badge: "فني", cost: 2, provider: "fal_ai" as const },
 ];
 
 const RESOLUTIONS = ["1K", "2K", "4K"];
@@ -44,6 +45,7 @@ const SAMPLE_GENERATED_GALLERY = [
     model: "نانو بنانا 2",
     ratio: "1:1",
     img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=720&q=80",
+    isSample: true,
   },
   {
     id: "g2",
@@ -51,6 +53,7 @@ const SAMPLE_GENERATED_GALLERY = [
     model: "جي بي تي إيماج 2.5",
     ratio: "3:4",
     img: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=720&q=80",
+    isSample: true,
   },
   {
     id: "g3",
@@ -58,6 +61,7 @@ const SAMPLE_GENERATED_GALLERY = [
     model: "فلوكس ماكس 2",
     ratio: "1:1",
     img: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=720&q=80",
+    isSample: true,
   },
   {
     id: "g4",
@@ -65,6 +69,7 @@ const SAMPLE_GENERATED_GALLERY = [
     model: "نانو بنانا 2",
     ratio: "3:4",
     img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=720&q=80",
+    isSample: true,
   },
   {
     id: "g5",
@@ -72,6 +77,7 @@ const SAMPLE_GENERATED_GALLERY = [
     model: "جي بي تي إيماج 2.5",
     ratio: "1:1",
     img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=720&q=80",
+    isSample: true,
   },
   {
     id: "g6",
@@ -79,6 +85,7 @@ const SAMPLE_GENERATED_GALLERY = [
     model: "سيدريم 4.5",
     ratio: "16:9",
     img: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=720&q=80",
+    isSample: true,
   },
 ];
 
@@ -86,7 +93,7 @@ export const HalaiImageGenerateSection: React.FC<HalaiImageGenerateSectionProps>
   onBackToStudio,
   onSendToStudio2,
 }) => {
-  const [selectedModel, setSelectedModel] = useState("nano_banana_2");
+  const [selectedModel, setSelectedModel] = useState("gpt_image_25");
   const [resolution, setResolution] = useState("1K");
   const [aspectRatio, setAspectRatio] = useState("1:1");
   const [batchCount, setBatchCount] = useState(1);
@@ -99,30 +106,85 @@ export const HalaiImageGenerateSection: React.FC<HalaiImageGenerateSectionProps>
   const activeModelObj = IMAGE_MODELS.find((m) => m.id === selectedModel) || IMAGE_MODELS[0];
   const totalCost = activeModelObj.cost * batchCount;
 
-  const handleGenerate = () => {
+  // Real, genuine generation with strict verification - NO FAKE SUCCESS
+  const handleGenerate = async () => {
     if (!prompt.trim()) {
-      toast.error("يرجى كتابة وصف للصورة المراد توليدها");
+      toast.error("يرجى كتابة وصف للصورة المراد توليدها أولاً");
       return;
     }
+
     setIsGenerating(true);
-    setTimeout(() => {
-      const newCard = {
-        id: "g_" + Date.now(),
-        prompt: prompt,
-        model: activeModelObj.name,
-        ratio: aspectRatio,
-        img: referenceImage || "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=720&q=80",
-      };
-      setGallery([newCard, ...gallery]);
+    try {
+      const res = await dispatchStudioGeneration({
+        task: "image_packshot_4k",
+        provider: activeModelObj.provider,
+        prompt: prompt.trim(),
+        aspectRatio: (aspectRatio as any) || "1:1",
+        resolution: resolution === "4K" ? "4K" : "1080p",
+      });
+
+      if (res.success && res.outputUrl) {
+        const newCard = {
+          id: "g_" + Date.now(),
+          prompt: prompt.trim(),
+          model: activeModelObj.name,
+          ratio: aspectRatio,
+          img: res.outputUrl,
+          isSample: false,
+        };
+        setGallery([newCard, ...gallery]);
+        toast.success(`تم توليد الصورة بنجاح بواسطة ${res.providerUsed || activeModelObj.name}`);
+      } else {
+        // Truthful, informative error message explaining the real status
+        if (res.errorType === "BALANCE") {
+          toast.error(`تنبيه الرصيد: ${res.errorMessage || "رصيد هذا النموذج مستنفد. يرجى شحن الرصيد في لوحة التحكم."}`, {
+            duration: 7000,
+          });
+        } else if (res.errorType === "QUOTA") {
+          toast.error(`تنبيه الحصة: ${res.errorMessage || "تم تجاوز حصة الاستخدام المتاحة لهذا النموذج (429)."}`, {
+            duration: 7000,
+          });
+        } else if (res.errorType === "AUTH") {
+          toast.error(`خطأ في المفتاح: ${res.errorMessage || "مفتاح API غير صالح أو غير مصرح به (401/403)."}`);
+        } else {
+          toast.error(res.errorMessage || "فشل الاتصال بمحرك التوليد. يرجى التحقق من مفاتيح API في الإعدادات.");
+        }
+      }
+    } catch (err: any) {
+      toast.error(err.message || "حدث خطأ غير متوقع أثناء معالجة طلب التوليد");
+    } finally {
       setIsGenerating(false);
-      toast.success("تم توليد الصورة بنجاح بواسطة " + activeModelObj.name);
-    }, 2200);
+    }
+  };
+
+  const handleDownloadImage = async (imgUrl: string, itemPrompt: string) => {
+    try {
+      toast.info("جاري تحميل الصورة بدقة عالية...");
+      const res = await fetch(imgUrl);
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `kube-ai-image-${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+      toast.success("تم تنزيل الصورة بنجاح!");
+    } catch {
+      // Fallback direct download
+      const a = document.createElement("a");
+      a.href = imgUrl;
+      a.target = "_blank";
+      a.download = `kube-ai-image-${Date.now()}.png`;
+      a.click();
+    }
   };
 
   const handleCopyPrompt = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
-    toast.success("تم نسخ البرومبت");
+    toast.success("تم نسخ البرومبت بنجاح");
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -193,9 +255,18 @@ export const HalaiImageGenerateSection: React.FC<HalaiImageGenerateSectionProps>
                     <button
                       onClick={() => handleCopyPrompt(item.prompt, item.id)}
                       className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-semibold border border-white/15 transition-all"
+                      title="نسخ نص البرومبت"
                     >
                       {copiedId === item.id ? <Check className="w-3 h-3 text-[#00e575]" /> : <Copy className="w-3 h-3" />}
-                      <span>نسخ البرومبت</span>
+                      <span>نسخ</span>
+                    </button>
+                    <button
+                      onClick={() => handleDownloadImage(item.img, item.prompt)}
+                      className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white border border-white/15 text-[11px] font-semibold transition-all"
+                      title="تنزيل الصورة بدقة كاملة"
+                    >
+                      <Download className="w-3 h-3 text-[#00e575]" />
+                      <span>تحميل</span>
                     </button>
                     {onSendToStudio2 && (
                       <button

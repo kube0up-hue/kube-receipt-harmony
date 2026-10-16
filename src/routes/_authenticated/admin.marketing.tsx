@@ -868,6 +868,7 @@ function KubeAiMarketingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [studiosAccordionOpen, setStudiosAccordionOpen] = useState(true);
   const [exploreAccordionOpen, setExploreAccordionOpen] = useState(true);
+  const [showDiscountBanner, setShowDiscountBanner] = useState(true);
 
   // New Ad Bottom Sheet Modal (Matching IMG_0105)
   const [isNewAdModalOpen, setIsNewAdModalOpen] = useState(false);
@@ -1340,12 +1341,33 @@ function KubeAiMarketingPage() {
       }}
     >
       {/* ============================================================== */}
-      {/* 1. FIXED TOPBAR (Optimized for Mobile & Desktop)                */}
+      {/* 1. TOPBAR & LIME-GREEN DISCOUNT BANNER (100% Halai AI Parity)  */}
       {/* ============================================================== */}
-      <header
-        data-app-topbar="true"
-        className="h-14 md:h-16 flex items-center justify-between px-3 md:px-8 shrink-0 z-[9999] w-full transition-all duration-300 fixed top-0 left-0 bg-black/85 backdrop-blur-xl border-b border-white/5"
-      >
+      <div className="sticky top-0 left-0 w-full z-[9999] shrink-0">
+        {showDiscountBanner && (
+          <div className="w-full bg-[#00e575] text-black px-4 py-1.5 flex items-center justify-center relative text-xs md:text-sm font-bold z-[10001] select-none shadow-sm">
+            <div className="flex items-center gap-2">
+              <span>١٥٪ خصم على الاشتراك لأول مره</span>
+              <span className="inline-flex items-center gap-1 bg-black text-white px-2 py-0.5 rounded-full text-[11px] font-mono font-bold tracking-wider">
+                <Sparkles className="w-3 h-3 text-[#00e575]" />
+                AGENT
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowDiscountBanner(false)}
+              className="absolute left-3 md:left-6 p-1 hover:opacity-70 transition-opacity"
+              title="إغلاق الإشعار"
+            >
+              <X className="w-4 h-4 text-black" />
+            </button>
+          </div>
+        )}
+
+        <header
+          data-app-topbar="true"
+          className="h-14 md:h-16 flex items-center justify-between px-3 md:px-8 shrink-0 w-full transition-all duration-300 bg-black/85 backdrop-blur-xl border-b border-white/5"
+        >
         {/* Right Section: Mobile Menu + Logo + Desktop Nav */}
         <div className="flex items-center h-full gap-2 md:gap-5">
           {/* Mobile Menu Toggle Button (Touch Friendly 44x44px) */}
@@ -1483,6 +1505,7 @@ function KubeAiMarketingPage() {
           </div>
         </div>
       </header>
+      </div>
 
       {/* ============================================================== */}
       {/* 2. MOBILE SLIDE-OUT DRAWER (100% Halai Matching Architecture)  */}
@@ -1833,6 +1856,41 @@ function KubeAiMarketingPage() {
 
         <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center text-center space-y-6">
           
+          {/* Halai Master Hero: "ابدع بلا حدود." matching Screenshot 2 & 4 */}
+          <div className="relative w-full max-w-4xl mx-auto flex flex-col items-center justify-center text-center pt-2 pb-2 select-none">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] drop-shadow-2xl">
+              <span className="block text-white">ابدع</span>
+              <span className="block text-[#00e575] mt-1 flex items-baseline justify-center">
+                <span>بلا حدود</span>
+                <span className="w-3.5 h-3.5 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full bg-[#00e575] ms-2 shrink-0 inline-block" />
+              </span>
+            </h1>
+
+            {/* AI Engine Circular Glass Badges Row */}
+            <div className="flex items-center justify-center flex-wrap gap-2 sm:gap-2.5 pt-5 pb-3 max-w-xl mx-auto">
+              {ENGINE_LOGOS.slice(0, 10).map((eng, idx) => (
+                <div
+                  key={idx}
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 flex items-center justify-center p-2 backdrop-blur-md transition-all hover:scale-110 shadow-lg cursor-pointer"
+                  title={eng.name}
+                >
+                  <img
+                    src={eng.icon}
+                    alt={eng.name}
+                    className={`w-full h-full object-contain ${eng.invert ? "brightness-200" : ""}`}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLElement).style.display = "none";
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <p className="text-xs sm:text-sm md:text-base text-zinc-400 font-medium max-w-lg mx-auto tracking-wide">
+              محركات توليدية مضبوطة بدقة للجيل القادم من المبدعين المحترفين.
+            </p>
+          </div>
+
           {/* Emblem Badge: Curved Box with "استديو 2" / "التسويق" */}
           <div className="relative flex flex-col items-center justify-center pt-2">
             <div className="relative group cursor-pointer transition-transform hover:scale-105 duration-300">
