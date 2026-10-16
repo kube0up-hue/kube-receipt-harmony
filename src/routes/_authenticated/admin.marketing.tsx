@@ -343,37 +343,195 @@ const UGC_CREATORS = [
   },
 ];
 
-// Real Templates (Section 6)
-const TEMPLATES_ITEMS = [
+// 16 Real High-Converting Advertising Templates (100% Halai Parity)
+export interface CreativeTemplateItem {
+  id: string;
+  title: string;
+  cat: string;
+  engine: string;
+  img: string;
+  desc: string;
+  promptSample: string;
+  aspectRatio: "9:16" | "16:9" | "1:1";
+  duration: string;
+}
+
+const TEMPLATES_ITEMS: CreativeTemplateItem[] = [
   {
-    title: "مشجع في المدرج",
-    cat: "مشاهير",
-    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/24512104ff8cc84b24db6ea92b9df10a/thumbnails/thumbnail.jpg?height=720",
+    id: "tmpl_cold_brew",
+    title: "انتعاش الكولد برو كيني KUBE",
+    cat: "مشروبات وقهوة",
+    engine: "Veo 3.1 Pro",
+    img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80",
+    desc: "سكب بطيء لكولد برو مركز مع تكثف قطرات الماء على الزجاج ومكعبات ثلج كريستالية وإضاءة نهارية راقية.",
+    promptSample: "إعلان سينمائي 4K لكوب كولد برو كيني مركز في مقهى KUBE بالرياض، تصوير ماكرو بطيء 120fps لسكب القهوة مع تناثر رذاذ وانعكاسات ضوء ناعمة على الرخام الأسود.",
+    aspectRatio: "9:16",
+    duration: "15s",
   },
   {
-    title: "وصول المشاهير",
-    cat: "مشاهير",
-    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/2bd5a81ba7055b5e5d434e3926a8945f/thumbnails/thumbnail.jpg?height=720",
+    id: "tmpl_flat_white",
+    title: "رسمة التيوليب بالفلات وايت",
+    cat: "مشروبات وقهوة",
+    engine: "Kling 3.0",
+    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/47e6fccb610688b7c7eb8c091577872a/thumbnails/thumbnail.jpg?height=800",
+    desc: "الباريستا يسكب الحليب المخملي برسمة تيوليب ثلاثية مع بخار خفيف ورغوة غنية متماسكة.",
+    promptSample: "لقطة سينمائية من زاوية علوية 45 درجة لباريستا سعودي يسكب حليب فلات وايت برسمة تيوليب متقنة، بخار هادئ يتصاعد، إضاءة دافئة سينمائية 4K.",
+    aspectRatio: "9:16",
+    duration: "15s",
   },
   {
-    title: "ريلز المنتج والسكب",
-    cat: "التجارة الإلكترونية",
-    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/596cd3d2de2560a3bf2c9a12c7e9bef7/thumbnails/thumbnail.jpg?height=720",
+    id: "tmpl_croissant",
+    title: "كرواسون اللوز الساخن وتناثر الرقائق",
+    cat: "طعام وحلويات",
+    engine: "WanX 2.6",
+    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/b0846f302f55b41ad9c4fcc29bb8dd97/thumbnails/thumbnail.jpg?height=800",
+    desc: "كسر قطعة كرواسون مخبوزة حديثاً مع تناثر الرقائق المقرمشة وحشوة اللوز الغنية.",
+    promptSample: "لقطة ماكرو مقربة لكسر كرواسون لوز فرنسي ساخن ومقرمش، تناثر فتات الرقائق الذهبية في الهواء، تصوير سينمائي 8K فود أدفيرتايزينغ.",
+    aspectRatio: "1:1",
+    duration: "10s",
   },
   {
-    title: "سيلفي سيارة فاخرة مع قهوة",
-    cat: "مشاهير",
-    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/28344dc091e4acf786c7622ad1fdeb10/thumbnails/thumbnail.jpg?height=720",
+    id: "tmpl_perfume_luxury",
+    title: "عطر ليذر رويال — رذاذ العنبر الليلي",
+    cat: "عطور وتجميل",
+    engine: "Flux 1.1 Pro",
+    img: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80",
+    desc: "زجاجة عطر فاخرة سوداء على رخام أسود مع رذاذ عنبر ذهبي وإضاءة درامية حادة.",
+    promptSample: "إعلان تجاري فخم لزجاجة عطر ليذر سوداء مع كتابة ذهبية بارزة على سطح رخامي عاكس، انطلاق رذاذ العطر بإضاءة ذهبية درامية، هاسيلبلاد 4K.",
+    aspectRatio: "9:16",
+    duration: "15s",
   },
   {
-    title: "جلسة تصوير أزياء ومقهى",
-    cat: "الملابس",
-    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/e437e1ee09c9818b4b1370de1f8e92cf/thumbnails/thumbnail.jpg?height=720",
+    id: "tmpl_ugc_car",
+    title: "ريلز سيارة عفوي — روقان الدوام",
+    cat: "تيك توك UGC",
+    engine: "Kling 3.0 Turbo",
+    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/28344dc091e4acf786c7622ad1fdeb10/thumbnails/thumbnail.jpg?height=800",
+    desc: "شاب سعودي يمسك كوب KUBE في زحمة خريص الصباحية ويتحدث بعفوية عن طاقة اليوم.",
+    promptSample: "فيديو UGC تيك توك مصور بكاميرا آيفون 16 برو لشاب سعودي مبتسم داخل سيارته في الرياض صباحاً يمسك كوب كولد برو KUBE ويتحدث بنبرة حماسية سريعة.",
+    aspectRatio: "9:16",
+    duration: "15s",
   },
   {
-    title: "صورة احترافية مع العلم",
-    cat: "اليوم الوطني",
-    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/27ad80f674f0cd970046d7985749890a/thumbnails/thumbnail.jpg?height=720",
+    id: "tmpl_fashion_abaya",
+    title: "عباية مخملية في بوليفارد الرياض",
+    cat: "أزياء وعبايات",
+    engine: "Veo 3.1",
+    img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80",
+    desc: "عرض أزياء سينمائي لعباية راقية مع انسياب القماش وحركة كاميرا بطيئة 60fps.",
+    promptSample: "مقطع سينمائي 4K لموديل سعودية ترتدي عباية مخملية راقية تمشي في ممرات بوليفارد الرياض ليلاً، إضاءات نيون ناعمة وحركة قماش بطيئة وانعكاسات زجاجية.",
+    aspectRatio: "9:16",
+    duration: "20s",
+  },
+  {
+    id: "tmpl_burger_smash",
+    title: "برجر كرسبي وتروس الجبن الذائب",
+    cat: "طعام وحلويات",
+    engine: "WanX 2.6",
+    img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80",
+    desc: "سحق قطعة اللحم على الصاج الساخن مع ذوبان جبن الشيدر وصوت الشواء الحقيقي.",
+    promptSample: "إعلان تجاري سينمائي لوجبة برجر سماش مع شيدر مذاب وبطاطس ساخنة وصوص خاص، تصوير ماكرو بطيء 120fps مع بخار ساخن وإضاءة استوديو طعام احترافية.",
+    aspectRatio: "1:1",
+    duration: "15s",
+  },
+  {
+    id: "tmpl_asmr_ice_pour",
+    title: "ASMR سكب وتكسير الثلج المنعش",
+    cat: "مشروبات وقهوة",
+    engine: "Veo 3.1 Pro",
+    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/679f435913be72cd7135ad8fb2b4c880/thumbnails/thumbnail.jpg?height=800",
+    desc: "لقطة حسية مقربة للغاية تركز على أصوات تكسير الثلج وسكب المشروب الفوار.",
+    promptSample: "مقطع ASMR حسي فائق النقاء لمكعبات ثلج شفافة تسقط في كوب زجاجي يتبعه سكب مشروب مثلج غازي مع فقاعات متصاعدة وتكثيف رطوبة، دقة 4K نقية.",
+    aspectRatio: "9:16",
+    duration: "12s",
+  },
+  {
+    id: "tmpl_national_day",
+    title: "فخامة الهوية واليوم الوطني",
+    cat: "عروض وتخفيضات",
+    engine: "Flux 1.1 Pro",
+    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/27ad80f674f0cd970046d7985749890a/thumbnails/thumbnail.jpg?height=800",
+    desc: "تصميم إعلاني فخم يحمل درجات الأخضر الزمردي والخطوط الذهبية مع علبة قهوة KUBE التذكارية.",
+    promptSample: "بوستر إعلاني وطني فاخر، خلفية قماش حريري أخضر زمردي داكن مع شارات ذهبية بارزة وكوب قهوة KUBE من السيراميك الحجري بنقوش تراثية سعودية معاصرة.",
+    aspectRatio: "1:1",
+    duration: "10s",
+  },
+  {
+    id: "tmpl_sneaker_unboxing",
+    title: "فتح علبة سنيكرز حصرية من الأعلى",
+    cat: "أزياء وعبايات",
+    engine: "Kling 3.0",
+    img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80",
+    desc: "مشهد فتح علبة حذاء حصري بتصوير رأسي Top-Down مع إبراز الخامات وتطريز الشعار.",
+    promptSample: "لقطة فتح علبة سينمائية Top-Down لعلبة أحذية رياضية ليمتد إيديشن مع ورق تغليف شفاف وإبراز جلود الحذاء والتطريز الفاخر، إضاءة استوديو ناعمة.",
+    aspectRatio: "9:16",
+    duration: "15s",
+  },
+  {
+    id: "tmpl_late_night_neon",
+    title: "أجواء ليلية نيون — كافيه KUBE",
+    cat: "مشروبات وقهوة",
+    engine: "Grok Imagine",
+    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/21d02f613a69c054c30b1438749d13f4/thumbnails/thumbnail.jpg?height=800",
+    desc: "توهج أحمر داكن مطابق لهوية KUBE مع لافتات نيون وانعكاسات أسفلت ممطر في شوارع الرياض.",
+    promptSample: "لقطة سينمائية ليلية لواجهة مقهى KUBE في الرياض مع توهج أحمر داكن لعلامة النيون، أسطح خرسانية مبللة تعكس الأضواء، وكوب سفري يحمله شاب بملامح سعودية.",
+    aspectRatio: "9:16",
+    duration: "15s",
+  },
+  {
+    id: "tmpl_breakfast_combo",
+    title: "عرض الفطور الصباحي المتكامل",
+    cat: "عروض وتخفيضات",
+    engine: "Veo 3.1",
+    img: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80",
+    desc: "ترتيب سينمائي لكرواسون ساخن وكوب فلات وايت مع كود خصم التطبيق وخلفية خشبية دافئة.",
+    promptSample: "عرض إعلاني جذاب لكومبو فطور KUBE الصباحي (كرواسون طازج + فلات وايت برسمة جميلة)، طاولة خشب جوز دافئة مع ضوء شمس الصباح الساقط بزاوية هادئة.",
+    aspectRatio: "16:9",
+    duration: "15s",
+  },
+  {
+    id: "tmpl_ugc_review",
+    title: "مراجعة نورة للمحصول الإثيوبي",
+    cat: "تيك توك UGC",
+    engine: "Kling 3.0 Turbo",
+    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/e979b81d089e42e710e17fab3b3bbde5/thumbnails/thumbnail.jpg?time=0&height=800",
+    desc: "نورة تشرح إيحاءات المحصول الجديد وتوصي بطلبه في الصباح الباكر مع تعابير صادقة.",
+    promptSample: "فيديو UGC تيك توك لفتاة سعودية محجبة بنبرة نجدية تشرح تجربتها الأولى مع محصول KUBE الإثيوبي الجديد وكيف أن حلاوته طبيعية بدون مرارة، تصوير رأسي سريع.",
+    aspectRatio: "9:16",
+    duration: "15s",
+  },
+  {
+    id: "tmpl_beans_packaging",
+    title: "أكياس بن فاخرة مع حبوب القهوة المحمصة",
+    cat: "مشروبات وقهوة",
+    engine: "Flux 1.1 Pro",
+    img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80",
+    desc: "أكياس بن سوداء مطفية مع صمام أمان وحبوب بن كولومبي لامعة منثورة على حجر صحراوي.",
+    promptSample: "تصوير تجاري فاخر لثلاثة أكياس بن قهوة مختصة KUBE أسود مطفي مع تفاصيل ذهبية، حبوب بن محمصة حديثاً مبعثرة حول الأكياس على سطح حجر ترافيرتين نجد الطبيعي.",
+    aspectRatio: "1:1",
+    duration: "10s",
+  },
+  {
+    id: "tmpl_celebrity_arrival",
+    title: "وصول الضيوف والافتتاح الكبير",
+    cat: "أزياء وعبايات",
+    engine: "Veo 3.1 Pro",
+    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/2bd5a81ba7055b5e5d434e3926a8945f/thumbnails/thumbnail.jpg?height=800",
+    desc: "أجواء فخمة للسجادة الحمراء ووصول الزوار مع كؤوس الكولد برو الترحيبية والابتسامات.",
+    promptSample: "مشهد سينمائي 4K هوليوودي لحدث افتتاح راقٍ لفرع KUBE الجديد، ضيوف بأزياء سعودية فاخرة يستلمون أكواب القهوة الترحيبية، أضواء فلاشات الكاميرا والابتسامات.",
+    aspectRatio: "16:9",
+    duration: "20s",
+  },
+  {
+    id: "tmpl_stadium_fan",
+    title: "حماس الجماهير مع كولد برو الرياض",
+    cat: "عروض وتخفيضات",
+    engine: "Kling 3.0",
+    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/24512104ff8cc84b24db6ea92b9df10a/thumbnails/thumbnail.jpg?height=800",
+    desc: "شاب في مدرجات ملعب المملكة أرينا يحمل كوب KUBE المثلج مع هتافات الفوز.",
+    promptSample: "لقطة حماسية سينمائية لشاب سعودي في مدرجات ملعب كرة قدم بالرياض ليلاً يحمل كوب مثلج من KUBE مع أضواء الملاعب المبهرة وخلفية الجماهير المحتفلة.",
+    aspectRatio: "9:16",
+    duration: "15s",
   },
 ];
 
@@ -688,6 +846,10 @@ function KubeAiMarketingPage() {
   const [heroResolution, setHeroResolution] = useState<"1080p" | "4K" | "720p" | "480p">("480p");
   const [heroDuration, setHeroDuration] = useState<"12 ث" | "10 ث" | "15 ث" | "30 ث">("10 ث");
   const [isGeneratingHeroAd, setIsGeneratingHeroAd] = useState(false);
+
+  // Templates Page State Filters
+  const [templateCategoryFilter, setTemplateCategoryFilter] = useState<string>("الكل");
+  const [templateSearchQuery, setTemplateSearchQuery] = useState<string>("");
 
   const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -5057,40 +5219,168 @@ function KubeAiMarketingPage() {
                 </div>
               )}
 
-              {/* PAGE: TEMPLATES CATALOG */}
+              {/* PAGE: TEMPLATES CATALOG (100% Halai Real Page Parity) */}
               {currentStudioPage === "templates" && (
-                <div className="space-y-6 text-right">
-                  <div className="pb-4 border-b border-white/10 space-y-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00e575]/10 border border-[#00e575]/30 text-[#00e575] text-xs font-mono">
-                      <LayoutGrid className="w-3.5 h-3.5" />
-                      <span>APPLICATIONS & CREATIVE TEMPLATES</span>
+                <div className="space-y-8 text-right">
+                  {/* Top Page Header */}
+                  <div className="pb-4 border-b border-white/10 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00e575]/10 border border-[#00e575]/30 text-[#00e575] text-xs font-mono">
+                          <LayoutGrid className="w-3.5 h-3.5" />
+                          <span>CREATIVE TEMPLATES CATALOG • قالب إعلاني جاهز</span>
+                        </div>
+                        <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+                          قوالب إعلانية جاهزة ومثبتة التحويل لكافيه KUBE
+                        </h2>
+                        <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
+                          اختر أي قالب بضغطة زر واحدة؛ سيتم نقل إعدادات الإخراج والبرومبت والمقاسات إلى استديو 2.0 مباشرة لتوليد الفيديو والصور فوراً.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-zinc-300">
+                          {TEMPLATES_ITEMS.filter((t) => {
+                            const matchCat = templateCategoryFilter === "الكل" || t.cat === templateCategoryFilter;
+                            const matchQ = !templateSearchQuery || t.title.includes(templateSearchQuery) || t.desc.includes(templateSearchQuery);
+                            return matchCat && matchQ;
+                          }).length}{" "}
+                          قالب متوفر
+                        </span>
+                      </div>
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-black text-white">
-                      تطبيقات وقوالب إعلانية جاهزة لكافيه KUBE
-                    </h3>
-                    <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                      اختر أي قالب إعلاني بضغطة زر واحدة، وقم بإنشاء فيديو أو بوستر سينمائي لمنتجك مباشرة دون الحاجة لكتابة برومبت من الصفر.
-                    </p>
+
+                    {/* Filter Pills and Search Bar */}
+                    <div className="pt-3 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                      {/* Category Pills */}
+                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                        {[
+                          "الكل",
+                          "مشروبات وقهوة",
+                          "طعام وحلويات",
+                          "عطور وتجميل",
+                          "أزياء وعبايات",
+                          "تيك توك UGC",
+                          "عروض وتخفيضات",
+                        ].map((cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setTemplateCategoryFilter(cat)}
+                            className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all active:scale-95 ${
+                              templateCategoryFilter === cat
+                                ? "bg-white text-black shadow-md shadow-white/10"
+                                : "bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/5"
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Search Input */}
+                      <div className="relative min-w-[220px]">
+                        <input
+                          type="text"
+                          value={templateSearchQuery}
+                          onChange={(e) => setTemplateSearchQuery(e.target.value)}
+                          placeholder="ابحث في القوالب..."
+                          className="w-full bg-black/60 border border-white/10 focus:border-[#00e575] rounded-xl px-3.5 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                    {TEMPLATES_ITEMS.map((tmpl) => (
+                  {/* 16 Templates Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    {TEMPLATES_ITEMS.filter((tmpl) => {
+                      const matchCat = templateCategoryFilter === "الكل" || tmpl.cat === templateCategoryFilter;
+                      const matchQ =
+                        !templateSearchQuery ||
+                        tmpl.title.includes(templateSearchQuery) ||
+                        tmpl.desc.includes(templateSearchQuery) ||
+                        tmpl.cat.includes(templateSearchQuery);
+                      return matchCat && matchQ;
+                    }).map((tmpl) => (
                       <div
                         key={tmpl.id}
-                        onClick={() => {
-                          setHeroPrompt(tmpl.promptSample);
-                          setHeroAdType(tmpl.cat);
-                          navigateToStudio("studio_2");
-                          toast.success(`تم اختيار قالب: ${tmpl.title}`);
-                        }}
-                        className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#00e575] cursor-pointer active:scale-95 transition-all shadow-xl flex flex-col justify-end p-3 text-right"
+                        className="group rounded-3xl border border-white/10 bg-[#151618] overflow-hidden flex flex-col justify-between shadow-xl hover:border-white/25 transition-all duration-300"
                       >
-                        <img src={tmpl.thumb} alt={tmpl.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                        <div className="relative z-10 space-y-1">
-                          <span className="text-[10px] font-mono text-[#00e575] px-2 py-0.5 rounded-full bg-black/60 border border-[#00e575]/30 inline-block">{tmpl.cat}</span>
-                          <h4 className="text-xs sm:text-sm font-black text-white truncate">{tmpl.title}</h4>
-                          <span className="text-[10px] text-zinc-300 block line-clamp-1">{tmpl.desc}</span>
+                        {/* Thumbnail Container */}
+                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-black">
+                          <img
+                            src={tmpl.img}
+                            alt={tmpl.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+
+                          {/* Top Badges */}
+                          <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/70 backdrop-blur-md border border-white/10 text-[#00e575]">
+                              {tmpl.engine}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-black/70 backdrop-blur-md text-zinc-300">
+                              {tmpl.aspectRatio} • {tmpl.duration}
+                            </span>
+                          </div>
+
+                          {/* Category Tag */}
+                          <div className="absolute bottom-2.5 right-2.5">
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#ff2a4b]/80 text-white backdrop-blur-md shadow-md">
+                              {tmpl.cat}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Content Body */}
+                        <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+                          <div className="space-y-1.5">
+                            <h3 className="text-sm font-black text-white group-hover:text-[#00e575] transition-colors line-clamp-1">
+                              {tmpl.title}
+                            </h3>
+                            <p className="text-[11px] text-zinc-400 leading-relaxed line-clamp-2">
+                              {tmpl.desc}
+                            </p>
+                          </div>
+
+                          {/* Prompt Preview Snippet */}
+                          <div className="p-2.5 rounded-xl bg-black/50 border border-white/5 space-y-1">
+                            <span className="text-[9px] font-mono text-zinc-500 block">برومبت التوليد:</span>
+                            <p className="text-[10px] text-zinc-300 font-sans line-clamp-2 leading-relaxed">
+                              {tmpl.promptSample}
+                            </p>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="pt-2 flex items-center gap-2 border-t border-white/5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setHeroPrompt(tmpl.promptSample);
+                                setHeroAdType(tmpl.cat);
+                                setHeroMode("video");
+                                navigateToStudio("studio_2");
+                                toast.success(`تم اختيار قالب: ${tmpl.title}`);
+                              }}
+                              className="flex-1 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-black text-xs transition-all active:scale-95 shadow-md flex items-center justify-center gap-1.5"
+                            >
+                              <Wand2 className="w-3.5 h-3.5" />
+                              <span>استخدم القالب</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(tmpl.promptSample);
+                                toast.success("تم نسخ برومبت القالب بنجاح!");
+                              }}
+                              className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white flex items-center justify-center border border-white/5 transition-colors shrink-0"
+                              title="نسخ البرومبت"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
