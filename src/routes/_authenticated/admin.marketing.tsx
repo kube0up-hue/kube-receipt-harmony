@@ -451,6 +451,94 @@ const AI_PROVIDERS = [
   },
 ];
 
+// 7 Diverse Commercial Showcase Cards (Matching Halai Desktop/Mobile Fan)
+const SHOWCASE_CAROUSEL_ITEMS = [
+  {
+    id: "burger",
+    tag: "طعام وحلويات",
+    title: "وجبة برجر مقرمش",
+    img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=720&q=80",
+    format: "طعام وحلويات",
+    promptSample: "إعلان سينمائي 4K لوجبة برجر مقرمش وجبن ذائب وبطاطس ساخنة مع إضاءة استوديو داكنة وزوايا ماكرو بطيئة",
+  },
+  {
+    id: "ugc",
+    tag: "استعراض UGC",
+    title: "ريفيو صانعة محتوى",
+    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/e979b81d089e42e710e17fab3b3bbde5/thumbnails/thumbnail.jpg?time=0&height=1000",
+    format: "استعراض UGC",
+    promptSample: "مقطع UGC لفتاة سعودية تستعرض منتج عناية بالبشرة بنبرة عفوية وتوصية صادقة في أول 3 ثوانٍ",
+  },
+  {
+    id: "perfume",
+    tag: "مراجعة منتج",
+    title: "عطر ليذر نايت الفاخر",
+    img: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=720&q=80",
+    format: "مراجعة منتج",
+    promptSample: "إعلان عطر فاخر زجاجة سوداء كريستالية مع رذاذ عنبر وإضاءة ذهبية درامية في أجواء ليلية راقية",
+  },
+  {
+    id: "fashion",
+    tag: "تجربة الزي",
+    title: "عباية مخملية سوداء",
+    img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=720&q=80",
+    format: "تجربة الزي",
+    promptSample: "عرض أزياء سينمائي لموديل سعودية ترتدي عباية راقية مع حركة قماش انسيابية وإضاءة استوديو دافئة",
+  },
+  {
+    id: "sneakers",
+    tag: "فتح العلبة",
+    title: "سنيكرز إير ستريت",
+    img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=720&q=80",
+    format: "فتح العلبة",
+    promptSample: "مقطع فتح علبة سنيكرز حصرية من الأعلى مع صوت ASMR حقيقي وإبراز تفاصيل الجلد والتطريز",
+  },
+  {
+    id: "motion",
+    tag: "حركة",
+    title: "سكب ديناميكي وانتعاش",
+    img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/679f435913be72cd7135ad8fb2b4c880/thumbnails/thumbnail.jpg?height=720",
+    format: "حركة",
+    promptSample: "لقطة حركة بطيئة فائقة 120fps لسكب مشروب مثلج مع تناثر قطرات الماء ومكعبات الثلج في الهواء",
+  },
+  {
+    id: "coffee",
+    tag: "مقهى",
+    title: "كولد برو كيني مركز",
+    img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=720&q=80",
+    format: "مقهى",
+    promptSample: "لقطة سينمائية لكوب كولد برو مركز مع طبقات الحليب البارد ورغوة غنية وإضاءة نهارية طبيعية",
+  },
+];
+
+// 14 Official Ad Formats (100% Halai Categories)
+const HALAI_AD_FORMATS = [
+  { id: "food", name: "طعام وحلويات", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" },
+  { id: "ugc", name: "استعراض UGC", img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/e979b81d089e42e710e17fab3b3bbde5/thumbnails/thumbnail.jpg?time=0&height=400" },
+  { id: "review", name: "مراجعة منتج", img: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=400&q=80" },
+  { id: "fashion", name: "تجربة الزي", img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=400&q=80" },
+  { id: "unboxing", name: "فتح العلبة", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80" },
+  { id: "explainer", name: "شرح", img: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=400&q=80" },
+  { id: "before_after", name: "قبل وبعد", img: "https://images.unsplash.com/photo-1512290900672-1f55b9a8976b?auto=format&fit=crop&w=400&q=80" },
+  { id: "luxury", name: "فخامة", img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=400&q=80" },
+  { id: "film", name: "فيلم إعلاني", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=400&q=80" },
+  { id: "asmr", name: "ASMR", img: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?auto=format&fit=crop&w=400&q=80" },
+  { id: "kinetic", name: "حركة", img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/679f435913be72cd7135ad8fb2b4c880/thumbnails/thumbnail.jpg?height=400" },
+  { id: "action", name: "أكشن", img: "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=400&q=80" },
+  { id: "cafe", name: "مقهى", img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80" },
+  { id: "automotive", name: "سيارات", img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=400&q=80" }
+];
+
+// Sample Diverse Product Catalog
+const SAMPLE_PRODUCTS_CATALOG = [
+  { id: "p1", name: "عطر ليذر رويال", category: "عطور", img: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=400&q=80" },
+  { id: "p2", name: "برجر كرسبي فاخر", category: "طعام", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" },
+  { id: "p3", name: "سنيكرز إير ستريت", category: "أحذية", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80" },
+  { id: "p4", name: "سيروم عناية CeraVe", category: "عناية", img: "https://images.unsplash.com/photo-1608248597359-00109b8d2346?auto=format&fit=crop&w=400&q=80" },
+  { id: "p5", name: "ساعة ألترا ذكية", category: "تقنية", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80" },
+  { id: "p6", name: "كولد برو كيني KUBE", category: "قهوة", img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80" },
+];
+
 interface ChatMessage {
   id: string;
   sender: "user" | "agent";
@@ -491,18 +579,86 @@ function KubeAiMarketingPage() {
 
   // New Ad Bottom Sheet Modal (Matching IMG_0105)
   const [isNewAdModalOpen, setIsNewAdModalOpen] = useState(false);
+  const [isFormatModalOpen, setIsFormatModalOpen] = useState(false);
+  const [isProductUploadModalOpen, setIsProductUploadModalOpen] = useState(false);
+  const [productModalTab, setProductModalTab] = useState<"upload" | "library" | "custom">("upload");
+  const [customProductName, setCustomProductName] = useState("");
 
   // Hero Creation Studio 2.0 Form States (Matching IMG_0104)
   const [heroMode, setHeroMode] = useState<"video" | "image">("video");
   const [heroPrompt, setHeroPrompt] = useState("");
-  const [heroProduct, setHeroProduct] = useState<(typeof KUBE_COFFEE_CATALOG)[0] | null>(KUBE_COFFEE_CATALOG[0]);
+  const [heroProduct, setHeroProduct] = useState<{ id: string; name: string; img: string; category?: string } | null>(null);
   const [heroPersona, setHeroPersona] = useState<(typeof UGC_CREATORS)[0] | null>(null);
   const [heroScene, setHeroScene] = useState<string | null>(null);
-  const [heroAdType, setHeroAdType] = useState<string>("شرح منتج وسكب");
-  const [heroAspect, setHeroAspect] = useState<"3:4" | "9:16" | "1:1" | "16:9">("3:4");
-  const [heroResolution, setHeroResolution] = useState<"1080p" | "4K" | "720p" | "480p">("1080p");
-  const [heroDuration, setHeroDuration] = useState<"12 ث" | "10 ث" | "15 ث" | "30 ث">("12 ث");
+  const [heroAdType, setHeroAdType] = useState<string>("طعام وحلويات");
+  const [heroAspect, setHeroAspect] = useState<"3:4" | "9:16" | "1:1" | "16:9">("9:16");
+  const [heroResolution, setHeroResolution] = useState<"1080p" | "4K" | "720p" | "480p">("480p");
+  const [heroDuration, setHeroDuration] = useState<"12 ث" | "10 ث" | "15 ث" | "30 ث">("10 ث");
   const [isGeneratingHeroAd, setIsGeneratingHeroAd] = useState(false);
+
+  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      if (result) {
+        const prodName = customProductName.trim() || file.name.replace(/\.[^/.]+$/, "");
+        const newProd = {
+          id: `upload-${Date.now()}`,
+          name: prodName,
+          img: result,
+          category: "مرفوع",
+        };
+        setHeroProduct(newProd);
+        setIsProductUploadModalOpen(false);
+        toast.success(`تم رفع صورة المنتج: ${prodName}`);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleHeroAdGenerate = async () => {
+    if (!heroPrompt.trim() && !heroProduct) {
+      toast.error("يرجى كتابة فكرة الإعلان أو إضافة منتج لتبدأ");
+      return;
+    }
+    setIsGeneratingHeroAd(true);
+    toast.info("جاري توجيه محركات الذكاء الاصطناعي وبدء الريندر...");
+
+    const targetTitle = heroProduct ? `${heroProduct.name} — ${heroAdType}` : `إعلان ${heroAdType} احترافي`;
+    const targetImg = heroProduct?.img || "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=720&q=80";
+
+    await dispatchStudioGeneration({
+      task: heroMode === "video" ? "video_ugc_motion" : "image_packshot_4k",
+      provider: "fal_ai",
+      prompt: heroPrompt || `Cinematic commercial for ${heroProduct?.name || heroAdType}`,
+      aspectRatio: heroAspect,
+      resolution: heroResolution,
+      productImageUrl: heroProduct?.img,
+      adType: heroAdType,
+    });
+
+    setTimeout(() => {
+      const newAd = {
+        id: `ad-${Date.now()}`,
+        title: targetTitle,
+        type: heroMode,
+        thumb: targetImg,
+        createdAt: "الآن",
+        status: "ready" as const,
+        aspect: heroAspect,
+        prompt: heroPrompt || `Commercial render of ${targetTitle}`,
+      };
+      setUserAds((prev) => [newAd, ...prev]);
+      setIsGeneratingHeroAd(false);
+      setIsNewAdModalOpen(false);
+      toast.success("تم تجهيز إعلانك بنجاح وعرضه في قسم إعلاناتي!");
+      
+      const el = document.getElementById("my-ads-section");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }, 1200);
+  };
 
   // "إعلاناتي" (My Ads Gallery) States (Matching IMG_0097)
   const [myAdsFilter, setMyAdsFilter] = useState<"all" | "video" | "image">("all");
@@ -1390,421 +1546,312 @@ function KubeAiMarketingPage() {
         </div>
       )}
 
-      {/* ============================================================== */}
-      {/* 3. MOBILE BOTTOM NAVIGATION BAR (iPhone Floating Dock)         */}
-      {/* ============================================================== */}
-      <nav
-        style={{ bottom: "max(12px, env(safe-area-inset-bottom, 12px))" }}
-        className="xl:hidden fixed inset-x-3 z-[9990] rounded-2xl bg-zinc-950/95 backdrop-blur-2xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-1.5 flex items-center justify-around text-[10px] select-none touch-manipulation"
-      >
-        <button
-          onClick={() => setActiveStudioModal("super_agent")}
-          className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all active:scale-95 ${
-            activeStudioModal === "super_agent" ? "text-[#ff2a4b] bg-white/10 font-bold" : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          <Bot className="w-5 h-5 text-[#ff2a4b]" />
-          <span>ايجنت</span>
-        </button>
 
-        <button
-          onClick={() => setActiveStudioModal("product_3d")}
-          className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all active:scale-95 ${
-            activeStudioModal === "product_3d" ? "text-[#ff2a4b] bg-white/10 font-bold" : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          <Layers className="w-5 h-5" />
-          <span>استديو 3D</span>
-        </button>
-
-        <button
-          onClick={() => setActiveStudioModal("ugc_studio")}
-          className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all active:scale-95 ${
-            activeStudioModal === "ugc_studio" ? "text-[#ff2a4b] bg-white/10 font-bold" : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          <Video className="w-5 h-5" />
-          <span>UGC</span>
-        </button>
-
-        <button
-          onClick={() => setActiveStudioModal("ads_9x")}
-          className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all active:scale-95 ${
-            activeStudioModal === "ads_9x" ? "text-[#ff2a4b] bg-white/10 font-bold" : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          <Sparkles className="w-5 h-5" />
-          <span>إعلانات 9x</span>
-        </button>
-
-        <Link
-          to={backHomeUrl}
-          className="flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl text-zinc-400 hover:text-white transition-all active:scale-95"
-        >
-          <Home className="w-5 h-5" />
-          <span>الرئيسية</span>
-        </Link>
-      </nav>
 
       {/* ============================================================== */}
       {/* 4. SECTION 1: STUDIO 2.0 HERO & CREATION FORM (100% Halai)     */}
       {/* ============================================================== */}
-      <section className="relative w-full overflow-hidden bg-black pt-20 pb-10 px-3 sm:px-6 md:px-8 border-b border-white/5">
-        <div className="max-w-4xl mx-auto flex flex-col items-center text-center space-y-6">
+      <section className="relative w-full overflow-hidden bg-[#131416] pt-14 pb-10 px-3 sm:px-6 md:px-8 border-b border-white/[0.06]">
+        {/* Halai Background Subtle Dot Grid */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-40"
+          style={{
+            backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1.2px)",
+            backgroundSize: "22px 22px",
+            maskImage: "linear-gradient(black 0%, black 65%, transparent 100%)",
+          }}
+        />
+
+        {/* Ambient Top Light Beam */}
+        <div className="absolute inset-x-0 top-0 h-96 pointer-events-none bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(0,229,117,0.08)_0%,transparent_70%)]" />
+
+        <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center text-center space-y-6">
           
-          {/* 3D Glass Emblem & Curved Studio Title (Matching IMG_0104) */}
+          {/* Emblem Badge: Curved Box with "استديو 2" / "التسويق" */}
           <div className="relative flex flex-col items-center justify-center pt-2">
-            <div className="relative flex items-center justify-center">
-              {/* Glowing Ambient Light */}
-              <div className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-[#00e575]/30 to-[#ff2a4b]/20 blur-3xl pointer-events-none" />
-              
-              {/* 3D Glass Emblem Box */}
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-white/10 via-white/5 to-white/0 border border-white/20 backdrop-blur-xl shadow-2xl flex items-center justify-center p-3 group hover:scale-105 transition-transform duration-500">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#00e575] via-[#10b981] to-[#059669] flex items-center justify-center text-black shadow-lg shadow-[#00e575]/40 transform -rotate-6 group-hover:rotate-0 transition-transform">
-                  <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-current ml-0.5" />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-1.5 pt-3">
-              <span className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white block">
-                استوديو التسويق 2.0
-              </span>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-                <span className="text-xs text-zinc-300 font-medium">لا حدود للإبداع</span>
+            <div className="relative group cursor-pointer transition-transform hover:scale-105 duration-300">
+              <div className="w-[140px] sm:w-[170px] py-2 px-4 rounded-[22px] bg-gradient-to-b from-[#222327] to-[#17181a] border-2 border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.2)] flex flex-col items-center justify-center">
+                <span className="text-[11px] sm:text-xs font-bold text-[#00e575] tracking-widest uppercase">
+                  استديو 2
+                </span>
+                <span className="text-lg sm:text-2xl font-black text-white tracking-tight -mt-0.5">
+                  التسويق
+                </span>
               </div>
             </div>
           </div>
 
-          {/* 3 Showcase Cards Row (Food, Explainer, Motion) (Matching IMG_0104) */}
-          <div className="w-full grid grid-cols-3 gap-2.5 sm:gap-4 max-w-2xl mx-auto pt-2">
-            {/* Card 1: Food / Coffee */}
-            <div
-              onClick={() => {
-                setHeroProduct(KUBE_COFFEE_CATALOG[0]);
-                setHeroAdType("طعام ومشروبات");
-                toast.success("تم اختيار نمط: طعام وقهوة مختصة");
-              }}
-              className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#00e575] active:scale-95 transition-all cursor-pointer shadow-xl"
-            >
-              <img
-                src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/68f99df1e137fb4eccb09a8fd2c8dd10/thumbnails/thumbnail.jpg?height=720"
-                alt="طعام"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/70 backdrop-blur-md text-white border border-white/10">
-                طعام
-              </span>
-              <div className="absolute bottom-2 inset-x-2 text-right">
-                <span className="text-[11px] font-bold text-white block truncate">كولد برو كيني</span>
-              </div>
-            </div>
-
-            {/* Card 2: Explainer / UGC Kitchen */}
-            <div
-              onClick={() => {
-                setHeroPersona(UGC_CREATORS[1]);
-                setHeroAdType("شرح وتجربة منتج");
-                toast.success("تم اختيار نمط: شرح وتجربة واقعية");
-              }}
-              className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#00e575] active:scale-95 transition-all cursor-pointer shadow-xl"
-            >
-              <img
-                src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/e979b81d089e42e710e17fab3b3bbde5/thumbnails/thumbnail.jpg?time=0&height=1000"
-                alt="شرح"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/70 backdrop-blur-md text-white border border-white/10">
-                شرح
-              </span>
-              <div className="absolute bottom-2 inset-x-2 text-right">
-                <span className="text-[11px] font-bold text-white block truncate">صناع محتوى KUBE</span>
-              </div>
-            </div>
-
-            {/* Card 3: Motion / Kinetic */}
-            <div
-              onClick={() => {
-                setHeroAdType("حركة وسكب سينمائي");
-                toast.success("تم اختيار نمط: حركة وسكب سينمائي");
-              }}
-              className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#00e575] active:scale-95 transition-all cursor-pointer shadow-xl"
-            >
-              <img
-                src="https://customer-ei7hg79dk1slaekc.cloudflarestream.com/679f435913be72cd7135ad8fb2b4c880/thumbnails/thumbnail.jpg?height=720"
-                alt="حركة"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/70 backdrop-blur-md text-white border border-white/10">
-                حركة
-              </span>
-              <div className="absolute bottom-2 inset-x-2 text-right">
-                <span className="text-[11px] font-bold text-white block truncate">سكب ديناميكي</span>
-              </div>
+          {/* Diverse Showcase Fan Row (7 Categories: Burger, UGC, Perfume, Fashion, Sneakers, Motion, Cafe) */}
+          <div className="w-full max-w-3xl mx-auto overflow-x-auto pb-2 scrollbar-none select-none">
+            <div className="flex items-center justify-start sm:justify-center gap-2.5 sm:gap-3 min-w-max px-2">
+              {SHOWCASE_CAROUSEL_ITEMS.map((item) => {
+                const isActive = heroAdType === item.format;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setHeroAdType(item.format);
+                      setHeroPrompt(item.promptSample);
+                      toast.success(`تم اختيار نمط: ${item.format}`);
+                    }}
+                    className={`group relative w-24 sm:w-28 aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border transition-all active:scale-95 shadow-xl text-right flex flex-col justify-end p-2 ${
+                      isActive
+                        ? "border-[#00e575] ring-2 ring-[#00e575]/40 scale-105 z-10"
+                        : "border-white/10 hover:border-white/30 opacity-80 hover:opacity-100"
+                    }`}
+                  >
+                    <img
+                      src={item.img}
+                      alt={item.title}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                    
+                    <span className="relative z-10 self-start px-2 py-0.5 rounded-full text-[9px] font-bold bg-black/75 backdrop-blur-md text-white border border-white/15">
+                      {item.tag}
+                    </span>
+                    <span className="relative z-10 text-[10px] sm:text-[11px] font-bold text-white block truncate pt-1">
+                      {item.title}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Creation Switcher: صورة / فيديو (Segmented Pill) */}
-          <div className="flex items-center justify-center pt-2">
-            <div className="inline-flex p-1 rounded-2xl bg-zinc-900/90 border border-white/10 text-xs font-bold shadow-lg">
+          {/* Headline: حوّل أي منتج / إلى إعلان مدته 30 ثانية */}
+          <h1 className="mt-4 text-[22px] sm:text-[28px] lg:text-[34px] font-bold tracking-tight text-center leading-tight">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-b from-[#ececee] to-[#bdbdc2]">
+              حوّل أي منتج
+            </span>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-b from-[#a3a3a9] to-[#71717a]">
+              إلى إعلان مدته 30 ثانية
+            </span>
+          </h1>
+
+          {/* ============================================================== */}
+          {/* MOBILE ONLY: Single Prominent CTA Button (100% Halai Mobile)   */}
+          {/* ============================================================== */}
+          <div className="w-full max-w-sm mx-auto pt-2 md:hidden">
+            <button
+              type="button"
+              onClick={() => setIsNewAdModalOpen(true)}
+              className="w-full h-13 py-3.5 px-6 rounded-2xl bg-[#00e575] hover:bg-[#00ff83] text-black font-black text-base flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xl shadow-[#00e575]/25"
+            >
+              <Sparkles className="w-5 h-5 fill-current" />
+              <span>أنشئ إعلانًا</span>
+            </button>
+          </div>
+
+          {/* ============================================================== */}
+          {/* DESKTOP ONLY: Elongated Horizontal ms2-panel Creation Box     */}
+          {/* ============================================================== */}
+          <div className="hidden md:flex items-stretch gap-2 w-full max-w-4xl mx-auto rounded-[22px] bg-[#1a1b1e] border border-white/[0.08] p-2.5 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.05)] text-right">
+            
+            {/* 1. Mode Switcher (Docked on Right in RTL): فيديو / صورة */}
+            <div className="flex flex-col gap-1 p-1 rounded-2xl bg-[#141416] border border-white/5 shrink-0">
               <button
                 type="button"
                 onClick={() => setHeroMode("video")}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all active:scale-95 ${
+                className={`flex flex-col items-center justify-center min-w-[54px] min-h-[46px] p-2 rounded-xl text-xs font-bold transition-all ${
                   heroMode === "video"
-                    ? "bg-zinc-800 text-white shadow-md border border-white/10 font-bold"
-                    : "text-zinc-400 hover:text-white"
+                    ? "bg-gradient-to-b from-[#2c2d31] to-[#232428] text-white shadow-md border border-white/10 font-bold"
+                    : "text-zinc-500 hover:text-white"
                 }`}
               >
-                <Video className="w-4 h-4 text-[#00e575]" />
+                <Video className="w-4 h-4 text-[#00e575] mb-0.5" />
                 <span>فيديو</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setHeroMode("image")}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all active:scale-95 ${
+                className={`flex flex-col items-center justify-center min-w-[54px] min-h-[46px] p-2 rounded-xl text-xs font-bold transition-all ${
                   heroMode === "image"
-                    ? "bg-zinc-800 text-white shadow-md border border-white/10 font-bold"
-                    : "text-zinc-400 hover:text-white"
+                    ? "bg-gradient-to-b from-[#2c2d31] to-[#232428] text-white shadow-md border border-white/10 font-bold"
+                    : "text-zinc-500 hover:text-white"
                 }`}
               >
-                <ImageIcon className="w-4 h-4 text-zinc-300" />
+                <ImageIcon className="w-4 h-4 text-zinc-300 mb-0.5" />
                 <span>صورة</span>
               </button>
             </div>
-          </div>
 
-          {/* Creation Form Card (100% Halai Layout) */}
-          <div className="w-full max-w-2xl mx-auto rounded-3xl bg-[#141416] border border-white/10 p-4 sm:p-5 space-y-4 text-right shadow-2xl">
-            {/* Prompt Textarea */}
-            <div className="relative">
+            {/* 2. Middle: Prompt Textarea & Chips Bar */}
+            <div className="flex flex-col flex-1 min-w-0 px-2 justify-between">
               <textarea
-                rows={2}
+                rows={1}
                 value={heroPrompt}
                 onChange={(e) => setHeroPrompt(e.target.value)}
-                placeholder={
-                  heroMode === "video"
-                    ? "صف أفضل فكرة لديك للفيديو..."
-                    : "صف أفضل فكرة لديك لصورة المنتج..."
-                }
-                className="w-full bg-transparent text-sm sm:text-base text-white placeholder:text-zinc-500 focus:outline-none resize-none leading-relaxed"
+                placeholder="صِف الإعلان الذي تريد إنشاءه…"
+                className="w-full bg-transparent text-sm text-white placeholder:text-zinc-500 focus:outline-none resize-none pt-1.5 leading-relaxed"
               />
+
+              {/* Chips Bar */}
+              <div className="flex items-center gap-1.5 pt-2 text-xs">
+                {/* Format Chip (Opens 14 Halai Ad Types) */}
+                <button
+                  type="button"
+                  onClick={() => setIsFormatModalOpen(true)}
+                  className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-[#27282c] border border-white/10 hover:border-white/20 text-white font-medium active:scale-95 transition-all"
+                >
+                  <Clapperboard className="w-3.5 h-3.5 text-zinc-400" />
+                  <span className="truncate max-w-[130px]">{heroAdType || "اختر نوعًا"}</span>
+                  <ChevronDown className="w-3 h-3 text-zinc-500" />
+                </button>
+
+                {/* Aspect Ratio Chip */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ratios: ("9:16" | "16:9" | "1:1" | "3:4")[] = ["9:16", "16:9", "1:1", "3:4"];
+                    const next = (ratios.indexOf(heroAspect as any) + 1) % ratios.length;
+                    setHeroAspect(ratios[next]);
+                  }}
+                  className="flex items-center gap-1 h-8 px-2.5 rounded-lg bg-[#27282c] border border-white/10 text-white font-mono active:scale-95"
+                  title="تغيير أبعاد الإعلان"
+                >
+                  <span>{heroAspect}</span>
+                </button>
+
+                {/* Resolution Chip */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const res: ("480p" | "720p" | "1080p" | "4K")[] = ["480p", "720p", "1080p", "4K"];
+                    const next = (res.indexOf(heroResolution as any) + 1) % res.length;
+                    setHeroResolution(res[next]);
+                  }}
+                  className="flex items-center gap-1 h-8 px-2.5 rounded-lg bg-[#27282c] border border-white/10 text-white font-mono active:scale-95"
+                  title="تغيير دقة الريندر"
+                >
+                  <span>{heroResolution}</span>
+                </button>
+
+                {/* Duration Chip */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const durs: ("10 ث" | "12 ث" | "15 ث" | "30 ث")[] = ["10 ث", "12 ث", "15 ث", "30 ث"];
+                    const next = (durs.indexOf(heroDuration as any) + 1) % durs.length;
+                    setHeroDuration(durs[next]);
+                  }}
+                  className="flex items-center gap-1 h-8 px-2.5 rounded-lg bg-[#27282c] border border-white/10 text-white font-mono active:scale-95"
+                  title="تغيير مدة الفيديو"
+                >
+                  <span>{heroDuration}</span>
+                </button>
+              </div>
             </div>
 
-            {/* 3 Upload / Select Slots (Product *, Character, Scene) */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              {/* Slot 1: Scene (المشهد) */}
+            {/* 3. Reference Slots: المنتج / الشخصية / المشهد */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Product Slot (Universal Upload & Library) */}
               <button
                 type="button"
-                onClick={() => {
-                  toast.info("تم تفعيل إضاءة استوديو كافيه KUBE التلقائية للمشهد");
-                  setHeroScene("استوديو رخام أسود ونيون");
-                }}
-                className={`relative h-16 sm:h-20 rounded-2xl border p-1.5 sm:p-2 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${
-                  heroScene
-                    ? "border-[#00e575] bg-[#00e575]/10 text-white"
-                    : "border-white/10 bg-black/40 hover:bg-white/5 text-zinc-400"
-                }`}
-              >
-                <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#00e575]/20 text-[#00e575] flex items-center justify-center text-[10px] sm:text-xs font-bold border border-[#00e575]/40">
-                  +
-                </div>
-                <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-300" />
-                <span className="text-[10px] sm:text-[11px] font-bold text-zinc-300">
-                  {heroScene ? "تم المشهد" : "المشهد"}
-                </span>
-              </button>
-
-              {/* Slot 2: Character (الشخصية) */}
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveStudioModal("ugc_studio");
-                }}
-                className={`relative h-16 sm:h-20 rounded-2xl border p-1.5 sm:p-2 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${
-                  heroPersona
-                    ? "border-[#00e575] bg-[#00e575]/10 text-white"
-                    : "border-white/10 bg-black/40 hover:bg-white/5 text-zinc-400"
-                }`}
-              >
-                <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#00e575]/20 text-[#00e575] flex items-center justify-center text-[10px] sm:text-xs font-bold border border-[#00e575]/40">
-                  +
-                </div>
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-300" />
-                <span className="text-[10px] sm:text-[11px] font-bold text-zinc-300 truncate max-w-full px-1">
-                  {heroPersona ? heroPersona.name.split(" ")[0] : "الشخصية"}
-                </span>
-              </button>
-
-              {/* Slot 3: Product * (المنتج - إلزامي) */}
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveStudioModal("product_3d");
-                }}
-                className={`relative h-16 sm:h-20 rounded-2xl border p-1.5 sm:p-2 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${
+                onClick={() => setIsProductUploadModalOpen(true)}
+                className={`w-[74px] h-[76px] rounded-[13px] border flex flex-col items-center justify-center gap-1 p-1 relative active:scale-95 transition-all overflow-hidden ${
                   heroProduct
-                    ? "border-[#00e575] bg-[#00e575]/10 text-white shadow-sm shadow-[#00e575]/20"
-                    : "border-red-500/50 bg-red-500/10 text-white animate-need"
+                    ? "border-[#00e575] bg-[#00e575]/10 text-white shadow-sm"
+                    : "border-white/10 hover:border-white/20 bg-black/30 text-zinc-300"
                 }`}
               >
-                <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#00e575] text-black flex items-center justify-center text-[10px] sm:text-xs font-black shadow-md">
-                  +
-                </div>
-                <Coffee className="w-4 h-4 sm:w-5 sm:h-5 text-[#00e575]" />
-                <div className="text-center px-0.5">
-                  <span className="text-[10px] sm:text-[11px] font-bold text-white block truncate">
-                    {heroProduct ? heroProduct.name : "المنتج *"}
-                  </span>
-                  {!heroProduct && (
-                    <span className="text-[8px] sm:text-[9px] text-red-400 font-mono block">إلزامي *</span>
-                  )}
-                </div>
-              </button>
-            </div>
-
-            {/* Controls Row: نوع الإعلان / نسبة الأبعاد / الدقة / المدة */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
-              {/* Ad Type Selector */}
-              <div className="relative">
-                <select
-                  value={heroAdType}
-                  onChange={(e) => setHeroAdType(e.target.value)}
-                  className="w-full appearance-none rounded-xl bg-zinc-900 border border-white/10 hover:border-[#00e575] px-3 py-2 text-zinc-200 text-xs font-bold focus:outline-none cursor-pointer text-right"
-                >
-                  <option value="شرح منتج وسكب">اختر نوعًا: شرح منتج</option>
-                  <option value="إعلان سينمائي 4K">إعلان سينمائي 4K</option>
-                  <option value="مقارنة سريعة">مقارنة سريعة قبل وبعد</option>
-                  <option value="ترند تيك توك">ترند تيك توك وسناب</option>
-                  <option value="لايف ستايل كافيه">لايف ستايل كافيه</option>
-                </select>
-              </div>
-
-              {/* Aspect Ratio */}
-              <div className="relative">
-                <select
-                  value={heroAspect}
-                  onChange={(e) => setHeroAspect(e.target.value as any)}
-                  className="w-full appearance-none rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 px-3 py-2 text-zinc-200 text-xs font-mono font-bold focus:outline-none cursor-pointer text-center"
-                >
-                  <option value="3:4">3:4 (عمودي)</option>
-                  <option value="9:16">9:16 (ستوري)</option>
-                  <option value="1:1">1:1 (مربع)</option>
-                  <option value="16:9">16:9 (أفقي)</option>
-                </select>
-              </div>
-
-              {/* Resolution */}
-              <div className="relative">
-                <select
-                  value={heroResolution}
-                  onChange={(e) => setHeroResolution(e.target.value as any)}
-                  className="w-full appearance-none rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 px-3 py-2 text-zinc-200 text-xs font-mono font-bold focus:outline-none cursor-pointer text-center"
-                >
-                  <option value="1080p">1080p FHD</option>
-                  <option value="4K">4K UltraHD</option>
-                  <option value="720p">720p HD</option>
-                  <option value="480p">480p SD</option>
-                </select>
-              </div>
-
-              {/* Duration */}
-              <div className="relative">
-                <select
-                  value={heroDuration}
-                  onChange={(e) => setHeroDuration(e.target.value as any)}
-                  className="w-full appearance-none rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 px-3 py-2 text-zinc-200 text-xs font-bold focus:outline-none cursor-pointer text-center"
-                >
-                  <option value="12 ث">12 ثانية</option>
-                  <option value="10 ث">10 ثوانٍ</option>
-                  <option value="15 ث">15 ثانية</option>
-                  <option value="30 ث">30 ثانية</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Action Generate Button (Clean without numbers or credit) */}
-            <div className="pt-2">
-              <button
-                type="button"
-                disabled={isGeneratingHeroAd}
-                onClick={async () => {
-                  if (!heroProduct) {
-                    toast.error("يرجى اختيار المنتج أولاً (حقل إلزامي *)");
-                    return;
-                  }
-                  setIsGeneratingHeroAd(true);
-                  toast.info("جاري توجيه محركات الذكاء الاصطناعي وبدء الريندر...");
-
-                  // Dispatch via decoupled provider layer
-                  await dispatchStudioGeneration({
-                    task: heroMode === "video" ? "video_ugc_motion" : "image_packshot_4k",
-                    provider: "fal_ai",
-                    prompt: heroPrompt || `Cinematic commercial for ${heroProduct.name}`,
-                    aspectRatio: heroAspect,
-                    resolution: heroResolution,
-                    productImageUrl: heroProduct.img,
-                    adType: heroAdType,
-                  });
-
-                  setTimeout(() => {
-                    const newAd = {
-                      id: `ad-${Date.now()}`,
-                      title: `${heroProduct.name} — ${heroAdType}`,
-                      type: heroMode,
-                      thumb: heroProduct.img,
-                      createdAt: "الآن",
-                      status: "ready" as const,
-                      aspect: heroAspect,
-                      prompt: heroPrompt || `Commercial render of ${heroProduct.name}`,
-                    };
-                    setUserAds((prev) => [newAd, ...prev]);
-                    setIsGeneratingHeroAd(false);
-                    toast.success("تم تجهيز إعلانك بنجاح وعرضه في قسم إعلاناتي!");
-                    
-                    // Smooth scroll to My Ads section
-                    const el = document.getElementById("my-ads-section");
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
-                  }, 1200);
-                }}
-                className={`relative w-full h-12 rounded-2xl font-black text-sm text-black flex items-center justify-center gap-2 overflow-hidden transition-all active:scale-[0.99] shadow-xl ${
-                  isGeneratingHeroAd
-                    ? "bg-zinc-700 text-zinc-400 cursor-wait"
-                    : "bg-[#00e575] hover:bg-[#00ff83] shadow-[#00e575]/25"
-                }`}
-              >
-                {/* Authentic Sheen Animation */}
-                <div className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg] pointer-events-none animate-[pm-sheen_4s_infinite]" />
-                
-                {isGeneratingHeroAd ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 rounded-full border-2 border-zinc-400 border-t-white animate-spin" />
-                    <span>جاري الإنشاء...</span>
-                  </span>
+                {heroProduct ? (
+                  <>
+                    <img src={heroProduct.img} alt={heroProduct.name} className="w-full h-full object-cover rounded-[10px]" />
+                    <span className="absolute bottom-1 inset-x-1 text-[9px] font-bold text-white bg-black/85 px-1 py-0.5 rounded truncate text-center">
+                      {heroProduct.name}
+                    </span>
+                  </>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <Play className="w-4 h-4 fill-current" />
-                    <span>إنشاء</span>
-                  </span>
+                  <>
+                    <div className="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center text-xs text-white">
+                      +
+                    </div>
+                    <span className="text-[11px] font-medium text-zinc-300">المنتج</span>
+                  </>
                 )}
               </button>
-            </div>
-          </div>
 
-          {/* Quick "أنشئ إعلانًا" Trigger Button (Matching Halai CTA) */}
-          <div className="pt-2">
+              {/* Character Slot */}
+              <button
+                type="button"
+                onClick={() => setActiveStudioModal("ugc_studio")}
+                className={`w-[74px] h-[76px] rounded-[13px] border flex flex-col items-center justify-center gap-1 p-1 relative active:scale-95 transition-all overflow-hidden ${
+                  heroPersona
+                    ? "border-[#00e575] bg-[#00e575]/10 text-white"
+                    : "border-white/10 hover:border-white/20 bg-black/30 text-zinc-300"
+                }`}
+              >
+                {heroPersona ? (
+                  <>
+                    <img src={heroPersona.avatar} alt={heroPersona.name} className="w-full h-full object-cover rounded-[10px]" />
+                    <span className="absolute bottom-1 inset-x-1 text-[9px] font-bold text-white bg-black/85 px-1 py-0.5 rounded truncate text-center">
+                      {heroPersona.name.split(" ")[0]}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center text-xs text-white">
+                      +
+                    </div>
+                    <span className="text-[11px] font-medium text-zinc-300">الشخصية</span>
+                  </>
+                )}
+              </button>
+
+              {/* Scene Slot */}
+              <button
+                type="button"
+                onClick={() => {
+                  setHeroScene(heroScene ? null : "استوديو سينمائي فاخر");
+                  toast.info(heroScene ? "تم إلغاء تحديد المشهد" : "تم ضبط إضاءة المشهد: استوديو سينمائي فاخر");
+                }}
+                className={`w-[74px] h-[76px] rounded-[13px] border p-1 flex flex-col items-center justify-center gap-1 relative active:scale-95 transition-all ${
+                  heroScene
+                    ? "border-[#00e575] bg-[#00e575]/10 text-white"
+                    : "border-white/10 hover:border-white/20 bg-black/30 text-zinc-300"
+                }`}
+              >
+                <div className="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center text-xs text-white">
+                  {heroScene ? "✓" : "+"}
+                </div>
+                <span className="text-[11px] font-medium text-zinc-300 truncate max-w-[64px]">
+                  {heroScene ? "المشهد" : "المشهد"}
+                </span>
+              </button>
+            </div>
+
+            {/* 4. Action Generate Button (Far Left) */}
             <button
-              onClick={() => setIsNewAdModalOpen(true)}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs sm:text-sm active:scale-95 transition-all shadow-lg"
+              type="button"
+              disabled={isGeneratingHeroAd}
+              onClick={handleHeroAdGenerate}
+              className={`w-[104px] h-[76px] rounded-xl font-black text-sm flex flex-col items-center justify-center gap-1 shrink-0 active:scale-95 transition-all shadow-xl ${
+                isGeneratingHeroAd
+                  ? "bg-zinc-700 text-zinc-400 cursor-wait"
+                  : "bg-[#00e575] hover:bg-[#00ff83] text-black shadow-[#00e575]/25"
+              }`}
             >
-              <Sparkles className="w-4 h-4 text-[#00e575]" />
-              <span>أنشئ إعلانًا من قالب مخصص</span>
+              {isGeneratingHeroAd ? (
+                <>
+                  <span className="w-4 h-4 rounded-full border-2 border-zinc-900 border-t-transparent animate-spin" />
+                  <span className="text-[11px]">جاري الإنشاء...</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-5 h-5 fill-current" />
+                  <span>إنشاء</span>
+                </>
+              )}
             </button>
           </div>
+
+          {/* Centered Helper Text below Creation Card */}
+          <p className="hidden md:block text-center text-[12.5px] text-[#7b7b84] pt-1">
+            اختر نوع الإعلان لتبدأ
+          </p>
 
         </div>
 
@@ -1862,6 +1909,16 @@ function KubeAiMarketingPage() {
                 <p className="text-xs text-zinc-400 max-w-sm">
                   اختر النوع، أضف منتجك، وصف الإعلان. يظهر هنا فور جاهزيته.
                 </p>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsNewAdModalOpen(true)}
+                    className="px-6 py-2.5 rounded-full bg-[#00e575] hover:bg-[#00ff83] text-black font-bold text-xs sm:text-sm active:scale-95 transition-all shadow-lg shadow-[#00e575]/20 inline-flex items-center gap-1.5"
+                  >
+                    <Sparkles className="w-4 h-4 fill-current" />
+                    <span>أنشئ إعلانًا</span>
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
@@ -4953,7 +5010,248 @@ function KubeAiMarketingPage() {
       )}
 
       {/* ============================================================== */}
-      {/* 17.5. NEW AD BOTTOM SHEET MODAL (Matching IMG_0105)            */}
+      {/* 17.5. HALAI 14 AD FORMATS MODAL (نافذة اختيار نوع الإعلان)     */}
+      {/* ============================================================== */}
+      {isFormatModalOpen && (
+        <div
+          onClick={() => setIsFormatModalOpen(false)}
+          className="fixed inset-0 z-[100650] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 select-none"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg max-h-[85vh] rounded-3xl bg-[#1d1e21] border border-white/15 p-4 sm:p-5 text-right shadow-2xl flex flex-col space-y-3 overflow-hidden animate-in zoom-in-95 duration-200"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+              <button
+                type="button"
+                onClick={() => setIsFormatModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center active:scale-95 transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div>
+                <h3 className="text-sm sm:text-base font-black text-white">اختر نوع الإعلان</h3>
+                <p className="text-[11px] text-zinc-400">14 نمطاً إعلانياً سينمائياً وتجارياً معتمداً</p>
+              </div>
+            </div>
+
+            {/* 14 Formats 3-Column Grid */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-2.5 overflow-y-auto pr-1 pb-1 pt-1 scrollbar-thin">
+              {HALAI_AD_FORMATS.map((fmt) => {
+                const isSelected = heroAdType === fmt.name;
+                return (
+                  <button
+                    key={fmt.id}
+                    type="button"
+                    onClick={() => {
+                      setHeroAdType(fmt.name);
+                      setIsFormatModalOpen(false);
+                      toast.success(`تم اختيار النوع: ${fmt.name}`);
+                    }}
+                    className={`group relative aspect-[4/3] rounded-xl overflow-hidden bg-zinc-900 border text-right transition-all active:scale-95 flex flex-col justify-end p-2 ${
+                      isSelected
+                        ? "border-[#00e575] ring-2 ring-[#00e575]/40"
+                        : "border-white/10 hover:border-white/30"
+                    }`}
+                  >
+                    <img
+                      src={fmt.img}
+                      alt={fmt.name}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                    <span className="relative z-10 text-[11px] font-bold text-white truncate block">
+                      {fmt.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 17.6. UNIVERSAL PRODUCT MODAL (نافذة منتجك - رفع ومكتبة حرة)  */}
+      {/* ============================================================== */}
+      {isProductUploadModalOpen && (
+        <div
+          onClick={() => setIsProductUploadModalOpen(false)}
+          className="fixed inset-0 z-[100650] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 select-none"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-xl max-h-[90vh] rounded-3xl bg-[#1d1e21] border border-white/15 p-5 text-right shadow-2xl flex flex-col space-y-4 overflow-hidden animate-in zoom-in-95 duration-200"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <button
+                type="button"
+                onClick={() => setIsProductUploadModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center active:scale-95 transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div>
+                <h3 className="text-base font-black text-white">منتجك</h3>
+                <p className="text-xs text-zinc-400">صورة أو مجموعة زوايا أو منتج جديد لأي علامة تجارية</p>
+              </div>
+            </div>
+
+            {/* Segmented Navigation Tabs: رفع صورة / المكتبة / اسم مخصص */}
+            <div className="inline-flex p-1 rounded-xl bg-zinc-900 border border-white/10 text-xs w-full">
+              <button
+                type="button"
+                onClick={() => setProductModalTab("upload")}
+                className={`flex-1 py-1.5 rounded-lg font-bold transition-all ${
+                  productModalTab === "upload" ? "bg-zinc-800 text-white shadow" : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                رفع صورة من جهازك
+              </button>
+              <button
+                type="button"
+                onClick={() => setProductModalTab("library")}
+                className={`flex-1 py-1.5 rounded-lg font-bold transition-all ${
+                  productModalTab === "library" ? "bg-zinc-800 text-white shadow" : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                المكتبة الجاهزة
+              </button>
+              <button
+                type="button"
+                onClick={() => setProductModalTab("custom")}
+                className={`flex-1 py-1.5 rounded-lg font-bold transition-all ${
+                  productModalTab === "custom" ? "bg-zinc-800 text-white shadow" : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                اسم مخصص
+              </button>
+            </div>
+
+            {/* Tab 1: Upload from Device */}
+            {productModalTab === "upload" && (
+              <div className="space-y-3 py-2">
+                <input
+                  type="file"
+                  id="direct-product-file"
+                  accept="image/*"
+                  onChange={handleImageFileUpload}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="direct-product-file"
+                  className="w-full h-44 rounded-2xl border-2 border-dashed border-white/20 hover:border-[#00e575] bg-white/5 hover:bg-white/10 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99] group text-center px-4"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <ImageIcon className="w-6 h-6 text-[#00e575]" />
+                  </div>
+                  <span className="text-xs sm:text-sm font-bold text-white">
+                    اضغط لرفع صورة أي منتج من جهازك
+                  </span>
+                  <span className="text-[11px] text-zinc-400">
+                    عطور، أزياء، مطاعم، إلكترونيات، أو أي فكرة تجارية (PNG, JPG, WebP)
+                  </span>
+                </label>
+              </div>
+            )}
+
+            {/* Tab 2: Sample Library */}
+            {productModalTab === "library" && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-60 overflow-y-auto pr-1 scrollbar-thin">
+                {SAMPLE_PRODUCTS_CATALOG.map((prod) => (
+                  <button
+                    key={prod.id}
+                    type="button"
+                    onClick={() => {
+                      setHeroProduct(prod);
+                      setIsProductUploadModalOpen(false);
+                      toast.success(`تم اختيار المنتج: ${prod.name}`);
+                    }}
+                    className="group relative aspect-square rounded-xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#00e575] transition-all p-2 flex flex-col justify-end text-right active:scale-95"
+                  >
+                    <img
+                      src={prod.img}
+                      alt={prod.name}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                    <span className="relative z-10 text-[10px] font-bold text-white block truncate">
+                      {prod.name}
+                    </span>
+                    <span className="relative z-10 text-[9px] text-[#00e575] font-mono">
+                      {prod.category}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Tab 3: Custom Name / Brand */}
+            {productModalTab === "custom" && (
+              <div className="space-y-3 py-3">
+                <div className="space-y-1">
+                  <label className="text-xs text-zinc-300 font-bold block">
+                    اكتب اسم المنتج أو علامتك التجارية:
+                  </label>
+                  <input
+                    type="text"
+                    value={customProductName}
+                    onChange={(e) => setCustomProductName(e.target.value)}
+                    placeholder="مثال: عطر ليالي الشرق، أو ساعة ألترا، أو برجر ترافل..."
+                    className="w-full h-11 px-3.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#00e575]"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!customProductName.trim()) {
+                      toast.error("يرجى كتابة اسم المنتج أولاً");
+                      return;
+                    }
+                    setHeroProduct({
+                      id: `custom-${Date.now()}`,
+                      name: customProductName.trim(),
+                      img: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=400&q=80",
+                      category: "مخصص",
+                    });
+                    setIsProductUploadModalOpen(false);
+                    toast.success(`تم اعتماد المنتج: ${customProductName.trim()}`);
+                  }}
+                  className="w-full h-10 rounded-xl bg-[#00e575] hover:bg-[#00ff83] text-black font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-md"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>تثبيت اسم المنتج</span>
+                </button>
+              </div>
+            )}
+
+            {/* Bottom Actions: Remove Product if currently set */}
+            {heroProduct && (
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                <span className="text-xs text-zinc-300 truncate max-w-[200px]">
+                  المنتج الحالي: <strong className="text-white">{heroProduct.name}</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setHeroProduct(null);
+                    setIsProductUploadModalOpen(false);
+                    toast.info("تمت إزالة المنتج — بإمكانك التوليد بحرية عبر وصف الفكرة فقط");
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold transition-all active:scale-95"
+                >
+                  إزالة المنتج (توليد بالنص فقط)
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 17.7. MOBILE NEW AD BOTTOM SHEET (Matching Halai Mobile CTA)   */}
       {/* ============================================================== */}
       {isNewAdModalOpen && (
         <div
@@ -4972,7 +5270,7 @@ function KubeAiMarketingPage() {
               <button
                 type="button"
                 onClick={() => setIsNewAdModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center active:scale-95"
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center active:scale-95 transition-all"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -5004,76 +5302,140 @@ function KubeAiMarketingPage() {
               </button>
             </div>
 
-            {/* 3 Upload / Select Slots */}
-            <div className="grid grid-cols-3 gap-2.5">
-              <div
-                onClick={() => {
-                  setHeroProduct(KUBE_COFFEE_CATALOG[0]);
-                  toast.success("تم اختيار المنتج: كولد برو كيني");
-                }}
-                className="aspect-square rounded-2xl bg-zinc-900/80 border border-white/10 hover:border-[#00e575] p-2 flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 relative"
-              >
-                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-white/10 text-white flex items-center justify-center text-[10px]">
-                  +
-                </div>
-                <Coffee className="w-5 h-5 text-zinc-400" />
-                <span className="text-[10px] font-bold text-zinc-300">المنتج</span>
-              </div>
-
-              <div
-                onClick={() => {
-                  setHeroPersona(UGC_CREATORS[0]);
-                  toast.success("تم اختيار الشخصية: سلطان");
-                }}
-                className="aspect-square rounded-2xl bg-zinc-900/80 border border-white/10 hover:border-[#00e575] p-2 flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 relative"
-              >
-                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-white/10 text-white flex items-center justify-center text-[10px]">
-                  +
-                </div>
-                <Users className="w-5 h-5 text-zinc-400" />
-                <span className="text-[10px] font-bold text-zinc-300">الشخصية</span>
-              </div>
-
-              <div
-                onClick={() => {
-                  setHeroScene("بار القهوة المختصة");
-                  toast.success("تم اختيار المشهد: بار القهوة");
-                }}
-                className="aspect-square rounded-2xl bg-zinc-900/80 border border-white/10 hover:border-[#00e575] p-2 flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 relative"
-              >
-                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-white/10 text-white flex items-center justify-center text-[10px]">
-                  +
-                </div>
-                <ImageIcon className="w-5 h-5 text-zinc-400" />
-                <span className="text-[10px] font-bold text-zinc-300">المشهد</span>
-              </div>
-            </div>
-
             {/* Prompt Textarea */}
             <div className="p-3 rounded-2xl bg-zinc-900/90 border border-white/10">
               <textarea
                 rows={3}
                 value={heroPrompt}
                 onChange={(e) => setHeroPrompt(e.target.value)}
-                placeholder="صف الإعلان الذي تريد إنشاءه..."
-                className="w-full bg-transparent text-xs text-white placeholder:text-zinc-500 focus:outline-none resize-none leading-relaxed"
+                placeholder="صِف الإعلان الذي تريد إنشاءه…"
+                className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-none resize-none leading-relaxed"
               />
+            </div>
+
+            {/* 3 Upload / Select Slots */}
+            <div className="grid grid-cols-3 gap-2.5">
+              {/* Product Slot */}
+              <button
+                type="button"
+                onClick={() => setIsProductUploadModalOpen(true)}
+                className={`aspect-square rounded-2xl border p-2 flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 relative overflow-hidden transition-all ${
+                  heroProduct
+                    ? "border-[#00e575] bg-[#00e575]/10 text-white"
+                    : "border-white/10 bg-zinc-900/80 hover:border-white/30 text-zinc-300"
+                }`}
+              >
+                {heroProduct ? (
+                  <>
+                    <img src={heroProduct.img} alt={heroProduct.name} className="w-full h-full object-cover rounded-xl" />
+                    <span className="absolute bottom-1 inset-x-1 text-[8px] font-bold text-white bg-black/85 px-0.5 py-0.5 rounded truncate text-center">
+                      {heroProduct.name}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-white/10 text-white flex items-center justify-center text-[10px]">
+                      +
+                    </div>
+                    <ImageIcon className="w-5 h-5 text-zinc-400" />
+                    <span className="text-[10px] font-bold text-zinc-300">المنتج</span>
+                  </>
+                )}
+              </button>
+
+              {/* Character Slot */}
+              <button
+                type="button"
+                onClick={() => setActiveStudioModal("ugc_studio")}
+                className={`aspect-square rounded-2xl border p-2 flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 relative overflow-hidden transition-all ${
+                  heroPersona
+                    ? "border-[#00e575] bg-[#00e575]/10 text-white"
+                    : "border-white/10 bg-zinc-900/80 hover:border-white/30 text-zinc-300"
+                }`}
+              >
+                {heroPersona ? (
+                  <>
+                    <img src={heroPersona.avatar} alt={heroPersona.name} className="w-full h-full object-cover rounded-xl" />
+                    <span className="absolute bottom-1 inset-x-1 text-[8px] font-bold text-white bg-black/85 px-0.5 py-0.5 rounded truncate text-center">
+                      {heroPersona.name.split(" ")[0]}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-white/10 text-white flex items-center justify-center text-[10px]">
+                      +
+                    </div>
+                    <Users className="w-5 h-5 text-zinc-400" />
+                    <span className="text-[10px] font-bold text-zinc-300">الشخصية</span>
+                  </>
+                )}
+              </button>
+
+              {/* Scene Slot */}
+              <button
+                type="button"
+                onClick={() => {
+                  setHeroScene(heroScene ? null : "استوديو سينمائي فاخر");
+                  toast.info(heroScene ? "تم إلغاء تحديد المشهد" : "تم ضبط إضاءة المشهد: استوديو سينمائي فاخر");
+                }}
+                className={`aspect-square rounded-2xl border p-2 flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 relative transition-all ${
+                  heroScene
+                    ? "border-[#00e575] bg-[#00e575]/10 text-white"
+                    : "border-white/10 bg-zinc-900/80 hover:border-white/30 text-zinc-300"
+                }`}
+              >
+                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-white/10 text-white flex items-center justify-center text-[10px]">
+                  {heroScene ? "✓" : "+"}
+                </div>
+                <Sparkles className="w-5 h-5 text-zinc-400" />
+                <span className="text-[10px] font-bold text-zinc-300 truncate max-w-full px-1">
+                  {heroScene ? "المشهد" : "المشهد"}
+                </span>
+              </button>
             </div>
 
             {/* Controls Row */}
             <div className="grid grid-cols-4 gap-2 text-[11px] font-mono">
-              <div className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center truncate font-bold text-zinc-300">
-                اختر نوعًا
-              </div>
-              <div className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center font-bold text-zinc-300">
-                9:16
-              </div>
-              <div className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center font-bold text-zinc-300">
-                1080p
-              </div>
-              <div className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center font-bold text-zinc-300">
-                10ث
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsFormatModalOpen(true)}
+                className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center truncate font-bold text-zinc-200 active:scale-95"
+              >
+                {heroAdType || "اختر نوعًا"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const ratios: ("9:16" | "16:9" | "1:1" | "3:4")[] = ["9:16", "16:9", "1:1", "3:4"];
+                  const next = (ratios.indexOf(heroAspect as any) + 1) % ratios.length;
+                  setHeroAspect(ratios[next]);
+                }}
+                className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center font-bold text-zinc-200 active:scale-95"
+              >
+                {heroAspect}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const res: ("480p" | "720p" | "1080p" | "4K")[] = ["480p", "720p", "1080p", "4K"];
+                  const next = (res.indexOf(heroResolution as any) + 1) % res.length;
+                  setHeroResolution(res[next]);
+                }}
+                className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center font-bold text-zinc-200 active:scale-95"
+              >
+                {heroResolution}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const durs: ("10 ث" | "12 ث" | "15 ث" | "30 ث")[] = ["10 ث", "12 ث", "15 ث", "30 ث"];
+                  const next = (durs.indexOf(heroDuration as any) + 1) % durs.length;
+                  setHeroDuration(durs[next]);
+                }}
+                className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-center font-bold text-zinc-200 active:scale-95"
+              >
+                {heroDuration}
+              </button>
             </div>
 
             {/* Helper text */}
@@ -5084,28 +5446,21 @@ function KubeAiMarketingPage() {
             {/* Action button */}
             <button
               type="button"
-              onClick={() => {
-                setIsNewAdModalOpen(false);
-                toast.info("جاري توجيه طلب إنشاء الإعلان للريندر...");
-                setTimeout(() => {
-                  const newAd = {
-                    id: `ad-${Date.now()}`,
-                    title: `إعلان كافيه KUBE مخصص`,
-                    type: heroMode,
-                    thumb: KUBE_COFFEE_CATALOG[0].img,
-                    createdAt: "الآن",
-                    status: "ready" as const,
-                    aspect: "9:16",
-                    prompt: heroPrompt || "Custom commercial ad",
-                  };
-                  setUserAds((prev) => [newAd, ...prev]);
-                  toast.success("تم إتمام الإنشاء وإضافته لقسم إعلاناتي!");
-                }, 1000);
-              }}
-              className="w-full py-3 rounded-2xl bg-zinc-800 hover:bg-[#00e575] hover:text-black text-zinc-300 font-bold text-xs active:scale-95 transition-all flex items-center justify-center gap-1.5"
+              disabled={isGeneratingHeroAd}
+              onClick={handleHeroAdGenerate}
+              className="w-full py-3.5 rounded-2xl bg-[#00e575] hover:bg-[#00ff83] text-black font-black text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#00e575]/25"
             >
-              <Play className="w-3.5 h-3.5 fill-current" />
-              <span>إنشاء</span>
+              {isGeneratingHeroAd ? (
+                <>
+                  <span className="w-4 h-4 rounded-full border-2 border-zinc-900 border-t-transparent animate-spin" />
+                  <span>جاري الإنشاء...</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4 fill-current" />
+                  <span>إنشاء الإعلان</span>
+                </>
+              )}
             </button>
           </div>
         </div>
