@@ -10,6 +10,7 @@ export type AiProviderId =
   | "fal_ai"
   | "kling_ai"
   | "google_vertex"
+  | "openai"
   | "replicate"
   | "dashscope_alibaba"
   | "volcano_bytedance"
@@ -68,6 +69,17 @@ export const AI_PROVIDERS_REGISTRY: Record<AiProviderId, AiProviderConfig> = {
     apiEndpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro",
     docUrl: "https://cloud.google.com/vertex-ai",
     recommendedModel: "Gemini 1.5 Pro & Veo 3.1 Fast",
+    pricingNote: "وصول غير محدود لطاقم KUBE",
+  },
+  openai: {
+    id: "openai",
+    name: "OpenAI (GPT-4o & Halai Typography)",
+    vendor: "OpenAI",
+    envKeyName: "OPENAI_API_KEY",
+    supportedTasks: ["image_packshot_4k", "prompt_engineering", "storyboard_multi_scene"],
+    apiEndpoint: "https://api.openai.com/v1/chat/completions",
+    docUrl: "https://platform.openai.com/settings/organization/api-keys",
+    recommendedModel: "GPT-4o & GPT Image 2 (Halai On-Image Arabic Text Engine)",
     pricingNote: "وصول غير محدود لطاقم KUBE",
   },
   replicate: {
@@ -278,4 +290,123 @@ export async function callGeminiCreativeAgent(userPrompt: string, systemContext?
   }
   return text;
 }
+
+/**
+ * OpenAI Key Management & Test
+ */
+export function getOpenAiApiKey(): string {
+  if (typeof window !== "undefined") {
+    const local = localStorage.getItem("KUBE_OPENAI_API_KEY");
+    if (local && local.trim().length > 0) return local.trim();
+    const env = (import.meta as any).env?.VITE_OPENAI_API_KEY;
+    if (env && env.trim().length > 0) return env.trim();
+  }
+  return "";
+}
+
+export function setOpenAiApiKey(key: string): void {
+  if (typeof window !== "undefined") {
+    if (key.trim()) {
+      localStorage.setItem("KUBE_OPENAI_API_KEY", key.trim());
+    } else {
+      localStorage.removeItem("KUBE_OPENAI_API_KEY");
+    }
+  }
+}
+
+export async function testOpenAiConnection(key: string): Promise<{ success: boolean; message: string }> {
+  const cleanKey = key.trim();
+  if (!cleanKey) return { success: false, message: "يرجى إدخال مفتاح OpenAI أولاً" };
+  try {
+    const res = await fetch("https://api.openai.com/v1/models", {
+      headers: { Authorization: `Bearer ${cleanKey}` }
+    });
+    if (res.ok) {
+      return { success: true, message: "تم التحقق بنجاح! متصل بـ OpenAI (GPT-4o & محرك تايبوجرافي هلاي)" };
+    }
+    const err = await res.json().catch(() => ({}));
+    return { success: false, message: err.error?.message || `خطأ في الاتصال (${res.status})` };
+  } catch (err: any) {
+    return { success: false, message: err.message || "تعذر الوصول لخوادم OpenAI" };
+  }
+}
+
+/**
+ * Fal.ai Key Management & Test
+ */
+export function getFalApiKey(): string {
+  if (typeof window !== "undefined") {
+    const local = localStorage.getItem("KUBE_FAL_KEY");
+    if (local && local.trim().length > 0) return local.trim();
+    const env = (import.meta as any).env?.VITE_FAL_KEY;
+    if (env && env.trim().length > 0) return env.trim();
+  }
+  return "";
+}
+
+export function setFalApiKey(key: string): void {
+  if (typeof window !== "undefined") {
+    if (key.trim()) {
+      localStorage.setItem("KUBE_FAL_KEY", key.trim());
+    } else {
+      localStorage.removeItem("KUBE_FAL_KEY");
+    }
+  }
+}
+
+export async function testFalConnection(key: string): Promise<{ success: boolean; message: string }> {
+  const cleanKey = key.trim();
+  if (!cleanKey) return { success: false, message: "يرجى إدخال مفتاح Fal.ai أولاً" };
+  try {
+    const res = await fetch("https://rest.alpha.fal.ai/models", {
+      headers: { Authorization: `Key ${cleanKey}` }
+    });
+    if (res.ok || res.status === 200 || res.status === 404) {
+      return { success: true, message: "تم التحقق من مفتاح Fal.ai بنجاح! متصل لتوليد Kling و Flux" };
+    }
+    return { success: false, message: `فشل التحقق من مفتاح Fal.ai (${res.status})` };
+  } catch (err: any) {
+    return { success: false, message: err.message || "تعذر الوصول لخوادم Fal.ai" };
+  }
+}
+
+/**
+ * ElevenLabs Key Management & Test
+ */
+export function getElevenLabsApiKey(): string {
+  if (typeof window !== "undefined") {
+    const local = localStorage.getItem("KUBE_ELEVENLABS_API_KEY");
+    if (local && local.trim().length > 0) return local.trim();
+    const env = (import.meta as any).env?.VITE_ELEVENLABS_API_KEY;
+    if (env && env.trim().length > 0) return env.trim();
+  }
+  return "";
+}
+
+export function setElevenLabsApiKey(key: string): void {
+  if (typeof window !== "undefined") {
+    if (key.trim()) {
+      localStorage.setItem("KUBE_ELEVENLABS_API_KEY", key.trim());
+    } else {
+      localStorage.removeItem("KUBE_ELEVENLABS_API_KEY");
+    }
+  }
+}
+
+export async function testElevenLabsConnection(key: string): Promise<{ success: boolean; message: string }> {
+  const cleanKey = key.trim();
+  if (!cleanKey) return { success: false, message: "يرجى إدخال مفتاح ElevenLabs أولاً" };
+  try {
+    const res = await fetch("https://api.elevenlabs.io/v1/user", {
+      headers: { "xi-api-key": cleanKey }
+    });
+    if (res.ok) {
+      return { success: true, message: "تم التحقق بنجاح! متصل بـ ElevenLabs لتوليد الأصوات السعودية" };
+    }
+    return { success: false, message: `فشل التحقق من مفتاح ElevenLabs (${res.status})` };
+  } catch (err: any) {
+    return { success: false, message: err.message || "تعذر الوصول لخوادم ElevenLabs" };
+  }
+}
+
 

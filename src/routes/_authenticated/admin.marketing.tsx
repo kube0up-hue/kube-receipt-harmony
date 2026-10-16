@@ -66,6 +66,15 @@ import {
   setGoogleStudioApiKey,
   testGoogleStudioConnection,
   callGeminiCreativeAgent,
+  getOpenAiApiKey,
+  setOpenAiApiKey,
+  testOpenAiConnection,
+  getFalApiKey,
+  setFalApiKey,
+  testFalConnection,
+  getElevenLabsApiKey,
+  setElevenLabsApiKey,
+  testElevenLabsConnection,
 } from "@/features/marketing/providers/ai-providers";
 import {
   SAUDI_VISUAL_PROMPTS,
@@ -544,6 +553,78 @@ function KubeAiMarketingPage() {
     setActiveGoogleKey("");
     setGoogleStudioKeyInput("");
     toast.info("تم مسح مفتاح Google AI Studio");
+  };
+
+  // OpenAI Integration States
+  const [openAiKeyInput, setOpenAiKeyInput] = useState<string>("");
+  const [activeOpenAiKey, setActiveOpenAiKey] = useState<string>("");
+  const [isTestingOpenAiKey, setIsTestingOpenAiKey] = useState<boolean>(false);
+
+  // Fal.ai Integration States
+  const [falKeyInput, setFalKeyInput] = useState<string>("");
+  const [activeFalKey, setActiveFalKey] = useState<string>("");
+  const [isTestingFalKey, setIsTestingFalKey] = useState<boolean>(false);
+
+  // ElevenLabs Integration States
+  const [elevenLabsKeyInput, setElevenLabsKeyInput] = useState<string>("");
+  const [activeElevenLabsKey, setActiveElevenLabsKey] = useState<string>("");
+  const [isTestingElevenLabsKey, setIsTestingElevenLabsKey] = useState<boolean>(false);
+
+  useEffect(() => {
+    const oKey = getOpenAiApiKey();
+    if (oKey) {
+      setActiveOpenAiKey(oKey);
+      setOpenAiKeyInput(oKey);
+    }
+    const fKey = getFalApiKey();
+    if (fKey) {
+      setActiveFalKey(fKey);
+      setFalKeyInput(fKey);
+    }
+    const eKey = getElevenLabsApiKey();
+    if (eKey) {
+      setActiveElevenLabsKey(eKey);
+      setElevenLabsKeyInput(eKey);
+    }
+  }, []);
+
+  const handleSaveAndTestOpenAiKey = async () => {
+    setIsTestingOpenAiKey(true);
+    const res = await testOpenAiConnection(openAiKeyInput);
+    setIsTestingOpenAiKey(false);
+    if (res.success) {
+      setOpenAiApiKey(openAiKeyInput);
+      setActiveOpenAiKey(openAiKeyInput);
+      toast.success(res.message);
+    } else {
+      toast.error(res.message);
+    }
+  };
+
+  const handleSaveAndTestFalKey = async () => {
+    setIsTestingFalKey(true);
+    const res = await testFalConnection(falKeyInput);
+    setIsTestingFalKey(false);
+    if (res.success) {
+      setFalApiKey(falKeyInput);
+      setActiveFalKey(falKeyInput);
+      toast.success(res.message);
+    } else {
+      toast.error(res.message);
+    }
+  };
+
+  const handleSaveAndTestElevenLabsKey = async () => {
+    setIsTestingElevenLabsKey(true);
+    const res = await testElevenLabsConnection(elevenLabsKeyInput);
+    setIsTestingElevenLabsKey(false);
+    if (res.success) {
+      setElevenLabsApiKey(elevenLabsKeyInput);
+      setActiveElevenLabsKey(elevenLabsKeyInput);
+      toast.success(res.message);
+    } else {
+      toast.error(res.message);
+    }
   };
 
   // Custom Right-Click Context Menu State
@@ -2712,6 +2793,186 @@ function KubeAiMarketingPage() {
                       <p className="text-[11px] text-zinc-500">
                         يتم حفظ المفتاح في متصفحك وسيرفر التطبيق لتفعيل التوليد المباشر في سوبر ايجنت واستوديوهات التسويق فوراً.
                       </p>
+                    </div>
+                  </div>
+
+                  {/* OpenAI Active Connector Card */}
+                  <div className="p-5 rounded-2xl border-2 border-[#10a37f]/40 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black space-y-4 shadow-xl">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 flex items-center justify-center text-white text-lg font-black shadow-lg">
+                          O
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-black text-sm sm:text-base text-white">OpenAI (GPT-4o & Halai Typography)</h4>
+                            {activeOpenAiKey ? (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#00e575]/20 text-[#00e575] border border-[#00e575]/40 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#00e575] animate-ping" />
+                                متصل ولايف
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                                جاهز للربط الفوري
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-zinc-400">محرك هلاي الأساسي للتايبوجرافي العربي وطباعة النصوص على الصور والإعلانات</p>
+                        </div>
+                      </div>
+
+                      <a
+                        href="https://platform.openai.com/settings/organization/api-keys"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-bold self-start sm:self-auto"
+                      >
+                        <span>لوحة مفاتيح OpenAI</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-zinc-300 block">
+                        أدخل مفتاح OpenAI API Key:
+                      </label>
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input
+                          type="password"
+                          value={openAiKeyInput}
+                          onChange={(e) => setOpenAiKeyInput(e.target.value)}
+                          placeholder="sk-proj-..."
+                          className="flex-1 bg-black/70 border border-white/10 focus:border-[#10a37f] rounded-xl px-4 py-2.5 text-xs text-white placeholder-zinc-600 focus:outline-none font-mono"
+                          dir="ltr"
+                        />
+                        <button
+                          onClick={handleSaveAndTestOpenAiKey}
+                          disabled={isTestingOpenAiKey}
+                          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:brightness-110 active:scale-95 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50"
+                        >
+                          {isTestingOpenAiKey ? "جاري التحقق..." : "حفظ وتفعيل لايف"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Fal.ai Active Connector Card */}
+                  <div className="p-5 rounded-2xl border-2 border-purple-500/40 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black space-y-4 shadow-xl">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white text-lg font-black shadow-lg">
+                          F
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-black text-sm sm:text-base text-white">Fal.ai Unified Engine (Flux & Kling)</h4>
+                            {activeFalKey ? (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#00e575]/20 text-[#00e575] border border-[#00e575]/40 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#00e575] animate-ping" />
+                                متصل ولايف
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                                جاهز للربط الفوري
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-zinc-400">محرك توليد الفيديو الواقعي Kling وفوتوغرافيا المنتجات 4K عبر Fal</p>
+                        </div>
+                      </div>
+
+                      <a
+                        href="https://fal.ai/dashboard/keys"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 font-bold self-start sm:self-auto"
+                      >
+                        <span>لوحة مفاتيح Fal.ai</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-zinc-300 block">
+                        أدخل مفتاح Fal Key:
+                      </label>
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input
+                          type="password"
+                          value={falKeyInput}
+                          onChange={(e) => setFalKeyInput(e.target.value)}
+                          placeholder="fal_key_..."
+                          className="flex-1 bg-black/70 border border-white/10 focus:border-purple-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-zinc-600 focus:outline-none font-mono"
+                          dir="ltr"
+                        />
+                        <button
+                          onClick={handleSaveAndTestFalKey}
+                          disabled={isTestingFalKey}
+                          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:brightness-110 active:scale-95 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50"
+                        >
+                          {isTestingFalKey ? "جاري التحقق..." : "حفظ وتفعيل لايف"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ElevenLabs Active Connector Card */}
+                  <div className="p-5 rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black space-y-4 shadow-xl">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center text-white text-lg font-black shadow-lg">
+                          11
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-black text-sm sm:text-base text-white">ElevenLabs (Saudi Voiceovers)</h4>
+                            {activeElevenLabsKey ? (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#00e575]/20 text-[#00e575] border border-[#00e575]/40 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#00e575] animate-ping" />
+                                متصل ولايف
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                                جاهز للربط الفوري
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-zinc-400">توليد الأصوات والنبرات السعودية الطبيعية لمقاطع الـ UGC واللهجة النجدية</p>
+                        </div>
+                      </div>
+
+                      <a
+                        href="https://elevenlabs.io/app/settings/api-keys"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 font-bold self-start sm:self-auto"
+                      >
+                        <span>لوحة مفاتيح ElevenLabs</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-zinc-300 block">
+                        أدخل مفتاح ElevenLabs API Key:
+                      </label>
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input
+                          type="password"
+                          value={elevenLabsKeyInput}
+                          onChange={(e) => setElevenLabsKeyInput(e.target.value)}
+                          placeholder="xi-api-key-..."
+                          className="flex-1 bg-black/70 border border-white/10 focus:border-amber-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-zinc-600 focus:outline-none font-mono"
+                          dir="ltr"
+                        />
+                        <button
+                          onClick={handleSaveAndTestElevenLabsKey}
+                          disabled={isTestingElevenLabsKey}
+                          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:brightness-110 active:scale-95 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50"
+                        >
+                          {isTestingElevenLabsKey ? "جاري التحقق..." : "حفظ وتفعيل لايف"}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
