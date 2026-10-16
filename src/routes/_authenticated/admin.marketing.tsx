@@ -513,20 +513,20 @@ const SHOWCASE_CAROUSEL_ITEMS = [
 
 // 14 Official Ad Formats (100% Halai Categories)
 const HALAI_AD_FORMATS = [
-  { id: "food", name: "طعام وحلويات", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" },
-  { id: "ugc", name: "استعراض UGC", img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/e979b81d089e42e710e17fab3b3bbde5/thumbnails/thumbnail.jpg?time=0&height=400" },
-  { id: "review", name: "مراجعة منتج", img: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=400&q=80" },
-  { id: "fashion", name: "تجربة الزي", img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=400&q=80" },
-  { id: "unboxing", name: "فتح العلبة", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80" },
-  { id: "explainer", name: "شرح", img: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=400&q=80" },
-  { id: "before_after", name: "قبل وبعد", img: "https://images.unsplash.com/photo-1512290900672-1f55b9a8976b?auto=format&fit=crop&w=400&q=80" },
-  { id: "luxury", name: "فخامة", img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=400&q=80" },
-  { id: "film", name: "فيلم إعلاني", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=400&q=80" },
-  { id: "asmr", name: "ASMR", img: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?auto=format&fit=crop&w=400&q=80" },
-  { id: "kinetic", name: "حركة", img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/679f435913be72cd7135ad8fb2b4c880/thumbnails/thumbnail.jpg?height=400" },
-  { id: "action", name: "أكشن", img: "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=400&q=80" },
-  { id: "cafe", name: "مقهى", img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80" },
-  { id: "automotive", name: "سيارات", img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=400&q=80" }
+  { id: "food", name: "طعام وحلويات", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80", promptSample: "إعلان سينمائي 4K لوجبة برجر مقرمش وجبن ذائب وبطاطس ساخنة مع إضاءة استوديو داكنة وزوايا ماكرو بطيئة" },
+  { id: "ugc", name: "استعراض UGC", img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/e979b81d089e42e710e17fab3b3bbde5/thumbnails/thumbnail.jpg?time=0&height=400", promptSample: "فيديو عفوي بأسلوب UGC تيك توك لصانعة محتوى سعودية تشرح تجربتها الصادقة مع المنتج بلهجة نجدية سريعة" },
+  { id: "review", name: "مراجعة منتج", img: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=400&q=80", promptSample: "مراجعة سينمائية دقيقة لتفاصيل المنتج وإبراز الجودة والفخامة مع إضاءة ناعمة وخلفية أنيقة 4K" },
+  { id: "fashion", name: "تجربة الزي", img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=400&q=80", promptSample: "استعراض أزياء سينمائي لعباءة مخملية فاخرة أو أزياء راقية في بوليفارد الرياض مع حركة بطيئة ساحرة" },
+  { id: "unboxing", name: "فتح العلبة", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80", promptSample: "مشهد فتح علبة فاخر بتصوير سينمائي رأسي مع إبراز التفاصيل الدقيقة وملمس العبوة والتغليف الراقي" },
+  { id: "explainer", name: "شرح", img: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=400&q=80", promptSample: "شرح تفاعلي مبسط وسلس يوضح طريقة استخدام المنتج وأبرز فوائده العملية بأسلوب تسويقي جذاب" },
+  { id: "before_after", name: "قبل وبعد", img: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=400&q=80", promptSample: "مقارنة سينمائية قبل وبعد توضح النتيجة المبهرة وتأثير استخدام المنتج مع مؤثر انتقال سلس 60fps" },
+  { id: "luxury", name: "فخامة", img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=400&q=80", promptSample: "إعلان فخامة فائق الأناقة مع إضاءة درامية ذهبية وخلفية رخامية وانعكاسات زجاجية راقية جداً" },
+  { id: "film", name: "فيلم إعلاني", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=400&q=80", promptSample: "فيلم إعلاني درامي سينمائي بهوية سعودية معاصرة وزوايا كاميرا هوليوودية وموسيقى حماسية" },
+  { id: "asmr", name: "ASMR", img: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?auto=format&fit=crop&w=400&q=80", promptSample: "فيديو ASMR فائق النقاء يركز على الأصوات الحسية العميقة واللقطات الماكرو المقربة بدقة 4K" },
+  { id: "kinetic", name: "حركة", img: "https://customer-ei7hg79dk1slaekc.cloudflarestream.com/679f435913be72cd7135ad8fb2b4c880/thumbnails/thumbnail.jpg?height=400", promptSample: "حركة ديناميكية سريعة وحركات كاميرا ثلاثية الأبعاد تعطي طاقة وحيوية غير مسبوقة للإعلان" },
+  { id: "action", name: "أكشن", img: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=400&q=80", promptSample: "مشهد أكشن وحماس عالي السرعة مع مؤثرات إضاءة سينمائية وانتقالات سريعة تجذب الانتباه في أول ثانيتين" },
+  { id: "cafe", name: "مقهى", img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80", promptSample: "جلسة مقهى راقية في الرياض مع تصوير V60 وحبات البن المحمصة وأجواء شتوية دافئة وهادئة" },
+  { id: "automotive", name: "سيارات", img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=400&q=80", promptSample: "إعلان سيارات فارهة بسرعات ليلية تحت أضواء الرياض وانعكاسات نيون مذهلة بدقة سينمائية" }
 ];
 
 // Sample Diverse Product Catalog
@@ -5046,8 +5046,11 @@ function KubeAiMarketingPage() {
                     type="button"
                     onClick={() => {
                       setHeroAdType(fmt.name);
+                      if (fmt.promptSample) {
+                        setHeroPrompt(fmt.promptSample);
+                      }
                       setIsFormatModalOpen(false);
-                      toast.success(`تم اختيار النوع: ${fmt.name}`);
+                      toast.success(`تم اختيار نمط: ${fmt.name}`);
                     }}
                     className={`group relative aspect-[4/3] rounded-xl overflow-hidden bg-zinc-900 border text-right transition-all active:scale-95 flex flex-col justify-end p-2 ${
                       isSelected
@@ -5058,6 +5061,9 @@ function KubeAiMarketingPage() {
                     <img
                       src={fmt.img}
                       alt={fmt.name}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=400&q=80";
+                      }}
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
